@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"server/pkg/utils"
 )
@@ -26,7 +27,14 @@ func (o *Ops) Create(ctx context.Context, user *User) (*User, error) {
 		return nil, err
 	}
 	user.SetPassword(hashedPass)
-	return o.repo.Create(ctx, user)
+	createdUser, err := o.repo.Create(ctx, user)
+	if err != nil {
+		if errors.Is(err, utils.DbErrDuplicateKey) {
+			return nil, ErrEmailAlreadyExists
+		}
+		return nil, err
+	}
+	return createdUser, nil
 }
 
 func (o *Ops) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
