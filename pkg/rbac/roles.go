@@ -1,3 +1,12 @@
+/*
+This file defines the basic structure of our RBAC system. It includes:
+
+Permission type: Represents individual permissions in the system.
+Role type: Represents user roles.
+RolePermissions map: Maps each role to its allowed permissions.
+
+*/
+
 package rbac
 
 type Role string
