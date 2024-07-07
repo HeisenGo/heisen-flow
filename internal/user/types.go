@@ -51,9 +51,6 @@ type User struct {
 	Role      Role
 }
 
-func (u *User) ValidatePassword() error {
-	return nil
-}
 func (u *User) SetPassword(password string) {
 	u.Password = password
 }
