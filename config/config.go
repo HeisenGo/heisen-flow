@@ -1,19 +1,19 @@
 package config
 
 type Config struct {
-	Server Server `mapstructure:"server"`
-	DB     DB     `mapstructure:"db"`
+	Server ServerConfig `mapstructure:"server"`
+	DB     DBConfig     `mapstructure:"db"`
 }
 
-type Server struct {
-	HttpPort               int    `mapstructure:"http_port"`
-	Host                   string `mapstructure:"host"`
-	TokenExpMinutes        uint   `mapstructure:"token_exp_minutes"`
-	RefreshTokenExpMinutes uint   `mapstructure:"refresh_token_exp_minute"`
-	TokenSecret            string `mapstructure:"token_secret"`
+type ServerConfig struct {
+	HTTPPort           int    `mapstructure:"http_port"`
+	Host               string `mapstructure:"host"`
+	TokenExpMinutes    int    `mapstructure:"token_exp_minutes"`
+	RefreshTokenExpMin int    `mapstructure:"refresh_token_exp_minute"`
+	TokenSecret        string `mapstructure:"token_secret"`
 }
 
-type DB struct {
+type DBConfig struct {
 	User   string `mapstructure:"user"`
 	Pass   string `mapstructure:"pass"`
 	Host   string `mapstructure:"host"`

@@ -6,16 +6,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ReadStandard(cfgPath string) (Config, error) {
-	var cfg Config
-
+func ReadGeneric[T any](cfgPath string) (T, error) {
+	var cfg T
 	fullAbsPath, err := absPath(cfgPath)
 	if err != nil {
 		return cfg, err
 	}
 
 	viper.SetConfigFile(fullAbsPath)
-	viper.SetConfigType("yaml")
+
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -27,6 +26,10 @@ func ReadStandard(cfgPath string) (Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func ReadStandard(cfgPath string) (Config, error) {
+	return ReadGeneric[Config](cfgPath)
 }
 
 func absPath(cfgPath string) (string, error) {

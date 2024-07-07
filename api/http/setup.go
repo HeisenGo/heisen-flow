@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Run(cfg config.Server, app *service.AppContainer) {
+func Run(cfg config.ServerConfig, app *service.AppContainer) {
 	fiberApp := fiber.New()
 
 	// register global routes
@@ -17,5 +17,5 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	// registering users APIs
 
 	// run server
-	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HttpPort)))
+	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
 }
