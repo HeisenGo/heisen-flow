@@ -124,6 +124,9 @@ func (s *BoardService) AddColumn(ctx context.Context, userID, boardID uuid.UUID,
 // InviteUser invites a user to the board
 func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, inviteeEmail string, userBoardRole *userboardrole.UserBoardRole) error {
 
+	if userBoardRole.Role == string(rbac.RoleOwner) {
+		return errors.New("owner already exists")
+	}
 	isPossibleRole := rbac.IsAPossibleRole(userBoardRole.Role)
 
 	if !isPossibleRole {
@@ -143,11 +146,18 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 	if err != nil {
 		return err
 	}
+	if invitedUser == nil {
+		return u.ErrUserNotFound
+	}
 	userBoardRole.UserID = invitedUser.ID
-	_, err = s.boardOps.GetBoardByID(ctx, userBoardRole.BoardID)
-
+	b, err := s.boardOps.GetBoardByID(ctx, userBoardRole.BoardID)
 	if err != nil {
 		return err
+	}
+
+	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, invitedUser.ID, b.ID)
+	if role != "" && err==nil {
+		return errors.New("user already is a member")
 	}
 
 	err = s.userBoardRoleOps.SetUserBoardRole(ctx, userBoardRole)
