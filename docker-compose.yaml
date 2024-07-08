@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: heisen-flow
     ports:
-      - "3322:5432"
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
@@ -29,4 +29,3 @@ services:
 
 volumes:
   postgres-data:
-

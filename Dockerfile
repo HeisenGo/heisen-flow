@@ -14,7 +14,7 @@ RUN go mod download
 #COPY . .
 
 # Build the Go application
-RUN go build -o server ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app ./cmd/api
 
 # Use a smaller image for the final stage
 FROM scratch
@@ -23,7 +23,7 @@ FROM scratch
 WORKDIR /
 
 # Copy the pre-built binary file from the builder image
-COPY --from=builder /server /
+COPY --from=builder /app /
 
 # Copy the config file
 COPY --from=builder /config.yaml /
@@ -32,5 +32,5 @@ COPY --from=builder /config.yaml /
 EXPOSE 2244
 
 # Command to run the executable
-CMD ["./server", "--config", "config.yaml"]
+CMD ["./app", "--config", "config.yaml"]
 
