@@ -14,6 +14,5 @@ type Board struct {
 	ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	Name      string         `gorm:"index"`
 	Type      string
+	//Users     []User `gorm:"many2many:user_board_roles;constraint:OnDelete:CASCADE;"`
 }
-
-
