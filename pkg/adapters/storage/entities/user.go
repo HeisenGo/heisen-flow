@@ -1,9 +1,10 @@
 package entities
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"time"
 )
 
 type User struct {
@@ -16,4 +17,5 @@ type User struct {
 	Email     string `gorm:"uniqueIndex"`
 	Password  string
 	Role      uint8
+	Boards    []Board `gorm:"many2many:user_restaurants;constraint:OnDelete:CASCADE;"` // Many-to-many relationship
 }
