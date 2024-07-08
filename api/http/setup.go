@@ -62,4 +62,9 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 		userRoleChecker(),
 		handlers.CreateUserBoard(app.BoardServiceFromCtx),
 	)
+
+	router.Post("/invite", middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		//	userRoleChecker(),
+		handlers.InviteToBoard(app.BoardServiceFromCtx))
 }
