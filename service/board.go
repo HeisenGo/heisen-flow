@@ -53,7 +53,7 @@ func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *user
 	}
 
 	ub.BoardID = b.ID
-	ub.Role = rbac.RoleOwner
+	ub.Role = string(rbac.RoleOwner)
 	err = s.userBoardRoleOps.SetUserBoardRole(ctx, ub)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *user
 }
 
 // CreateTask creates a new task in a board
-func (s *BoardService) CreateTask(ctx context.Context, userID, boardID string, taskDetails map[string]interface{}) error {
+func (s *BoardService) CreateTask(ctx context.Context, userID, boardID uuid.UUID, taskDetails map[string]interface{}) error {
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (s *BoardService) CreateTask(ctx context.Context, userID, boardID string, t
 }
 
 // MoveTask moves a task to a different column
-func (s *BoardService) MoveTask(ctx context.Context, userID, boardID, taskID, newColumnID string) error {
+func (s *BoardService) MoveTask(ctx context.Context, userID, boardID uuid.UUID, taskID, newColumnID string) error {
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
 	if err != nil {
 		return err
@@ -106,7 +106,7 @@ func (s *BoardService) MoveTask(ctx context.Context, userID, boardID, taskID, ne
 }
 
 // AddColumn adds a new column to the board
-func (s *BoardService) AddColumn(ctx context.Context, userID, boardID string, columnDetails map[string]interface{}) error {
+func (s *BoardService) AddColumn(ctx context.Context, userID, boardID uuid.UUID, columnDetails map[string]interface{}) error {
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
 	if err != nil {
 		return err
@@ -122,8 +122,15 @@ func (s *BoardService) AddColumn(ctx context.Context, userID, boardID string, co
 }
 
 // InviteUser invites a user to the board
-func (s *BoardService) InviteUser(ctx context.Context, inviterID, boardID, inviteeID string, role rbac.Role) error {
-	inviterRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, inviterID, boardID)
+func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, inviteeEmail string, userBoardRole *userboardrole.UserBoardRole) error {
+
+	isPossibleRole := rbac.IsAPossibleRole(userBoardRole.Role)
+
+	if !isPossibleRole {
+		return errors.New("undefined role, role should be one of the following values:viewer, editor, maintainer")
+	}
+
+	inviterRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, inviterID, userBoardRole.BoardID)
 	if err != nil {
 		return err
 	}
@@ -132,7 +139,21 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID, boardID, invit
 		return errors.New("permission denied: cannot invite users")
 	}
 
-	// Implement user invitation
+	invitedUser, err := s.userOps.GetUserByEmail(ctx, inviteeEmail)
+	if err != nil {
+		return err
+	}
+	userBoardRole.UserID = invitedUser.ID
+	_, err = s.boardOps.GetBoardByID(ctx, userBoardRole.BoardID)
 
+	if err != nil {
+		return err
+	}
+
+	err = s.userBoardRoleOps.SetUserBoardRole(ctx, userBoardRole)
+	if err != nil {
+		return err
+	}
+	// apply your notification record create here
 	return nil
 }
