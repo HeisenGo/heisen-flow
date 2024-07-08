@@ -4,7 +4,6 @@ import (
 	"log"
 	"server/config"
 	"server/pkg/adapters/storage"
-
 	"gorm.io/gorm"
 )
 

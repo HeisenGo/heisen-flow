@@ -3,7 +3,6 @@ package storage
 import (
 	"fmt"
 	"server/config"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
