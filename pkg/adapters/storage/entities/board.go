@@ -15,3 +15,5 @@ type Board struct {
 	Name      string         `gorm:"index"`
 	Type      string
 }
+
+

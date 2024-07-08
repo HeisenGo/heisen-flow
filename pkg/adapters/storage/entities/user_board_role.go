@@ -1,7 +1,6 @@
 package entities
 
 import (
-	"server/pkg/rbac"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,9 +13,9 @@ type UserBoardRole struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 	ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	UserID    uuid.UUID
-	User      User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	BoardID   uuid.UUID `gorm:"index"`
-	Board     Board `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Role      rbac.Role
+	UserID    uuid.UUID      `gorm:"index"`
+	User      *User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	BoardID   uuid.UUID      `gorm:"index"`
+	Board     *Board         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	UserRole  string
 }
