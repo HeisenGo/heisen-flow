@@ -1,9 +1,11 @@
-package userboard
+package userboardrole
 
 import (
 	"context"
 	"errors"
 	"server/pkg/rbac"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -13,13 +15,13 @@ var (
 
 type Repo interface {
 	GetUserBoardRole(ctx context.Context, userID, boardID string) (rbac.Role, error)
-	SetUserBoardRole(ctx context.Context, userID, boardID string, role rbac.Role) error
+	SetUserBoardRole(ctx context.Context, ub *UserBoardRole) error
 	RemoveUserBoardRole(ctx context.Context, userID, boardID string) error
 }
 
-type UserBoard struct {
-	ID      uint
-	UserID  string
-	BoardID string
+type UserBoardRole struct {
+	ID      uuid.UUID
+	UserID  uuid.UUID
+	BoardID uuid.UUID
 	Role    rbac.Role
 }

@@ -3,6 +3,8 @@ package board
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Ops struct {
@@ -13,7 +15,7 @@ func NewOps(repo Repo) *Ops {
 	return &Ops{repo}
 }
 
-func (o *Ops) UserBoards(ctx context.Context, userID uint, page, pageSize uint) ([]Board, uint, error) {
+func (o *Ops) UserBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]Board, uint, error) {
 	limit := pageSize
 	offset := (page - 1) * pageSize
 

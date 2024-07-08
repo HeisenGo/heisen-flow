@@ -23,7 +23,7 @@ var (
 )
 
 type Repo interface {
-	GetUserBoards(ctx context.Context, userID uint, limit, offset uint) ([]Board, uint, error)
+	GetUserBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) ([]Board, uint, error)
 	Insert(ctx context.Context, board *Board) error
 }
 
