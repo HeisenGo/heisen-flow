@@ -1,0 +1,29 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sample API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/register": {
+      "post": {
+        "summary": "api v1",
+        "responses": {
+          "201": {
+            "description": "Registering User",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
