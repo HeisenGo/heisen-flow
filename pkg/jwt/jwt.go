@@ -9,6 +9,7 @@ import (
 const UserClaimKey = "User-Claims"
 
 func CreateToken(secret []byte, claims *UserClaims) (string, error) {
+	claims.Role = "user"
 	return jwt2.NewWithClaims(jwt2.SigningMethodHS512, claims).SignedString(secret)
 }
 
