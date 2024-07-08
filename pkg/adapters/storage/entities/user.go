@@ -17,5 +17,5 @@ type User struct {
 	Email     string `gorm:"uniqueIndex"`
 	Password  string
 	Role      uint8
-	Boards    []Board `gorm:"many2many:user_restaurants;constraint:OnDelete:CASCADE;"` // Many-to-many relationship
+	//Boards    []Board `gorm:"many2many:user_board_roles;constraint:OnDelete:CASCADE;"` // Many-to-many relationship
 }
