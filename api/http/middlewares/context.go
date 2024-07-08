@@ -47,6 +47,7 @@ func SetTransaction(committer valuecontext.Committer) fiber.Handler {
 			return err
 		}
 
+		logger.Info("ending transaction")
 		return nil
 	}
 }

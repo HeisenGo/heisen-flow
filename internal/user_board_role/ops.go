@@ -1,4 +1,4 @@
-package userboard
+package userboardrole
 
 import (
 	"context"
@@ -17,8 +17,8 @@ func (o *Ops) GetUserBoardRole(ctx context.Context, userID, boardID string) (rba
 	return o.repo.GetUserBoardRole(ctx, userID, boardID)
 }
 
-func (o *Ops) SetUserBoardRole(ctx context.Context, userID, boardID string, role rbac.Role) error {
-	return o.repo.SetUserBoardRole(ctx, userID, boardID, role)
+func (o *Ops) SetUserBoardRole(ctx context.Context, ub *UserBoardRole) error {
+	return o.repo.SetUserBoardRole(ctx, ub)
 }
 
 func (o *Ops) RemoveUserBoardRole(ctx context.Context, userID, boardID string) error {

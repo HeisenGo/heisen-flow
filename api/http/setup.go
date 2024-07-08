@@ -6,6 +6,7 @@ import (
 	"server/api/http/handlers"
 	"server/api/http/middlewares"
 	"server/config"
+	"server/pkg/adapters"
 	"server/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,8 +18,8 @@ func Run(cfg config.Server, app *service.AppContainer) {
 
 	// register global routes
 	registerGlobalRoutes(api, app)
-
-	//secret := []byte(cfg.TokenSecret)
+	secret := []byte(cfg.TokenSecret)
+	registerBoardRoutes(api, app, secret)
 
 	// registering users APIs
 	//registerUsersAPI(api, app.UserService(), secret)
@@ -48,4 +49,17 @@ func registerGlobalRoutes(router fiber.Router, app *service.AppContainer) {
 
 func userRoleChecker() fiber.Handler {
 	return middlewares.RoleChecker("user")
+}
+
+func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
+	router = router.Group("/boards")
+
+	//router.Get("", middlerwares.Auth(secret), userRoleChecker(), handlers.UserOrders(app.OrderService()))
+
+	router.Post("",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		userRoleChecker(),
+		handlers.CreateUserBoard(app.BoardServiceFromCtx),
+	)
 }
