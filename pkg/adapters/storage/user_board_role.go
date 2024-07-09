@@ -11,9 +11,11 @@ package storage
 import (
 	"context"
 	userboardrole "server/internal/user_board_role"
+	"server/pkg/adapters/storage/entities"
 	"server/pkg/adapters/storage/mappers"
 	"server/pkg/rbac"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -25,8 +27,14 @@ func NewUserBoardRepo(db *gorm.DB) userboardrole.Repo {
 	return &userBoardRepo{db}
 }
 
-func (r *userBoardRepo) GetUserBoardRole(ctx context.Context, userID, boardID string) (rbac.Role, error) {
-	return "", userboardrole.ErrUserRoleNotFound
+func (r *userBoardRepo) GetUserBoardRole(ctx context.Context, userID, boardID uuid.UUID) (rbac.Role, error) {
+	var userBoardRole entities.UserBoardRole
+	err := r.db.Where("user_id = ? AND board_id = ?", userID, boardID).
+		First(&userBoardRole).Error
+	if err != nil {
+		return "", userboardrole.ErrUserRoleNotFound
+	}
+	return rbac.Role(userBoardRole.UserRole), nil
 }
 
 func (r *userBoardRepo) SetUserBoardRole(ctx context.Context, ub *userboardrole.UserBoardRole) error {

@@ -33,3 +33,17 @@ func UserBoardToBoard(userBoard *UserBoard, userID uuid.UUID) (*board.Board, *us
 	}
 	return b, ubr
 }
+
+type InviteUserToBoard struct {
+	ID      uuid.UUID `json:"user_board_role_id"`
+	Email   string    `json:"email"`
+	BoardID uuid.UUID `json:"board_id"`
+	Role    string    `json:"role"`
+}
+
+func InviteUserToBoardToUserBoardRole(inviteUserToBoard *InviteUserToBoard) *userboardrole.UserBoardRole {
+	return &userboardrole.UserBoardRole{
+		Role:    inviteUserToBoard.Role,
+		BoardID: inviteUserToBoard.BoardID,
+	}
+}

@@ -9,13 +9,23 @@ import (
 
 // UserBoardRole struct: Represents the relationship between a user, a board, and the user's role on that board.
 type UserBoardRole struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	UserID    uuid.UUID `gorm:"type:uuid;not null"`
+	BoardID   uuid.UUID `gorm:"type:uuid;not null"`
+	UserRole  string    `gorm:"not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
-	ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	UserID    uuid.UUID      `gorm:"index"`
-	User      *User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	BoardID   uuid.UUID      `gorm:"index"`
-	Board     *Board         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	UserRole  string
+
+	User  *User  `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Board *Board `gorm:"foreignKey:BoardID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
+
+// // Ensure uniqueness of UserID and BoardID combination
+// func (UserBoardRole) TableName() string {
+// 	return "user_board_roles"
+// }
+
+// func (ubr *UserBoardRole) BeforeCreate(tx *gorm.DB) error {
+// 	return tx.SetupJoinTable(&User{}, "Boards", &UserBoardRole{})
+// }
