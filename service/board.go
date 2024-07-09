@@ -64,7 +64,6 @@ func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *user
 
 // CreateTask creates a new task in a board
 func (s *BoardService) CreateTask(ctx context.Context, userID, boardID uuid.UUID, taskDetails map[string]interface{}) error {
-func (s *BoardService) CreateTask(ctx context.Context, userID, boardID uuid.UUID, taskDetails map[string]interface{}) error {
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
 	if err != nil {
 		return err
@@ -79,7 +78,6 @@ func (s *BoardService) CreateTask(ctx context.Context, userID, boardID uuid.UUID
 }
 
 // MoveTask moves a task to a different column
-func (s *BoardService) MoveTask(ctx context.Context, userID, boardID uuid.UUID, taskID, newColumnID string) error {
 func (s *BoardService) MoveTask(ctx context.Context, userID, boardID uuid.UUID, taskID, newColumnID string) error {
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
 	if err != nil {
@@ -108,7 +106,6 @@ func (s *BoardService) MoveTask(ctx context.Context, userID, boardID uuid.UUID, 
 }
 
 // AddColumn adds a new column to the board
-func (s *BoardService) AddColumn(ctx context.Context, userID, boardID uuid.UUID, columnDetails map[string]interface{}) error {
 func (s *BoardService) AddColumn(ctx context.Context, userID, boardID uuid.UUID, columnDetails map[string]interface{}) error {
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
 	if err != nil {
@@ -159,7 +156,7 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 	}
 
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, invitedUser.ID, b.ID)
-	if role != "" && err==nil {
+	if role != "" && err == nil {
 		return errors.New("user already is a member")
 	}
 
