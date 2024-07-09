@@ -8,7 +8,7 @@ import (
 	"server/config"
 	"server/pkg/adapters"
 	"server/service"
-
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -17,10 +17,10 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	api := fiberApp.Group("/api/v1", middlewares.SetUserContext())
 
 	// register global routes
+	registerSwagger(fiberApp)
 	registerGlobalRoutes(api, app)
 	secret := []byte(cfg.TokenSecret)
 	registerBoardRoutes(api, app, secret)
-
 	// registering users APIs
 	//registerUsersAPI(api, app.UserService(), secret)
 
@@ -47,9 +47,23 @@ func registerGlobalRoutes(router fiber.Router, app *service.AppContainer) {
 	router.Get("/refresh", handlers.RefreshToken(app.AuthService()))
 }
 
+func registerSwagger(app *fiber.App){
+	scfg := swagger.Config{
+		BasePath: "/",
+		FilePath: "./docs/swagger.json",
+		Path:     "swagger",
+		Title:    "Swagger API Docs",
+	}
+	app.Use(swagger.New(scfg))
+}
+
 func userRoleChecker() fiber.Handler {
 	return middlewares.RoleChecker("user")
 }
+
+//func registerSwaggerRoutes(router fiber.Router){
+//
+//}
 
 func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
 	router = router.Group("/boards")

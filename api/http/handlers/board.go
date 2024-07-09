@@ -8,7 +8,6 @@ import (
 	"server/pkg/jwt"
 	"server/service"
 	"time"
-
 	"github.com/gofiber/fiber/v2"
 )
 

@@ -1,0 +1,656 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Heisen Flow",
+        "description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+        "version": "1.0.0"
+    },
+    "tags": [
+        {
+            "name": "Auth"
+        },
+        {
+            "name": "boards"
+        },
+        {
+            "name": "tasks"
+        },
+        {
+            "name": "columns"
+        }
+    ],
+    "paths": {
+        "/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "register",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "first_name": "kiarash",
+                                    "last_name": "fazli",
+                                    "email": "kiarashfz.fazli@gmail.com",
+                                    "password": "123456"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "message": "successfully created."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "error": "user with this email already exists. (or password and email validation errors.)"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "refresh",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "email": "kiarashfz.fazli@gmail.com",
+                                    "password": "123456"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/boards": {
+            "post": {
+                "tags": [
+                    "boards"
+                ],
+                "summary": "create board",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "name": "board 1",
+                                    "type": "private"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": "fhjeh-heh44-jhf44",
+                                        "name": "board 1",
+                                        "columns": [
+                                            {
+                                                "name": "done",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 1
+                                            }
+                                        ]
+                                    },
+                                    "message": "board successfuly created."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "error": "board with the given name already exists."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/boards/<board_id>": {
+            "get": {
+                "tags": [
+                    "boards"
+                ],
+                "summary": "get board",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": "fhjeh-heh44-jhf44",
+                                        "name": "board 1",
+                                        "type": "public",
+                                        "users": [
+                                            {
+                                                "id": "1frt-ufh6-djn6-ehnr",
+                                                "first_name": "kiarash",
+                                                "last_name": "fazli",
+                                                "email": "kiarashfz.faiizli@gmail.com"
+                                            },
+                                            {
+                                                "id": "1frt-ufh6-djn6-eh0r",
+                                                "first_name": "neda",
+                                                "last_name": "hoseini",
+                                                "email": "neda.hs@gmail.com"
+                                            }
+                                        ],
+                                        "columns": [
+                                            {
+                                                "name": "todo",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 1,
+                                                "tasks": [
+                                                    {
+                                                        "name": "task 1",
+                                                        "desc": "task 1 desc",
+                                                        "start_at": "2024-11-03",
+                                                        "end_at": "2024-12-04",
+                                                        "asignee_user": {
+                                                            "id": "1frt-ufh6-djn6-ehnr",
+                                                            "first_name": "kiarash",
+                                                            "last_name": "fazli",
+                                                            "email": "kiarashfz.faiizli@gmail.com"
+                                                        },
+                                                        "story_point": 6
+                                                    },
+                                                    {
+                                                        "name": "task 1",
+                                                        "desc": "task 1 desc",
+                                                        "start_at": "2024-11-03",
+                                                        "end_at": "2024-12-04",
+                                                        "asignee_user": {
+                                                            "id": "1frt-ufh6-djn6-ehnr",
+                                                            "first_name": "kiarash",
+                                                            "last_name": "fazli",
+                                                            "email": "kiarashfz.faiizli@gmail.com"
+                                                        },
+                                                        "story_point": 6
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "in progress",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 2,
+                                                "tasks": []
+                                            },
+                                            {
+                                                "name": "in review",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 3,
+                                                "tasks": []
+                                            },
+                                            {
+                                                "name": "done",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 4,
+                                                "tasks": []
+                                            }
+                                        ]
+                                    },
+                                    "message": "board successfuly fetched."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/boards/invite": {
+            "post": {
+                "tags": [
+                    "boards"
+                ],
+                "summary": "invite user to board",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "email": "neda@gmail.com",
+                                    "board_id": "abcd-efgh-ijk-lmno"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "message": "successfuly invited."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "error": "you are not owner of this board."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks": {
+            "post": {
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "create task",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "name": "task 1",
+                                    "desc": "task 1 desc",
+                                    "start_at": "2024-11-03",
+                                    "end_at": "2024-12-04",
+                                    "asignee_user_id": "1frt-ufh6-djn6-ehnr",
+                                    "story_point": 6,
+                                    "dependent_task_ids": [
+                                        "yf64-jdyr-7fy4-jdn4",
+                                        "yo64-idyr-7fy4-jdn4"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": {
+                                        "name": "task 1",
+                                        "desc": "task 1 desc",
+                                        "start_at": "2024-11-03",
+                                        "end_at": "2024-12-04",
+                                        "asignee_user": {
+                                            "id": "1frt-ufh6-djn6-ehnr",
+                                            "first_name": "kiarash",
+                                            "last_name": "fazli",
+                                            "email": "kiarashfz.faiizli@gmail.com"
+                                        },
+                                        "story_point": 6,
+                                        "dependent_task_ids": [
+                                            "yf64-jdyr-7fy4-jdn4",
+                                            "yo64-idyr-7fy4-jdn4"
+                                        ],
+                                        "column": "iej4-rurr-495u-fkjg"
+                                    },
+                                    "message": "task successfuly created."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "error": "task dependencies has cycle error."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/columns": {
+            "post": {
+                "tags": [
+                    "columns"
+                ],
+                "summary": "create multiple columns",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "board_id": "urht5-vrij5-rgnp-vfm",
+                                    "columns": [
+                                        {
+                                            "name": "todo"
+                                        },
+                                        {
+                                            "name": "in progress"
+                                        },
+                                        {
+                                            "name": "in review"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": {
+                                        "columns": [
+                                            {
+                                                "name": "done",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 1
+                                            },
+                                            {
+                                                "name": "todo",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 2
+                                            },
+                                            {
+                                                "name": "in progress",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 3
+                                            },
+                                            {
+                                                "name": "in review",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 4
+                                            }
+                                        ]
+                                    },
+                                    "message": "columns successfully created."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/columns/<column_id>": {
+            "delete": {
+                "tags": [
+                    "columns"
+                ],
+                "summary": "delete column",
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "error": "you can't delete a column thas has some tasks."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/columns/reorder": {
+            "patch": {
+                "tags": [
+                    "columns"
+                ],
+                "summary": "reorder columns",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "board_id": "urht5-vrij5-rgnp-vfm",
+                                    "columns": [
+                                        {
+                                            "id": "uhfch5-vrj58-vjn"
+                                        },
+                                        {
+                                            "id": "uhfch5-vrj58-vjn"
+                                        },
+                                        {
+                                            "id": "uhfch5-vrj58-vjn"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": {
+                                        "columns": [
+                                            {
+                                                "name": "in progress",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 1
+                                            },
+                                            {
+                                                "name": "todo",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 2
+                                            },
+                                            {
+                                                "name": "done",
+                                                "id": "yrh48-hfjrh4-hfhngn",
+                                                "order": 3
+                                            }
+                                        ]
+                                    },
+                                    "message": "columns orders successfully changed."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

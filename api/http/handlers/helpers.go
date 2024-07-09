@@ -6,7 +6,6 @@ import (
 	"server/pkg/jwt"
 	"server/pkg/valuecontext"
 	"server/service"
-
 	"github.com/gofiber/fiber/v2"
 )
 
