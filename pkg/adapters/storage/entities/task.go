@@ -36,7 +36,7 @@ type Task struct {
 	BoardID uuid.UUID `gorm:"type:uuid;not null"`
 	Board   *Board    `gorm:"foreignKey:BoardID"`
 
-	ParentID *uuid.UUID `gorm:"type:uuid"`
+	ParentID *uuid.UUID `gorm:"type:uuid"` //can be null for tasks not sub tasks
 	Parent   *Task      `gorm:"foreignKey:ParentID"`
 	Subtasks []Task     `gorm:"foreignKey:ParentID"`
 
