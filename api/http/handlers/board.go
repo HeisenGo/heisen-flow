@@ -92,6 +92,7 @@ func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.H
 			return BadRequest(c, err)
 		}
 
+
 		return OK(c, "User successfully invited", fiber.Map{
 			"role":               ubr.Role,
 			"user_board_role_id": ubr.ID,
