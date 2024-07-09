@@ -28,7 +28,6 @@ func TaskDomainToEntity(t *task.Task) *entities.Task {
 		EndAt: t.EndAt,
 		StoryPoint: t.StoryPoint,
 		UserBoardRoleID: t.UserBoardRoleID,
-		CreatedByUBRID: t.CreatedByUBRID,
 		BoardID: t.BoardID,
 		ParentID: t.ParentID,
 	}

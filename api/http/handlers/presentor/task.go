@@ -43,7 +43,7 @@ func UserTaskToTask(userTaskReq *UserTask, userID uuid.UUID) *task.Task {
 		StartAt:        time.Time(userTaskReq.StartAt),
 		EndAt:          time.Time(userTaskReq.EndAt),
 		StoryPoint:     userTaskReq.StoryPoint,
-		CreatedByUBRID: userID, // this will get changed to userBoardRole in service layer
+		CreatedByUserID: userID, // 
 		// BoardID: t.BoardID,
 		ParentID:           userTaskReq.ParentID,
 		DependsOnTaskIDs:   userTaskReq.DependsOnTaskIDs,
