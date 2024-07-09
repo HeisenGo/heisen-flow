@@ -54,6 +54,7 @@ func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *user
 
 	ub.BoardID = b.ID
 	ub.Role = string(rbac.RoleOwner)
+	ub.Role = string(rbac.RoleOwner)
 	err = s.userBoardRoleOps.SetUserBoardRole(ctx, ub)
 	if err != nil {
 		return err
