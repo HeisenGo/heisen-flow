@@ -101,3 +101,38 @@ func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.H
 		})
 	}
 }
+
+func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		boardService := serviceFactory(c.UserContext())
+
+		var req presenter.InviteUserToBoard
+
+		if err := c.BodyParser(&req); err != nil {
+			return SendError(c, err, fiber.StatusBadRequest)
+		}
+
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
+
+		ubr := presenter.InviteUserToBoardToUserBoardRole(&req)
+		if err := boardService.InviteUser(c.UserContext(), userClaims.UserID, req.Email, ubr); err != nil {
+			status := fiber.StatusInternalServerError
+			// if errors.Is(err, board.ErrWrongType) || errors.Is(err, board.ErrInvalidName) {
+			// 	status = fiber.StatusBadRequest
+			// }
+
+			return SendError(c, err, status)
+		}
+
+		return c.JSON(fiber.Map{
+			"message":            "user successfully invited",
+			"role":               ubr.Role,
+			"user_board_role_id": ubr.ID,
+			"board_id":           ubr.BoardID,
+			"email":              req.Email,
+		})
+	}
+}
