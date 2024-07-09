@@ -25,12 +25,11 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 
 		new_user, err := authService.CreateUser(c.Context(), u)
 		if err != nil {
-			status := fiber.StatusInternalServerError
 			if errors.Is(err, user.ErrInvalidEmail) || errors.Is(err, user.ErrInvalidPassword) || errors.Is(err, user.ErrEmailAlreadyExists) {
-				status = fiber.StatusBadRequest
+				BadRequest(c, err)
 			}
 
-			return SendError(c, err, status)
+			return InternalServerError(c, err)
 		}
 
 		return Created(c, "user successfully registered", fiber.Map{
@@ -59,7 +58,7 @@ func LoginUser(authService *service.AuthService) fiber.Handler {
 
 		authToken, err := authService.Login(c.Context(), input.Email, input.Password)
 		if err != nil {
-			return SendError(c, err, fiber.StatusBadRequest)
+			return BadRequest(c, err)
 		}
 
 		return SendUserToken(c, authToken)
@@ -75,7 +74,7 @@ func RefreshToken(authService *service.AuthService) fiber.Handler {
 		pureToken := strings.Split(refToken, " ")[1]
 		authToken, err := authService.RefreshAuth(c.UserContext(), pureToken)
 		if err != nil {
-			return SendError(c, err, fiber.StatusUnauthorized)
+			return Unauthorized(c, err)
 		}
 
 		return SendUserToken(c, authToken)
