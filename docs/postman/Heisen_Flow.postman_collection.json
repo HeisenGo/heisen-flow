@@ -1,0 +1,1048 @@
+{
+	"info": {
+		"_postman_id": "41a3cc5b-7b6b-4b89-a912-f412b5fe9c51",
+		"name": "Heisen Flow",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18628130"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"kiarash\",\n    \"last_name\": \"fazli\",\n    \"email\": \"kiarashfz.fazli@gmail.com\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "201",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"first_name\": \"kiarash\",\n    \"last_name\": \"fazli\",\n    \"email\": \"kiarashfz.fazli@gmail.com\",\n    \"password\": \"123456\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/register",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"successfully created.\"\n}"
+						},
+						{
+							"name": "400",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"first_name\": \"kiarash\",\n    \"last_name\": \"fazli\",\n    \"email\": \"kiarashfz.fazli@gmail.com\",\n    \"password\": \"123456\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/register",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"user with this email already exists. (or password and email validation errors.)\"\n}"
+						}
+					]
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"kiarashfz.fazli@gmail.com\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"kiarashfz.fazli@gmail.com\",\n    \"password\": \"123456\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"auth_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc1NTM2ODcsImlkIjoxfQ.L7JsvZCGNRkzWRQc5eJe3n50yPC_DoNqnvtDbieQIt8\"\n    },\n    \"message\": \"successfuly logged in.\"\n}"
+						},
+						{
+							"name": "400",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"kiarashfz.fazli@gmail.com\",\n    \"password\": \"123456\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"user and password doesn't match.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "refresh",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"kiarashfz.fazli@gmail.com\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "boards",
+			"item": [
+				{
+					"name": "create board",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"board 1\",\n    \"type\": \"private\" // or public\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/boards",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"boards"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "201",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{TOKEN}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"board 1\",\n    \"type\": \"private\" // or public\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/boards",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"boards"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": \"fhjeh-heh44-jhf44\",\n        \"name\": \"board 1\",\n        \"columns\": [\n            {\"name\": \"done\", \"id\": \"yrh48-hfjrh4-hfhngn\", \"order\": 1}\n        ]\n    },\n    \"message\": \"board successfuly created.\"\n}"
+						},
+						{
+							"name": "400",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{TOKEN}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"board 1\",\n    \"type\": \"private\" // or public\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/boards",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"boards"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"board with the given name already exists.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "get board",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// check permission for get board",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/boards/<board_id>",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"boards",
+								"<board_id>"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/boards/<board_id>",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"boards",
+										"<board_id>"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"data\": {\n    \"id\": \"fhjeh-heh44-jhf44\",\n    \"name\": \"board 1\",\n    \"type\": \"public\",\n    \"users\": [\n      {\"id\": \"1frt-ufh6-djn6-ehnr\", \"first_name\": \"kiarash\", \"last_name\": \"fazli\", \"email\":\"kiarashfz.faiizli@gmail.com\"},\n      {\"id\": \"1frt-ufh6-djn6-eh0r\", \"first_name\": \"neda\", \"last_name\": \"hoseini\", \"email\":\"neda.hs@gmail.com\"}\n    ],\n    \"columns\": [\n      {\n        \"name\": \"todo\",\n        \"id\": \"yrh48-hfjrh4-hfhngn\",\n        \"order\": 1,\n        \"tasks\": [\n          {\n            \"name\": \"task 1\",\n            \"desc\": \"task 1 desc\",\n            \"start_at\": \"2024-11-03\",\n            \"end_at\": \"2024-12-04\",\n            \"asignee_user\": {\n              \"id\": \"1frt-ufh6-djn6-ehnr\",\n              \"first_name\": \"kiarash\",\n              \"last_name\": \"fazli\",\n              \"email\": \"kiarashfz.faiizli@gmail.com\"\n            },\n            \"story_point\": 6\n          },\n          {\n            \"name\": \"task 1\",\n            \"desc\": \"task 1 desc\",\n            \"start_at\": \"2024-11-03\",\n            \"end_at\": \"2024-12-04\",\n            \"asignee_user\": {\n              \"id\": \"1frt-ufh6-djn6-ehnr\",\n              \"first_name\": \"kiarash\",\n              \"last_name\": \"fazli\",\n              \"email\": \"kiarashfz.faiizli@gmail.com\"\n            },\n            \"story_point\": 6\n          }\n        ]\n      },\n      {\n        \"name\": \"in progress\",\n        \"id\": \"yrh48-hfjrh4-hfhngn\",\n        \"order\": 2,\n        \"tasks\": []\n      },\n      {\n        \"name\": \"in review\",\n        \"id\": \"yrh48-hfjrh4-hfhngn\",\n        \"order\": 3,\n        \"tasks\": []\n      },\n      {\n        \"name\": \"done\",\n        \"id\": \"yrh48-hfjrh4-hfhngn\",\n        \"order\": 4,\n        \"tasks\": []\n      }\n    ]\n  },\n  \"message\": \"board successfuly fetched.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "invite user to board",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"neda@gmail.com\",\n    \"board_id\": \"abcd-efgh-ijk-lmno\"\n}\n// create a notif for invited user",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/boards/invite",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"boards",
+								"invite"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{TOKEN}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"neda@gmail.com\",\n    \"board_id\": \"abcd-efgh-ijk-lmno\"\n}\n// create a notif for invited user",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/boards/invite",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"boards",
+										"invite"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"successfuly invited.\"\n}"
+						},
+						{
+							"name": "400",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{TOKEN}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"neda@gmail.com\",\n    \"board_id\": \"abcd-efgh-ijk-lmno\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/boards/invite",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"boards",
+										"invite"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"you are not owner of this board.\" // or invited email doesn't exists in application. // or board with id abcd-efgh-hijk-lmno does not exists.\n}"
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{TOKEN}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "tasks",
+			"item": [
+				{
+					"name": "create task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// taske sakhte shod by default be column ba kamtarin order assign mishavad.\n{\n    \"name\": \"task 1\",\n    \"desc\": \"task 1 desc\",\n    \"start_at\": \"2024-11-03\",\n    \"end_at\": \"2024-12-04\",\n    \"asignee_user_id\": \"1frt-ufh6-djn6-ehnr\",\n    \"story_point\": 6,\n    \"dependent_task_ids\": [\"yf64-jdyr-7fy4-jdn4\", \"yo64-idyr-7fy4-jdn4\"] // check dependency cycle  // create each one to task_dependencies table\n    // column: todo = default (todo means the first order of columns of the board)\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/tasks",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "201",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "// taske sakhte shod by default be column ba kamtarin order assign mishavad.\n{\n    \"name\": \"task 1\",\n    \"desc\": \"task 1 desc\",\n    \"start_at\": \"2024-11-03\",\n    \"end_at\": \"2024-12-04\",\n    \"asignee_user_id\": \"1frt-ufh6-djn6-ehnr\",\n    \"story_point\": 6,\n    \"dependent_task_ids\": [\"yf64-jdyr-7fy4-jdn4\", \"yo64-idyr-7fy4-jdn4\"] // check dependency cycle  // create each one to task_dependencies table\n    // column: todo = default (todo means the first order of columns of the board)\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/tasks",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"tasks"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"name\": \"task 1\",\n        \"desc\": \"task 1 desc\",\n        \"start_at\": \"2024-11-03\",\n        \"end_at\": \"2024-12-04\",\n        \"asignee_user\": {\n            \"id\": \"1frt-ufh6-djn6-ehnr\",\n            \"first_name\": \"kiarash\",\n            \"last_name\": \"fazli\",\n            \"email\": \"kiarashfz.faiizli@gmail.com\"\n        },\n        \"story_point\": 6,\n        \"dependent_task_ids\": [\"yf64-jdyr-7fy4-jdn4\", \"yo64-idyr-7fy4-jdn4\"],\n        \"column\": \"iej4-rurr-495u-fkjg\" // todo column id\n    },\n    \"message\": \"task successfuly created.\"\n}"
+						},
+						{
+							"name": "400",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "// taske sakhte shod by default be column ba kamtarin order assign mishavad.\n{\n    \"name\": \"task 1\",\n    \"desc\": \"task 1 desc\",\n    \"start_at\": \"2024-11-03\",\n    \"end_at\": \"2024-12-04\",\n    \"asignee_user_id\": \"1frt-ufh6-djn6-ehnr\",\n    \"story_point\": 6,\n    \"dependent_task_ids\": [\"yf64-jdyr-7fy4-jdn4\", \"yo64-idyr-7fy4-jdn4\"] // check dependency cycle // create each one to task_dependencies table\n    // column: todo = default (todo means the first order of columns of the board)\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/tasks",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"tasks"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"task dependencies has cycle error.\" // or end at is earlier than start at // or assigned user does not have access to this board.\n}"
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{TOKEN}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "columns",
+			"item": [
+				{
+					"name": "create multiple columns",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// age khast faqat yedune column besaze, hamin API call mishe faqat array e columns shamele yedune value khahad bud.\n// create columns transactional\n// bulk create columns. you need just one query to create all columns.\n// column name must be unique in each board (unique together board_id and column name in column entity)\n// tartibe order ha bar asase tartibe indexe array hast.\n// order field of column must be unique\n{\n    \"board_id\": \"urht5-vrij5-rgnp-vfm\",\n    \"columns\": [\n        {\"name\": \"todo\"},  // order = maximum order of column in board + 1\n        {\"name\": \"in progress\"}, // maximum order of column in board + 2\n        {\"name\": \"in review\"} // maximum order of column in board + 3\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/columns",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"columns"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "201",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "// age khast faqat yedune column besaze, hamin API call mishe faqat array e columns shamele yedune value khahad bud.\n// create columns transactional\n// bulk create columns. you need just one query to create all columns.\n// column name must be unique in each board (unique together board_id and column name in column entity)\n// tartibe order ha bar asase tartibe indexe array hast.\n// order field of column must be unique\n{\n    \"board_id\": \"urht5-vrij5-rgnp-vfm\",\n    \"columns\": [\n        {\"name\": \"todo\"},  // order = maximum order of column in board + 1\n        {\"name\": \"in progress\"}, // maximum order of column in board + 2\n        {\"name\": \"in review\"} // maximum order of column in board + 3\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/columns",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"columns"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"columns\": [\n            {\"name\": \"done\", \"id\": \"yrh48-hfjrh4-hfhngn\", \"order\": 1},\n            {\"name\": \"todo\", \"id\": \"yrh48-hfjrh4-hfhngn\", \"order\": 2},\n            {\"name\": \"in progress\", \"id\": \"yrh48-hfjrh4-hfhngn\", \"order\": 3},\n            {\"name\": \"in review\", \"id\": \"yrh48-hfjrh4-hfhngn\", \"order\": 4}\n        ]\n    },\n    \"message\": \"columns successfully created.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "delete column",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/columns/<column_id>",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"columns",
+								"<column_id>"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "204",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/columns/<column_id>",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"columns",
+										"<column_id>"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "400",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/columns/<column_id>",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"columns",
+										"<column_id>"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"you can't delete a column thas has some tasks.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "reorder columns",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// validation: check the columns len. it should be equal to number of board columns\n{\n    \"board_id\": \"urht5-vrij5-rgnp-vfm\",\n    \"columns\": [\n        {\"id\": \"uhfch5-vrj58-vjn\"}, // for example in progress column id\n        {\"id\": \"uhfch5-vrj58-vjn\"}, // for example todo column id\n        {\"id\": \"uhfch5-vrj58-vjn\"} // for example done column id\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/columns/reorder",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"columns",
+								"reorder"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "// validation: check the columns len. it should be equal to number of board columns\n{\n    \"board_id\": \"urht5-vrij5-rgnp-vfm\",\n    \"columns\": [\n        {\"id\": \"uhfch5-vrj58-vjn\"}, // for example in progress column id\n        {\"id\": \"uhfch5-vrj58-vjn\"}, // for example todo column id\n        {\"id\": \"uhfch5-vrj58-vjn\"} // for example done column id\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/columns",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"columns"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"columns\": [\n            {\"name\": \"in progress\", \"id\": \"yrh48-hfjrh4-hfhngn\", \"order\": 1},\n            {\"name\": \"todo\", \"id\": \"yrh48-hfjrh4-hfhngn\", \"order\": 2},\n            {\"name\": \"done\", \"id\": \"yrh48-hfjrh4-hfhngn\", \"order\": 3}\n        ]\n    },\n    \"message\": \"columns orders successfully changed.\"\n}"
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{TOKEN}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "localhost:8080/api/v1"
+		},
+		{
+			"key": "TOKEN",
+			"value": "eyjfjebfbefbjefb.efugfebbgj.fjbebjfbejbjgb",
+			"type": "string"
+		}
+	]
+}
