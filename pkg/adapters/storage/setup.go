@@ -15,6 +15,10 @@ func NewPostgresGormConnection(dbConfig config.DB) (*gorm.DB, error) {
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
 }
 
+func AddExtension(db *gorm.DB) error {
+	return db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error
+}
+
 func Migrate(db *gorm.DB) error {
 	migrator := db.Migrator()
 
