@@ -9,6 +9,11 @@ HasAnyPermission: Checks if a given role has any of the specified permissions.
 
 package rbac
 
+func IsAPossibleRole(role string) bool {
+	_, exists := RolePermissions[Role(role)]
+	return exists
+}
+
 func HasPermission(role Role, permission Permission) bool {
 	permissions, exists := RolePermissions[role]
 	if !exists {

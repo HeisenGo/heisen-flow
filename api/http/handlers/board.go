@@ -6,7 +6,6 @@ import (
 	"server/internal/board"
 	"server/internal/user"
 	"server/pkg/jwt"
-	"server/pkg/rbac"
 	"server/service"
 	"time"
 
@@ -51,7 +50,6 @@ func CreateUserBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber
 		}
 
 		b, ubr := presenter.UserBoardToBoard(&req, userClaims.UserID)
-		ubr.Role = rbac.RoleOwner
 		b.CreatedAt = time.Now()
 		if err := boardService.CreateBoard(c.UserContext(), b, ubr); err != nil {
 			status := fiber.StatusInternalServerError
@@ -65,6 +63,41 @@ func CreateUserBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber
 		return c.JSON(fiber.Map{
 			"board_id":           b.ID,
 			"user_board_role_id": ubr.ID,
+		})
+	}
+}
+
+func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		boardService := serviceFactory(c.UserContext())
+
+		var req presenter.InviteUserToBoard
+
+		if err := c.BodyParser(&req); err != nil {
+			return SendError(c, err, fiber.StatusBadRequest)
+		}
+
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
+
+		ubr := presenter.InviteUserToBoardToUserBoardRole(&req)
+		if err := boardService.InviteUser(c.UserContext(), userClaims.UserID, req.Email, ubr); err != nil {
+			status := fiber.StatusInternalServerError
+			// if errors.Is(err, board.ErrWrongType) || errors.Is(err, board.ErrInvalidName) {
+			// 	status = fiber.StatusBadRequest
+			// }
+
+			return SendError(c, err, status)
+		}
+
+		return c.JSON(fiber.Map{
+			"message":            "user successfully invited",
+			"role":               ubr.Role,
+			"user_board_role_id": ubr.ID,
+			"board_id":           ubr.BoardID,
+			"email":              req.Email,
 		})
 	}
 }
