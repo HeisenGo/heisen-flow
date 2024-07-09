@@ -60,9 +60,9 @@ func CreateUserBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber
 			return SendError(c, err, status)
 		}
 
-		return c.JSON(fiber.Map{
-			"board_id":           b.ID,
-			"user_board_role_id": ubr.ID,
+		return Created(c, "Board created successfully", fiber.Map{
+			"board_id":        b.ID,
+			"user_board_role": ubr.ID,
 		})
 	}
 }
@@ -85,6 +85,7 @@ func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.H
 		ubr := presenter.InviteUserToBoardToUserBoardRole(&req)
 		if err := boardService.InviteUser(c.UserContext(), userClaims.UserID, req.Email, ubr); err != nil {
 			status := fiber.StatusInternalServerError
+			/// needs to be checked by error wrapping
 			// if errors.Is(err, board.ErrWrongType) || errors.Is(err, board.ErrInvalidName) {
 			// 	status = fiber.StatusBadRequest
 			// }
@@ -92,8 +93,7 @@ func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.H
 			return SendError(c, err, status)
 		}
 
-		return c.JSON(fiber.Map{
-			"message":            "user successfully invited",
+		return OK(c, "User successfully invited", fiber.Map{
 			"role":               ubr.Role,
 			"user_board_role_id": ubr.ID,
 			"board_id":           ubr.BoardID,

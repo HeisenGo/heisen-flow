@@ -23,7 +23,7 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 
 		u := presenter.UserRegisterToUserDomain(&req)
 
-		_, err := authService.CreateUser(c.Context(), u)
+		new_user, err := authService.CreateUser(c.Context(), u)
 		if err != nil {
 			status := fiber.StatusInternalServerError
 			if errors.Is(err, user.ErrInvalidEmail) || errors.Is(err, user.ErrInvalidPassword) || errors.Is(err, user.ErrEmailAlreadyExists) {
@@ -33,8 +33,8 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 			return SendError(c, err, status)
 		}
 
-		return c.JSON(fiber.Map{
-			"message": "user successfully registered.",
+		return Created(c, "user successfully registered", fiber.Map{
+			"user_id": new_user.ID,
 		})
 	}
 }
