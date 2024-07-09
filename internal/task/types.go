@@ -35,7 +35,7 @@ type Task struct {
 	EndAt           time.Time
 	StoryPoint      uint      //(should be less than 10???)
 	UserBoardRoleID uuid.UUID //Assignee
-	CreatedByUBRID  uuid.UUID
+	CreatedByUserID  uuid.UUID
 	ColumnID        uuid.UUID
 	BoardID         uuid.UUID
 
