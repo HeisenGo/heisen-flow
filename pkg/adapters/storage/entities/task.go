@@ -23,6 +23,7 @@ type Task struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
+	StartAt    time.Time
 	EndedAt    time.Time
 	StoryPoint uint //(should be less than 10???)
 
@@ -30,7 +31,9 @@ type Task struct {
 	UserBoardRoleID uuid.UUID      `gorm:"type:uuid"` //Assignee
 	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 
-	ColumnD uuid.UUID `gorm:"type:uuid"`
+	CreatedByUBRID uuid.UUID      `gorm:"type:uuid"`
+	CreatedByUBR   *UserBoardRole `gorm:"foreignKey:CreatedByUBRID"`
+	ColumnD        uuid.UUID      `gorm:"type:uuid"`
 	//Column      *Column  !!!!!!!!!! need TO Do
 
 	BoardID uuid.UUID `gorm:"type:uuid;not null"`
