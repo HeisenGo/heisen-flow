@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"server/pkg/rbac"
-
 	"github.com/google/uuid"
 )
 

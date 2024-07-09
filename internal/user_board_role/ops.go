@@ -3,7 +3,6 @@ package userboardrole
 import (
 	"context"
 	"server/pkg/rbac"
-
 	"github.com/google/uuid"
 )
 

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"server/api/http/handlers"
 	"server/pkg/jwt"
-
 	"github.com/gofiber/fiber/v2"
 )
 

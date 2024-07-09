@@ -14,7 +14,6 @@ import (
 	"server/pkg/adapters/storage/entities"
 	"server/pkg/adapters/storage/mappers"
 	"server/pkg/rbac"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

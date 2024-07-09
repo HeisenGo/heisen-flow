@@ -2,7 +2,6 @@ package entities
 
 import (
 	"time"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -19,6 +18,7 @@ type UserBoardRole struct {
 
 	User  *User  `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Board *Board `gorm:"foreignKey:BoardID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Notifications []Notification `gorm:"foreignKey:UserBoardRoleID"` // One-to-many relationship
 }
 
 // // Ensure uniqueness of UserID and BoardID combination

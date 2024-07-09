@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"server/config"
 	"server/pkg/adapters/storage/entities"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

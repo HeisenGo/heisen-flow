@@ -4,9 +4,7 @@ import (
 	"log"
 	"os"
 	"testing"
-
 	"gorm.io/gorm"
-
 	"server/config"
 	"server/pkg/adapters/storage"
 	"server/service"

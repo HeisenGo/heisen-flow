@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"server/pkg/utils"
-
 	"github.com/google/uuid"
 )
 

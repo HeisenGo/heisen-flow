@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"os"
 	"server/pkg/valuecontext"
-
 	"github.com/gofiber/fiber/v2"
 )
 

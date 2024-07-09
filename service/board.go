@@ -8,7 +8,6 @@ import (
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/rbac"
-
 	"github.com/google/uuid"
 )
 

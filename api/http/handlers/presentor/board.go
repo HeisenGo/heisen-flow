@@ -3,7 +3,6 @@ package presenter
 import (
 	"server/internal/board"
 	userboardrole "server/internal/user_board_role"
-
 	"github.com/google/uuid"
 )
 

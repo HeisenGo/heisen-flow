@@ -5,7 +5,6 @@ import (
 	"server/internal/user"
 	"server/pkg/jwt"
 	"time"
-
 	jwt2 "github.com/golang-jwt/jwt/v5"
 )
 

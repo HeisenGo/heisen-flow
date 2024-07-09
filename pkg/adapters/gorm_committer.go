@@ -2,7 +2,6 @@ package adapters
 
 import (
 	"server/pkg/valuecontext"
-
 	"gorm.io/gorm"
 )
 
