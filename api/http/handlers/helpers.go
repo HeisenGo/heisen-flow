@@ -31,7 +31,7 @@ func SendError(c *fiber.Ctx, err error, status int) error {
 }
 
 func SendUserToken(c *fiber.Ctx, authToken *service.UserToken) error {
-	return c.JSON(map[string]any{
+	return OK(c, "User successfully logged in", fiber.Map{
 		"auth_token":    authToken.AuthorizationToken,
 		"refresh_token": authToken.RefreshToken,
 	})

@@ -3,6 +3,8 @@ package userboardrole
 import (
 	"context"
 	"server/pkg/rbac"
+
+	"github.com/google/uuid"
 )
 
 type Ops struct {
@@ -13,7 +15,7 @@ func NewOps(repo Repo) *Ops {
 	return &Ops{repo}
 }
 
-func (o *Ops) GetUserBoardRole(ctx context.Context, userID, boardID string) (rbac.Role, error) {
+func (o *Ops) GetUserBoardRole(ctx context.Context, userID, boardID uuid.UUID) (rbac.Role, error) {
 	return o.repo.GetUserBoardRole(ctx, userID, boardID)
 }
 

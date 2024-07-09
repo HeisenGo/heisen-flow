@@ -3,8 +3,9 @@ package user
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"server/pkg/utils"
+
+	"github.com/google/uuid"
 )
 
 type Ops struct {
@@ -55,6 +56,18 @@ func (o *Ops) GetUserByEmailAndPassword(ctx context.Context, email, password str
 		return nil, ErrInvalidAuthentication
 	}
 
+	return user, nil
+}
+
+func (o *Ops) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	user, err := o.repo.GetByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, ErrUserNotFound
+	}
 	return user, nil
 }
 

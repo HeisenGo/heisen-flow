@@ -15,6 +15,17 @@ func NewOps(repo Repo) *Ops {
 	return &Ops{repo}
 }
 
+func (o *Ops) GetBoardByID(ctx context.Context, id uuid.UUID) (*Board, error) {
+	board, err := o.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if board == nil {
+		return nil, ErrBoardNotFound
+	}
+	return board, nil
+}
+
 func (o *Ops) UserBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]Board, uint, error) {
 	limit := pageSize
 	offset := (page - 1) * pageSize
