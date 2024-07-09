@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 )
 
@@ -15,27 +14,13 @@ type mockUser struct {
 	Password  string `json:"password"`
 }
 
-// Assume this is your existing handler
-func registerHandler(w http.ResponseWriter, r *http.Request) {
-	var user mockUser
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Registered successfully"))
-}
-
 func TestRegisterUser(t *testing.T) {
 	// Initialize the test server with your existing handler
-	server := httptest.NewServer(http.HandlerFunc(registerHandler))
-	defer server.Close()
-
 	newMockUser := mockUser{
 		FirstName: "john",
 		LastName:  "johnny",
 		Email:     "john@gmail.com",
-		Password:  "1233455678",
+		Password:  "12@Amir###90",
 	}
 
 	requestBody, err := json.Marshal(newMockUser)
@@ -43,7 +28,7 @@ func TestRegisterUser(t *testing.T) {
 		t.Fatalf("Failed to marshal request: %v", err)
 	}
 
-	resp, err := http.Post(server.URL+"/register", "application/json", bytes.NewBuffer(requestBody))
+	resp, err := http.Post("http://127.0.0.1:8080/api/v1/register", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		t.Fatalf("Failed to make POST request: %v", err)
 	}
@@ -55,7 +40,7 @@ func TestRegisterUser(t *testing.T) {
 	}
 
 	// Verify the response body
-	expectedBody := "Registered successfully"
+	expectedBody := "user successfully registered."
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
 	if buf.String() != expectedBody {
