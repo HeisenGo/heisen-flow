@@ -9,4 +9,4 @@ db:
   pass: "123456"
   host : "localhost"
   port: 5432
-  db_name: "heisenflow"
+  db_name: "heisenflow_test"

@@ -1,11 +1,16 @@
 package test
 
 import (
-	"flag"
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
 	http_server "server/api/http"
@@ -15,12 +20,16 @@ import (
 )
 
 var (
-	TestDB     *gorm.DB
-	AppConfig  config.Config
-	AppService *service.AppContainer
+	TestDB *gorm.DB
 )
 
-var configPath = flag.String("config", "", "configuration path")
+const (
+	ServerURL  = "http://0.0.0.0:8080/api/v1"
+	Register   = "/register"
+	Login      = "/login"
+	BoardPost  = "/boards"
+	configPath = "test_config.yaml"
+)
 
 func TestMain(m *testing.M) {
 	// Load configuration
@@ -35,11 +44,16 @@ func TestMain(m *testing.M) {
 		http_server.Run(cfg.Server, app)
 	}()
 
+	// wait for server to start
+	time.Sleep(2 * time.Second)
+
+	// clear the database
+	ClearDatabaseTables(app.RawDBConnection())
+
 	// Run tests
 	code := m.Run()
 
 	os.Exit(code)
-
 }
 
 func ClearDatabaseTables(db *gorm.DB) error {
@@ -57,21 +71,43 @@ func ClearDatabaseTables(db *gorm.DB) error {
 }
 
 func readConfig() config.Config {
-	flag.Parse()
-
-	if cfgPathEnv := os.Getenv("APP_CONFIG_PATH"); len(cfgPathEnv) > 0 {
-		*configPath = cfgPathEnv
-	}
-
-	if len(*configPath) == 0 {
-		log.Fatal("configuration file not found")
-	}
-
-	cfg, err := config.ReadStandard(*configPath)
+	cfg, err := config.ReadStandard(configPath)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return cfg
+}
+
+func LoginAndGetToken(t *testing.T, user MockUserLogin) string {
+	reqBody, err := json.Marshal(user)
+	if err != nil {
+		t.Fatal("failed to marshal reqBody")
+	}
+
+	url := fmt.Sprintf("%s%s", ServerURL, Login)
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		t.Fatalf("Failed to make POST request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.Status, "Expected status code to be 200 OK")
+
+	var res Response
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		t.Fatalf("Failed to decode token response: %v", err)
+	}
+
+	type Token struct {
+		AuthToken    string `json:"auth_token"`
+		RefreshToken string `json:"refresh_token"`
+	}
+
+	token := res.Data.(Token).AuthToken
+
+	return token
 }
