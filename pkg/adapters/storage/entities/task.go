@@ -27,10 +27,12 @@ type Task struct {
 	StoryPoint uint //(should be less than 10???)
 
 	// Relationships
-	UserID  uuid.UUID `gorm:"type:uuid"` //Assignee
-	User    *User     `gorm:"foreignKey:UserID"`
+	UserBoardRoleID uuid.UUID      `gorm:"type:uuid"` //Assignee
+	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
+
 	ColumnD uuid.UUID `gorm:"type:uuid"`
 	//Column      *Column  !!!!!!!!!! need TO Do
+
 	BoardID uuid.UUID `gorm:"type:uuid;not null"`
 	Board   *Board    `gorm:"foreignKey:BoardID"`
 
