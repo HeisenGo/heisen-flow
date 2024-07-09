@@ -7,6 +7,6 @@ server:
 db:
   user: "root"
   pass: "123456"
-  host : "localhost"
+  host : "postgres"
   port: 5432
-  db_name: "heisenflow"
+  db_name: "heisen-flow"
