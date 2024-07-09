@@ -5,9 +5,10 @@ ParentID and Parent for the parent task (null for top-level tasks).
 Subtasks for child tasks.
 */
 
-package entities
+package task
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -31,17 +32,21 @@ type Task struct {
 	// Status      TaskStatus `gorm:"not null"`
 	Order           uint // in column which order is this
 	StartAt         time.Time
-	EndedAt         time.Time
+	EndAt           time.Time
 	StoryPoint      uint      //(should be less than 10???)
 	UserBoardRoleID uuid.UUID //Assignee
 	CreatedByUBRID  uuid.UUID
 	ColumnID        uuid.UUID
 	BoardID         uuid.UUID
-	ParentID        *uuid.UUID //can be null for tasks not sub tasks
-	Subtasks        []Task
 
-	DependsOn   []Task
-	DependentBy []Task
+	ParentID   *uuid.UUID //can be null for tasks not sub tasks
+	SubTaskIDs []uuid.UUID
+	Subtasks   []Task
+
+	DependsOn          []Task
+	DependsOnTaskIDs   []uuid.UUID
+	DependentBy        []Task
+	DependentByTaskIDs []uuid.UUID
 }
 
 type TaskDependency struct {

@@ -24,16 +24,17 @@ type Task struct {
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
 	StartAt    time.Time
-	EndedAt    time.Time
-	StoryPoint uint //(should be less than 10???)
+	EndAt      time.Time
+	StoryPoint uint //(should be less than 1 2 3 5 8 13 21 ???) 
 
 	// Relationships
 	UserBoardRoleID uuid.UUID      `gorm:"type:uuid"` //Assignee
 	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 
-	CreatedByUBRID uuid.UUID      `gorm:"type:uuid"`
-	CreatedByUBR   *UserBoardRole `gorm:"foreignKey:CreatedByUBRID"`
-	ColumnD        uuid.UUID      `gorm:"type:uuid"`
+	//CreatedByUBRID uuid.UUID      `gorm:"type:uuid"`
+	//CreatedByUBR   *UserBoardRole `gorm:"foreignKey:CreatedByUBRID"`
+
+	ColumnID        uuid.UUID      `gorm:"type:uuid"`
 	//Column      *Column  !!!!!!!!!! need TO Do
 
 	BoardID uuid.UUID `gorm:"type:uuid;not null"`
@@ -42,8 +43,9 @@ type Task struct {
 	ParentID *uuid.UUID `gorm:"type:uuid"` //can be null for tasks not sub tasks
 	Parent   *Task      `gorm:"foreignKey:ParentID"`
 	Subtasks []Task     `gorm:"foreignKey:ParentID"`
-
-	DependsOn   []Task `gorm:"many2many:task_dependencies;"`
+	// for tasks that this task depends on
+	DependsOn []Task `gorm:"many2many:task_dependencies;"`
+	// for tasks that depend on this task.
 	DependentBy []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
 }
 
