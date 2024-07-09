@@ -33,6 +33,8 @@ func (r *taskRepo) Insert(ctx context.Context, t *task.Task) error {
 	return nil
 }
 
+// using dfs
+
 func (r *taskRepo) CheckCircularDependency(taskID, dependencyID uuid.UUID) bool {
 	visited := make(map[uuid.UUID]bool)
 	var dfs func(current uuid.UUID) bool
