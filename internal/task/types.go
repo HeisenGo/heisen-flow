@@ -8,24 +8,34 @@ Subtasks for child tasks.
 package entities
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
+var (
+	ErrCircularDependency = errors.New("circular dependency detected")
+)
+
+type Repo interface {
+	//GetUserTasks(ctx context.Context, userID uuid.UUID, limit, offset uint) ([]Board, uint, error)
+	Insert(ctx context.Context, task *Task) error
+	//GetByID(ctx context.Context, id uuid.UUID) (*Board, error)
+}
+
 type Task struct {
-	ID    uuid.UUID
-	Title string
+	ID          uuid.UUID
+	Title       string
+	Description string
 	// Status      TaskStatus `gorm:"not null"`
 	Order           uint // in column which order is this
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-	DeletedAt       gorm.DeletedAt
+	StartAt         time.Time
 	EndedAt         time.Time
 	StoryPoint      uint      //(should be less than 10???)
 	UserBoardRoleID uuid.UUID //Assignee
-	ColumnD         uuid.UUID
+	CreatedByUBRID  uuid.UUID
+	ColumnID        uuid.UUID
 	BoardID         uuid.UUID
 	ParentID        *uuid.UUID //can be null for tasks not sub tasks
 	Subtasks        []Task
