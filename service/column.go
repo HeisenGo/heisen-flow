@@ -85,6 +85,6 @@ func (s *ColumnService) DeleteColumn(ctx context.Context, columnID uuid.UUID) er
 	return s.colOps.Delete(ctx, columnID)
 }
 
-func (s *ColumnService) GetColumnsByBoardID(ctx context.Context, boardID uuid.UUID) ([]column.Column, error) {
-	return s.colOps.GetColumnsByBoardID(ctx, boardID)
-}
+// func (s *ColumnService) GetColumnsByBoardID(ctx context.Context, boardID uuid.UUID) ([]column.Column, error) {
+// 	return s.colOps.GetColumnsByBoardID(ctx, boardID)
+// }

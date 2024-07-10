@@ -56,10 +56,10 @@ func (r *columnRepo) Delete(ctx context.Context, columnID uuid.UUID) error {
 	return nil
 }
 
-// func (r *columnRepo) GetByBoardID(ctx context.Context, boardID uuid.UUID) ([]column.Column, error) {
-// 	var cols []column.Column
-// 	if err := r.db.WithContext(ctx).Where("board_id = ?", boardID).Find(&cols).Error; err != nil {
-// 		return nil, err
-// 	}
-// 	return cols, nil
-// }
+func (r *columnRepo) GetByBoardID(ctx context.Context, boardID uuid.UUID) ([]column.Column, error) {
+	var cols []column.Column
+	if err := r.db.WithContext(ctx).Where("board_id = ?", boardID).Find(&cols).Error; err != nil {
+		return nil, err
+	}
+	return cols, nil
+}
