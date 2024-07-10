@@ -20,6 +20,7 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	registerGlobalRoutes(api, app)
 	secret := []byte(cfg.TokenSecret)
 	registerBoardRoutes(api, app, secret)
+	registerTaskRoutes(api, app, secret)
 
 	// registering users APIs
 	//registerUsersAPI(api, app.UserService(), secret)
