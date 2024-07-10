@@ -99,3 +99,8 @@ func ValidatePasswordWithFeedback(password string) error {
 
 	return nil
 }
+
+
+func LowerCaseEmail(email string) string {
+	return strings.ToLower(email)
+}
