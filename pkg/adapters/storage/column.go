@@ -35,3 +35,16 @@ func (r *columnRepo) GetByID(ctx context.Context, id uuid.UUID) (*column.Column,
 	}
 	return &col, nil
 }
+
+func (r *columnRepo) GetMaxOrderForBoard(ctx context.Context, boardID uuid.UUID) (uint, error) {
+	var maxOrder uint
+	err := r.db.WithContext(ctx).Model(&column.Column{}).Where("board_id = ?", boardID).Select("COALESCE(MAX(\"order\"), 0)").Scan(&maxOrder).Error
+	return maxOrder, err
+}
+
+func (r *columnRepo) CreateBatch(ctx context.Context, columns []column.Column) ([]column.Column, error) {
+	if err := r.db.WithContext(ctx).Create(&columns).Error; err != nil {
+		return nil, err
+	}
+	return columns, nil
+}
