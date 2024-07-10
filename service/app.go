@@ -5,6 +5,7 @@ import (
 	"log"
 	"server/config"
 	"server/internal/board"
+	"server/internal/column"
 	"server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/adapters/storage"
@@ -14,10 +15,11 @@ import (
 )
 
 type AppContainer struct {
-	cfg          config.Config
-	dbConn       *gorm.DB
-	authService  *AuthService
-	boardService *BoardService
+	cfg           config.Config
+	dbConn        *gorm.DB
+	authService   *AuthService
+	boardService  *BoardService
+	columnService *ColumnService
 }
 
 func NewAppContainer(cfg config.Config) (*AppContainer, error) {
@@ -29,6 +31,7 @@ func NewAppContainer(cfg config.Config) (*AppContainer, error) {
 
 	app.setAuthService()
 	app.setBoardService()
+	app.setColumnService()
 
 	return app, nil
 }
@@ -51,7 +54,7 @@ func (a *AppContainer) mustInitDB() {
 
 	err = storage.AddExtension(a.dbConn)
 	if err != nil {
-		log.Fatal("Cerate extention failed: ", err)
+		log.Fatal("Create extension failed: ", err)
 	}
 
 	err = storage.Migrate(a.dbConn)
@@ -96,9 +99,36 @@ func (a *AppContainer) BoardServiceFromCtx(ctx context.Context) *BoardService {
 	)
 }
 
+func (a *AppContainer) ColumnService() *ColumnService {
+	return a.columnService
+}
+
+func (a *AppContainer) ColumnServiceFromCtx(ctx context.Context) *ColumnService {
+	tx, ok := valuecontext.TryGetTxFromContext(ctx)
+	if !ok {
+		return a.columnService
+	}
+
+	gc, ok := tx.Tx().(*gorm.DB)
+	if !ok {
+		return a.columnService
+	}
+
+	return NewColumnService(
+		column.NewOps(storage.NewColumnRepo(gc)),
+	)
+}
+
 func (a *AppContainer) setBoardService() {
 	if a.boardService != nil {
 		return
 	}
 	a.boardService = NewBoardService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)))
+}
+
+func (a *AppContainer) setColumnService() {
+	if a.columnService != nil { // Fixed condition
+		return
+	}
+	a.columnService = NewColumnService(column.NewOps(storage.NewColumnRepo(a.dbConn)))
 }
