@@ -28,7 +28,7 @@ type Task struct {
 	StoryPoint  uint //(should be less than 1 2 3 5 8 13 21 ???)
 
 	// Relationships
-	UserBoardRoleID uuid.UUID      `gorm:"type:uuid"` //Assignee
+	UserBoardRoleID *uuid.UUID      `gorm:"type:uuid"` //Assignee
 	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 
 	//CreatedByUBRID uuid.UUID      `gorm:"type:uuid"`
