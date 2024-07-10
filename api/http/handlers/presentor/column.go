@@ -1,6 +1,7 @@
 package presenter
 
 import (
+	"server/internal/column"
 	"server/pkg/adapters/storage/entities"
 
 	"github.com/google/uuid"
@@ -24,6 +25,11 @@ type ColumnResponseItem struct {
 	ID    uuid.UUID `json:"id"`
 	Name  string    `json:"name"`
 	Order uint      `json:"order"`
+}
+
+type GetColumnsResponse struct {
+	Columns []ColumnResponseItem `json:"columns"`
+	Message string               `json:"message"`
 }
 
 func CreateColumnsRequestToEntities(req CreateColumnsRequest, maxOrder uint) []entities.Column {
@@ -51,5 +57,24 @@ func EntitiesToCreateColumnsResponse(columns []entities.Column) CreateColumnsRes
 	return CreateColumnsResponse{
 		Data:    respItems,
 		Message: "Columns successfully created.",
+	}
+}
+
+func EntityToColumnResponse(c column.Column) ColumnResponseItem {
+	return ColumnResponseItem{
+		ID:    c.ID,
+		Name:  c.Name,
+		Order: c.Order,
+	}
+}
+
+func EntitiesToGetColumnsResponse(columns []column.Column) GetColumnsResponse {
+	columnResponses := make([]ColumnResponseItem, len(columns))
+	for i, col := range columns {
+		columnResponses[i] = EntityToColumnResponse(col)
+	}
+	return GetColumnsResponse{
+		Columns: columnResponses,
+		Message: "Columns fetched successfully",
 	}
 }
