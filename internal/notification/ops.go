@@ -18,7 +18,7 @@ func (o *Ops) CreateNotification(ctx context.Context, userID, boardID uuid.UUID)
 	return err
 }
 
-func (o *Ops) DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) (*Notification,error){
+func (o *Ops) DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) ([]Notification,error){
 	notification , err := o.repo.DisplyNotification(ctx,userID,boardID)
 	if err != nil{
 		return nil , err

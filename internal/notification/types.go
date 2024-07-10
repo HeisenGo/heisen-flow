@@ -7,7 +7,7 @@ import (
 
 type Repo interface {
 	CreateNotification(ctx context.Context, userID, boardID uuid.UUID) error
-	DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) (*Notification,error)
+	DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) ([]Notification,error)
 	DeleteNotification(ctx context.Context, notif *Notification) error
 }
 
