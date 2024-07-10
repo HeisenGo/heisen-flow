@@ -38,3 +38,11 @@ func (o *Ops) CreateColumns(ctx context.Context, columns []Column) ([]Column, er
 	}
 	return o.repo.CreateBatch(ctx, columns)
 }
+
+func (o *Ops) Delete(ctx context.Context, columnID uuid.UUID) error {
+	return o.repo.Delete(ctx, columnID)
+}
+
+func (o *Ops) GetColumnsByBoardID(ctx context.Context, boardID uuid.UUID) ([]Column, error) {
+	return o.repo.GetByBoardID(ctx, boardID)
+}
