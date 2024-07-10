@@ -9,4 +9,4 @@ db:
   pass: "123456"
   host : "postgres"
   port: 5432
-  db_name: "heisen-flow"
+  db_name: "heisenflow"
