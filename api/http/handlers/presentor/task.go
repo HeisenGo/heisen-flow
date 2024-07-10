@@ -24,6 +24,18 @@ type UserTask struct {
 	// SubTasksIDs        []uuid.UUID `json:"sub_tasks"`
 }
 
+type DependentTasks struct {
+	ID               uuid.UUID   `json:"task_id"`
+	DependsOnTaskIDs []uuid.UUID `json:"depends_on_task_ids"`
+}
+
+func AddDependencyRecToTask(dependentTasksReq *DependentTasks, userID uuid.UUID) *task.Task {
+	return &task.Task{
+		ID:               dependentTasksReq.ID,
+		DependsOnTaskIDs: dependentTasksReq.DependsOnTaskIDs,
+	}
+}
+
 func TaskToUserTask(t task.Task) UserTask {
 	return UserTask{
 		ID: t.ID,
