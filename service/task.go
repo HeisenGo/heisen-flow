@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"fmt"
 	b "server/internal/board"
 	"server/internal/task"
+	t "server/internal/task"
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/rbac"
@@ -55,21 +55,17 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 
 	// To Do
 	//check if parent id is not null the parent task exists
-	if task.ParentID!=nil{
-		fmt.Print("Not implemented")
+	if task.ParentID != nil {
+		_, err := s.taskOps.GetTaskByID(ctx, *task.ParentID)
+		if err != nil {
+			return t.ErrParentTaskNotFound
+		}
 	}
 
 	// check if assignee exists in this board
 	if task.AssigneeUserID != nil {
-		// assignee, err := s.userOps.GetUserByID(ctx, *task.AssigneeUserID)
-		// if err != nil {
-		// 	return err
-		// }
 
-		// if assignee == nil {
-		// 	return errors.New("assignee not found")
-		// }
-		// get role ? can viewer be assigned a task???
+		// get role ? can viewer be assigned a task??? TO DOOOO
 		// check membership if assignee is not empty
 		role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, *task.AssigneeUserID, board.ID)
 		if err != nil {
@@ -95,5 +91,26 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 	if err != nil {
 		return err
 	}
+
+	// notif to owner and maintainer!!!
 	return nil
+}
+
+func (s *TaskService) AddDependency(ctx context.Context, task *task.Task) error {
+	// task exists?
+	existedTask, err := s.taskOps.GetTaskByID(ctx, task.ID)
+	if err != nil {
+		return err
+	}
+	// check permission
+	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, task.CreatedByUserID, existedTask.BoardID)
+	if err != nil {
+		return err
+	}
+
+	if !rbac.HasPermission(role, rbac.PermissionCreateTask) {
+		return ErrPermissionDenied
+	}
+
+	return s.taskOps.AddDependency(ctx, task)
 }

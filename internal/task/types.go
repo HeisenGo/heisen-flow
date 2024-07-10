@@ -25,11 +25,17 @@ var (
 	ErrLongDescription                = errors.New("description cannot be longer than 1000 characters")
 	ErrTitleInvalidCharacter          = errors.New("title contains invalid characters")
 	ErrDescInvalidCharacter           = errors.New("description contains invalid characters")
+	ErrParentTaskNotFound             = errors.New("parent not found")
+	ErrTaskNotFound                   = errors.New("task not found")
+	ErrBoardNotFound = errors.New("board not found")
 )
 
 type Repo interface {
 	//GetUserTasks(ctx context.Context, userID uuid.UUID, limit, offset uint) ([]Board, uint, error)
 	Insert(ctx context.Context, task *Task) error
+	GetByID(ctx context.Context, id uuid.UUID) (*Task, error)
+	AddDependency(ctx context.Context, t *Task) error
+	GetBoardID(ctx context.Context, id uuid.UUID) (*uuid.UUID, error)
 	//GetByID(ctx context.Context, id uuid.UUID) (*Board, error)
 }
 
