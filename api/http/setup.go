@@ -59,7 +59,7 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 	router.Post("",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
-		userRoleChecker(),
+		//userRoleChecker(),
 		handlers.CreateUserBoard(app.BoardServiceFromCtx),
 	)
 
@@ -67,4 +67,17 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 		middlewares.Auth(secret),
 		//	userRoleChecker(),
 		handlers.InviteToBoard(app.BoardServiceFromCtx))
+}
+
+func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
+	router = router.Group("/tasks")
+
+	//router.Get("", middlerwares.Auth(secret), userRoleChecker(), handlers.UserOrders(app.OrderService()))
+
+	router.Post("",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		//userRoleChecker(),
+		handlers.CreateTask(app.TaskServiceFromCtx),
+	)
 }
