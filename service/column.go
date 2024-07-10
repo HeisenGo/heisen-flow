@@ -80,3 +80,11 @@ func (s *ColumnService) CreateColumns(ctx context.Context, columns []entities.Co
 	}
 	return createdEntities, nil
 }
+
+func (s *ColumnService) DeleteColumn(ctx context.Context, columnID uuid.UUID) error {
+	return s.colOps.Delete(ctx, columnID)
+}
+
+func (s *ColumnService) GetColumnsByBoardID(ctx context.Context, boardID uuid.UUID) ([]column.Column, error) {
+	return s.colOps.GetColumnsByBoardID(ctx, boardID)
+}
