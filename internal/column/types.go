@@ -15,6 +15,8 @@ var (
 type Repo interface {
 	Create(ctx context.Context, column *Column) (*Column, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*Column, error)
+	GetMaxOrderForBoard(ctx context.Context, boardID uuid.UUID) (uint, error)
+	CreateBatch(ctx context.Context, columns []Column) ([]Column, error)
 }
 
 type Column struct {
