@@ -11,7 +11,7 @@ type UserTask struct {
 	ID             uuid.UUID `json:"task_id"`
 	StartAt        Timestamp `json:"start_at"`
 	EndAt          Timestamp `json:"end_at"`
-	AssigneeUserID *uuid.UUID `json:"assignee_user_id"`
+	AssigneeUserID uuid.UUID `json:"assignee_user_id"`
 	Title          string    `json:"title"`
 	Description    string    `json:"desc"`
 	StoryPoint     uint      `json:"story_point"`
@@ -47,7 +47,6 @@ func UserTaskToTask(userTaskReq *UserTask, userID uuid.UUID) *task.Task {
 		// BoardID: t.BoardID,
 		ParentID:         userTaskReq.ParentID,
 		DependsOnTaskIDs: userTaskReq.DependsOnTaskIDs,
-		AssigneeUserID: userTaskReq.AssigneeUserID, // this will be changed during 
 		// DependentByTaskIDs: userTaskReq.DependentByTaskIDs,
 		// SubTaskIDs:         userTaskReq.SubTasksIDs,
 	}
