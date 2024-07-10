@@ -64,10 +64,22 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
 	router = router.Group("/columns")
 
-	router.Post("/columns",
+	router.Post("",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
 		userRoleChecker(),
 		handlers.CreateColumns(app.ColumnServiceFromCtx),
 	)
+	router.Delete("/:columnID",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		userRoleChecker(),
+		handlers.DeleteColumn(app.ColumnServiceFromCtx),
+	)
+
+	// router.Get("/:boardID",
+	// 	middlewares.Auth(secret),
+	// 	userRoleChecker(),
+	// 	handlers.GetColumnsByBoardID(app.ColumnServiceFromCtx),
+	// )
 }
