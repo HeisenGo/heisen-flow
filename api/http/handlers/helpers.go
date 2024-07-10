@@ -3,11 +3,12 @@ package handlers
 import (
 	"context"
 	"errors"
+	"github.com/gofiber/fiber/v2"
+	"server/api/http/handlers/presentor"
 	"server/pkg/jwt"
 	"server/pkg/valuecontext"
 	"server/service"
-
-	"github.com/gofiber/fiber/v2"
+	"strings"
 )
 
 const UserClaimKey = jwt.UserClaimKey
@@ -31,7 +32,7 @@ func SendError(c *fiber.Ctx, err error, status int) error {
 }
 
 func SendUserToken(c *fiber.Ctx, authToken *service.UserToken) error {
-	return OK(c, "User successfully logged in", fiber.Map{
+	return presenter.OK(c, "User successfully logged in", fiber.Map{
 		"auth_token":    authToken.AuthorizationToken,
 		"refresh_token": authToken.RefreshToken,
 	})
@@ -48,4 +49,18 @@ func PageAndPageSize(c *fiber.Ctx) (int, int) {
 	}
 
 	return page, pageSize
+}
+
+func BodyValidator[T any](req T) error {
+	myValidator := presenter.GetValidator()
+	if errs := myValidator.Validate(req); len(errs) > 0 {
+		errMsgs := make([]string, 0)
+
+		for _, err := range errs {
+			errMsgs = append(errMsgs, err.Error)
+		}
+
+		return errors.New(strings.Join(errMsgs, "and"))
+	}
+	return nil
 }
