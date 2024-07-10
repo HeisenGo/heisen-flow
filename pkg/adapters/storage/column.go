@@ -19,7 +19,7 @@ func NewColumnRepo(db *gorm.DB) column.Repo {
 }
 
 func (r *columnRepo) Create(ctx context.Context, col *column.Column) (*column.Column, error) {
-	if err := r.db.WithContext(ctx).Create(col).Error; err != nil {
+	if err := r.db.WithContext(ctx).Save(col).Error; err != nil {
 		return nil, err
 	}
 	return col, nil
@@ -48,3 +48,18 @@ func (r *columnRepo) CreateBatch(ctx context.Context, columns []column.Column) (
 	}
 	return columns, nil
 }
+
+func (r *columnRepo) Delete(ctx context.Context, columnID uuid.UUID) error {
+	if err := r.db.WithContext(ctx).Where("id = ?", columnID).Delete(&column.Column{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// func (r *columnRepo) GetByBoardID(ctx context.Context, boardID uuid.UUID) ([]column.Column, error) {
+// 	var cols []column.Column
+// 	if err := r.db.WithContext(ctx).Where("board_id = ?", boardID).Find(&cols).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return cols, nil
+// }
