@@ -5,6 +5,7 @@ import (
 	"server/service"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
@@ -32,3 +33,42 @@ func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.
 		return Created(c, resp.Message, fiber.Map{"data": resp.Data})
 	}
 }
+
+func DeleteColumn(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		columnService := serviceFactory(c.UserContext())
+
+		columnIDParam := c.Params("columnID")
+		columnID, err := uuid.Parse(columnIDParam)
+		if err != nil {
+			return SendError(c, err, fiber.StatusBadRequest)
+		}
+
+		err = columnService.DeleteColumn(c.UserContext(), columnID)
+		if err != nil {
+			return InternalServerError(c, err)
+		}
+
+		return OK(c, "Column deleted successfully", nil)
+	}
+}
+
+// func GetColumnsByBoardID(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
+// 	return func(c *fiber.Ctx) error {
+// 		columnService := serviceFactory(c.UserContext())
+
+// 		boardIDParam := c.Params("boardID")
+// 		boardID, err := uuid.Parse(boardIDParam)
+// 		if err != nil {
+// 			return SendError(c, err, fiber.StatusBadRequest)
+// 		}
+
+// 		columns, err := columnService.GetColumnsByBoardID(c.UserContext(), boardID)
+// 		if err != nil {
+// 			return InternalServerError(c, err)
+// 		}
+
+// 		resp := presenter.EntitiesToGetColumnsResponse(columns)
+// 		return OK(c, resp.Message, fiber.Map{"data": resp.Columns})
+// 	}
+// }
