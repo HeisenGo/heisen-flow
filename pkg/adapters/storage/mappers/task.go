@@ -1,10 +1,11 @@
 package mappers
 
 import (
-	"server/internal/board"
 	"server/internal/task"
 	"server/pkg/adapters/storage/entities"
 	"server/pkg/fp"
+
+	"github.com/google/uuid"
 )
 
 func TaskEntityToDomain(taskEntity entities.Task) task.Task {
@@ -21,8 +22,8 @@ func TaskEntityToDomain(taskEntity entities.Task) task.Task {
 	}
 }
 
-func TaskEntitiesToDomain(boardEntities []entities.Board) []board.Board {
-	return fp.Map(boardEntities, BoardEntityToDomain)
+func BatchTaskEntitiesToDomain(taskEntities []entities.Task) []task.Task {
+	return fp.Map(taskEntities, TaskEntityToDomain)
 }
 
 func TaskDomainToEntity(t *task.Task) *entities.Task {
@@ -36,4 +37,18 @@ func TaskDomainToEntity(t *task.Task) *entities.Task {
 		BoardID:         t.BoardID,
 		ParentID:        t.ParentID,
 	}
+}
+
+func TaskDependencyDomainToTaskEntity(id uuid.UUID) entities.Task {
+	return entities.Task{ID: id}
+}
+
+func BatchTaskDependencyDomainToTask(taskIDs []uuid.UUID) []entities.Task {
+	tasks := make([]entities.Task, len(taskIDs))
+
+	for _, id := range taskIDs {
+		t := TaskDependencyDomainToTaskEntity(id)
+		tasks = append(tasks, t)
+	}
+	return tasks
 }
