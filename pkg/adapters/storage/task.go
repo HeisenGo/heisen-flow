@@ -44,7 +44,7 @@ func (r *taskRepo) Insert(ctx context.Context, t *task.Task) error {
 	}
 
 	t.ID = taskEntity.ID
-	if len(t.DependsOnTaskIDs) > 0 { //&& t.ParentID == nil {
+	if len(t.DependsOnTaskIDs) > 0 {
 		var existingTasks []entities.Task
 		if err := r.db.Where("id IN ?", t.DependsOnTaskIDs).Find(&existingTasks).Error; err != nil {
 			return task.ErrFailedToFindDependsOnTasks
@@ -100,7 +100,7 @@ func (r *taskRepo) AddDependency(ctx context.Context, t *task.Task) error {
 			}
 			return err
 		}
-
+		// TO DO : Bulk
 		for _, existingTask := range existingTasks {
 			if err := r.db.WithContext(ctx).Model(&tEntity).Association("DependsOn").Append(&existingTask); err != nil {
 				return fmt.Errorf("failed to add dependency %v: %w", existingTask.ID, err)

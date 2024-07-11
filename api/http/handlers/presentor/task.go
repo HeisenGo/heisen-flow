@@ -9,10 +9,10 @@ import (
 
 type UserTask struct {
 	ID             uuid.UUID `json:"task_id"`
-	BoardID        uuid.UUID `json:"board_id"`
+	BoardID        uuid.UUID `json:"board_id" validate:"required"`
 	StartAt        Timestamp `json:"start_at"`
 	EndAt          Timestamp `json:"end_at"`
-	AssigneeUserID uuid.UUID `json:"assignee_user_id"`
+	AssigneeUserID uuid.UUID `json:"assignee_user_id" validate:"required"`
 	Title          string    `json:"title"`
 	Description    string    `json:"desc"`
 	StoryPoint     uint      `json:"story_point"`
@@ -23,11 +23,11 @@ type UserTask struct {
 }
 
 type DependentTasks struct {
-	ID               uuid.UUID   `json:"task_id"`
-	DependsOnTaskIDs []uuid.UUID `json:"depends_on_task_ids"`
+	ID               uuid.UUID   `json:"task_id" validate:"required"`
+	DependsOnTaskIDs []uuid.UUID `json:"depends_on_task_ids" validate:"required"`
 }
 
-func AddDependencyRecToTask(dependentTasksReq *DependentTasks, userID uuid.UUID) *task.Task {
+func AddDependencyReqToTask(dependentTasksReq *DependentTasks, userID uuid.UUID) *task.Task {
 	return &task.Task{
 		ID:               dependentTasksReq.ID,
 		DependsOnTaskIDs: dependentTasksReq.DependsOnTaskIDs,

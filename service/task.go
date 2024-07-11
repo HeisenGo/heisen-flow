@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	b "server/internal/board"
 	"server/internal/task"
 	t "server/internal/task"
@@ -102,8 +101,6 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 func (s *TaskService) AddDependency(ctx context.Context, task *task.Task) error {
 	// task exists?
 	existedTask, err := s.taskOps.GetTaskByID(ctx, task.ID)
-	fmt.Println(existedTask.BoardID)
-	fmt.Println(task.CreatedByUserID)
 	if err != nil {
 		return err
 	}

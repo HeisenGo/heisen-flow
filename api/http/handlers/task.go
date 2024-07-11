@@ -22,6 +22,11 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 			return SendError(c, err, fiber.StatusBadRequest)
 		}
 
+		err := BodyValidator(req)
+		if err != nil {
+			return presenter.BadRequest(c, err)
+		}
+		
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
 		if !ok {
 			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
@@ -41,7 +46,7 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 			return SendError(c, err, status)
 		}
 
-		return c.JSON(fiber.Map{
+		return presenter.Created(c, "Board created successfully", fiber.Map{
 			"message": "task created",
 			"task_id": t.ID,
 		})
@@ -58,12 +63,17 @@ func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Ha
 			return SendError(c, err, fiber.StatusBadRequest)
 		}
 
+		err := BodyValidator(req)
+		if err != nil {
+			return presenter.BadRequest(c, err)
+		}
+
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
 		if !ok {
 			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
 		}
 
-		t := presenter.AddDependencyRecToTask(&req, userClaims.UserID)
+		t := presenter.AddDependencyReqToTask(&req, userClaims.UserID)
 
 		if err := taskService.AddDependency(c.UserContext(), t); err != nil {
 			status := fiber.StatusInternalServerError
@@ -77,7 +87,7 @@ func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Ha
 			return SendError(c, err, status)
 		}
 
-		return c.JSON(fiber.Map{
+		return presenter.Created(c, "Board created successfully", fiber.Map{
 			"message": "task dependency created",
 			"task_id": t.ID,
 		})

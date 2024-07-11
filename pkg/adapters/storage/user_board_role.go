@@ -35,7 +35,6 @@ func (r *userBoardRepo) GetUserBoardRole(ctx context.Context, userID, boardID uu
 		return "", userboardrole.ErrUserRoleNotFound
 	}
 	return rbac.Role(userBoardRole.UserRole), nil
-	// with more roles? what to do
 }
 
 func (r *userBoardRepo) SetUserBoardRole(ctx context.Context, ub *userboardrole.UserBoardRole) error {

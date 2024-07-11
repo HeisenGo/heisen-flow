@@ -35,7 +35,6 @@ type Repo interface {
 	Insert(ctx context.Context, task *Task) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Task, error)
 	AddDependency(ctx context.Context, t *Task) error
-	GetBoardID(ctx context.Context, id uuid.UUID) (*uuid.UUID, error)
 }
 
 type Task struct {

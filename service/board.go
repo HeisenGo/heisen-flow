@@ -12,6 +12,12 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	ErrPermissionDenied = errors.New("permission denied")
+	ErrNotMember        = errors.New("the assignee is not a member of this board")
+	ErrCantAssigned     = errors.New("assignee is a viewer")
+)
+
 // BoardService handles board-related operations
 type BoardService struct {
 	userOps          *u.Ops
