@@ -70,36 +70,48 @@ func (r *taskRepo) Insert(ctx context.Context, t *task.Task) error {
 }
 
 func (r *taskRepo) AddDependency(ctx context.Context, t *task.Task) error {
-	//check if depends on task ID exist
 	if len(t.DependsOnTaskIDs) > 0 {
 		var errs error
 
 		var existingTasks []entities.Task
 		if err := r.db.Where("id IN ?", t.DependsOnTaskIDs).Find(&existingTasks).Error; err != nil {
-			return task.ErrFailedToFindDependsOnTasks
+			return err
 		}
 
 		if len(existingTasks) != len(t.DependsOnTaskIDs) {
 			return task.ErrFailedToFindDependsOnTasks
 		}
-		// check dependency circle
-		for _, tID := range t.DependsOnTaskIDs {
-			if r.CheckCircularDependency(t.ID, tID) {
-				errs = errors.Join(errs, fmt.Errorf("in circular dependency with task %v", tID))
-			} else {
-				if err := r.db.WithContext(ctx).Model(&entities.Task{ID: t.ID}).
-					Association("DependsOn").
-					Append(&entities.Task{ID: tID}); err != nil {
-					return errors.Join(errs, err)
-				}
+
+		// Check for circular dependencies
+		for _, dependsOnID := range t.DependsOnTaskIDs {
+			if r.CheckCircularDependency(t.ID, dependsOnID) {
+				errs = errors.Join(errs, fmt.Errorf("circular dependency detected with task %v", dependsOnID))
 			}
 		}
+		if errs != nil {
+			return errors.Join(task.ErrCircularDependency, errs)
+		}
+		// Retrieve the main task entity
+		var tEntity entities.Task
+		fmt.Println(t.ID)
+		if err := r.db.WithContext(ctx).Model(&entities.Task{}).Where("id = ?", t.ID).First(&tEntity).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return task.ErrTaskNotFound
+			}
+			return err
+		}
+
+		for _, existingTask := range existingTasks {
+			if err := r.db.WithContext(ctx).Model(&tEntity).Association("DependsOn").Append(&existingTask); err != nil {
+				return fmt.Errorf("failed to add dependency %v: %w", existingTask.ID, err)
+			}
+		}
+
 	}
 	return nil
 }
 
-// using dfs
-
+// using Depth First Search
 func (r *taskRepo) CheckCircularDependency(taskID, dependencyID uuid.UUID) bool {
 	visited := make(map[uuid.UUID]bool)
 	var dfs func(current uuid.UUID) bool
@@ -113,11 +125,11 @@ func (r *taskRepo) CheckCircularDependency(taskID, dependencyID uuid.UUID) bool 
 		}
 		visited[current] = true
 
-		var dependencies []uuid.UUID
-		r.db.Model(&entities.Task{}).Where("id = ?", current).Association("DependsOn").Find(&dependencies)
+		var dependencies []entities.Task
+		r.db.Model(&entities.Task{ID: current}).Association("DependsOn").Find(&dependencies)
 
-		for _, depID := range dependencies {
-			if dfs(depID) {
+		for _, dep := range dependencies {
+			if dfs(dep.ID) {
 				return true
 			}
 		}
