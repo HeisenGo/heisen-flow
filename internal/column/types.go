@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -22,10 +23,12 @@ type Repo interface {
 }
 
 type Column struct {
-	ID      uuid.UUID
-	Name    string
-	BoardID uuid.UUID
-	Order   uint
+	ID        uuid.UUID
+	Name      string
+	BoardID   uuid.UUID
+	Order     uint
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func ValidateColumnName(name string) error {
