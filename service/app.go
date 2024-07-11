@@ -5,10 +5,12 @@ import (
 	"log"
 	"server/config"
 	"server/internal/board"
+	"server/internal/notification"
 	"server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/adapters/storage"
 	"server/pkg/valuecontext"
+
 	"gorm.io/gorm"
 )
 
@@ -17,6 +19,7 @@ type AppContainer struct {
 	dbConn       *gorm.DB
 	authService  *AuthService
 	boardService *BoardService
+	notificationService *NotificationService
 }
 
 func NewAppContainer(cfg config.Config) (*AppContainer, error) {
@@ -32,6 +35,7 @@ func NewAppContainer(cfg config.Config) (*AppContainer, error) {
 
 	app.setAuthService()
 	app.setBoardService()
+	app.setNotificationService()
 
 	return app, nil
 }
@@ -87,6 +91,14 @@ func (a *AppContainer) BoardServiceFromCtx(ctx context.Context) *BoardService {
 		board.NewOps(storage.NewBoardRepo(gc)),
 		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
 	)
+}
+
+func (a *AppContainer) NotificationService() *NotificationService {
+	return a.notificationService
+}
+
+func (a *AppContainer) setNotificationService(){
+	a.notificationService = NewNotificationService(notification.NewOps(storage.NewNotificationRepo(a.dbConn)))
 }
 
 func (a *AppContainer) setBoardService() {

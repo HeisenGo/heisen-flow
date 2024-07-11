@@ -9,5 +9,6 @@ type Notification struct {
     ISSeen            bool
     Description       string
     NotificationType  string
-    UserBoardRoleID   uuid.UUID `gorm:"type:uuid;not null"`
+	UserBoardRoleID uuid.UUID      `gorm:"type:uuid"` //Assignee
+	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 }

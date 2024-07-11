@@ -2,11 +2,8 @@ package storage
 
 import (
 	"context"
-	"errors"
 	"server/internal/notification"
-	"server/pkg/adapters/storage/entities"
 	"server/pkg/adapters/storage/mappers"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -21,9 +18,8 @@ func NewNotificationRepo(db *gorm.DB) notification.Repo {
 	}
 }
 
-func (r *notificationRepo) CreateNotification(ctx context.Context, userID, boardID uuid.UUID) error {
-	var n notification.Notification
-	newNotification := mappers.NotificationDomainToEntity(&n)
+func (r *notificationRepo) CreateNotification(ctx context.Context, notif *notification.Notification) error {
+	newNotification := mappers.NotificationDomainToEntity(notif)
 	err := r.db.WithContext(ctx).Create(&newNotification).Error
 	if err != nil {
 		return err
@@ -31,10 +27,21 @@ func (r *notificationRepo) CreateNotification(ctx context.Context, userID, board
 	return nil
 }
 
-func (r *notificationRepo) DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) ([]notification.Notification,error) {
+// func (r *notificationRepo) DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) ([]notification.Notification,error) {
+// 	var n entities.Notification
+// 	var notifs []notification.Notification
+// 	err := r.db.WithContext(ctx).Model(&entities.Notification{}).Where("id = ?", userID).First(&n).Error
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return nil, nil
+// 		}
+// 		return nil, err
+// 	}
+	
+// 	append()
+// 	return mappers.NotificationEntityToDomain(&n), nil
+// }
 
-}
+// func (r *notificationRepo) DeleteNotification(ctx context.Context, notif *notification.Notification) error {
 
-func (r *notificationRepo) DeleteNotification(ctx context.Context, notif *notification.Notification) error {
-
-}
+// }
