@@ -18,8 +18,7 @@ type Task struct {
 	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	Title       string    `gorm:"not null"`
 	Description string
-	Status      TaskStatus `gorm:"not null"`
-	Order       uint       // in column which order is this
+	Order       uint // in column which order is this
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
@@ -28,11 +27,8 @@ type Task struct {
 	StoryPoint  uint //(should be less than 1 2 3 5 8 13 21 ???)
 
 	// Relationships
-	UserBoardRoleID *uuid.UUID      `gorm:"type:uuid"` //Assignee
+	UserBoardRoleID *uuid.UUID     `gorm:"type:uuid"` //Assignee
 	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
-
-	//CreatedByUBRID uuid.UUID      `gorm:"type:uuid"`
-	//CreatedByUBR   *UserBoardRole `gorm:"foreignKey:CreatedByUBRID"`
 
 	ColumnID uuid.UUID `gorm:"type:uuid"`
 	//Column      *Column  !!!!!!!!!! need TO Do
@@ -44,18 +40,10 @@ type Task struct {
 	Parent   *Task      `gorm:"foreignKey:ParentID"`
 	Subtasks []Task     `gorm:"foreignKey:ParentID"`
 	// for tasks that this task depends on
-	DependsOn []Task `gorm:"many2many:task_dependencies;"`
+	DependsOn []*Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
 	// for tasks that depend on this task.
-	DependentBy []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
+	DependentBy []*Task `gorm:"many2many:task_dependencies;joinForeignKey:dependency_task_id;joinReferences:dependent_task_id"`
 }
-
-type TaskStatus string
-
-const (
-	TaskStatusToDo       TaskStatus = "todo"
-	TaskStatusInProgress TaskStatus = "in_progress"
-	TaskStatusDone       TaskStatus = "done"
-)
 
 type TaskDependency struct {
 	DependentTaskID  uuid.UUID `gorm:"type:uuid;primaryKey"`
