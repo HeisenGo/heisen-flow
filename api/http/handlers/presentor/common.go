@@ -28,8 +28,8 @@ func (d *Timestamp) UnmarshalJSON(v []byte) error {
 
 type PaginationResponse[T any] struct {
 	Page       uint `json:"page"`
-	PageSize   uint `json:"pageSize"`
-	TotalPages uint `json:"totalPages"`
+	PageSize   uint `json:"page_size"`
+	TotalPages uint `json:"total_pages"`
 	Data       []T  `json:"data"`
 }
 

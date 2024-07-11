@@ -28,19 +28,6 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
 }
 
-//func registerUsersAPI(router fiber.Router, _ *service.UserService, secret []byte) {
-//	userGroup := router.Group("/users", middlewares.Auth(secret), middlewares.RoleChecker("user", "admin"))
-//
-//	userGroup.Get("/claims", func(c *fiber.Ctx) error {
-//		claims := c.Locals(jwt.UserClaimKey).(*jwt.UserClaims)
-//
-//		return c.JSON(map[string]any{
-//			"user_id": claims.UserID,
-//			"role":    claims.Role,
-//		})
-//	})
-//}
-
 func registerGlobalRoutes(router fiber.Router, app *service.AppContainer) {
 	router.Post("/register", handlers.RegisterUser(app.AuthService()))
 	router.Post("/login", handlers.LoginUser(app.AuthService()))
@@ -54,17 +41,21 @@ func userRoleChecker() fiber.Handler {
 func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
 	router = router.Group("/boards")
 
-	//router.Get("", middlerwares.Auth(secret), userRoleChecker(), handlers.UserOrders(app.OrderService()))
-
 	router.Post("",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
-		userRoleChecker(),
 		handlers.CreateUserBoard(app.BoardServiceFromCtx),
+	)
+	router.Get("/my-boards",
+		middlewares.Auth(secret),
+		handlers.GetUserBoards(app.BoardService()),
+	)
+	router.Get("/publics",
+		middlewares.Auth(secret),
+		handlers.GetPublicBoards(app.BoardService()),
 	)
 
 	router.Post("/invite", middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
-		//	userRoleChecker(),
 		handlers.InviteToBoard(app.BoardServiceFromCtx))
 }

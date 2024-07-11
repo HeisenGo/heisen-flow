@@ -12,7 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func UserBoards(boardService *service.BoardService) fiber.Handler {
+func GetUserBoards(boardService *service.BoardService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
 		if !ok {
@@ -29,8 +29,40 @@ func UserBoards(boardService *service.BoardService) fiber.Handler {
 			}
 			return SendError(c, err, status)
 		}
+		data := presenter.NewPagination(
+			presenter.BatchBoardsToUserBoard(boards),
+			uint(page),
+			uint(pageSize),
+			total,
+		)
+		return presenter.OK(c, "boards successfully fetched.", data)
+	}
+}
 
-		return c.JSON(fiber.Map{"boards": boards, "total": total}) // needs a presenter !!!! To Do
+func GetPublicBoards(boardService *service.BoardService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
+		//query parameter
+		page, pageSize := PageAndPageSize(c)
+
+		boards, total, err := boardService.GetPublicBoards(c.UserContext(), userClaims.UserID, uint(page), uint(pageSize))
+		if err != nil {
+			status := fiber.StatusInternalServerError
+			if errors.Is(err, user.ErrUserNotFound) {
+				status = fiber.StatusBadRequest
+			}
+			return SendError(c, err, status)
+		}
+		data := presenter.NewPagination(
+			presenter.BatchBoardsToUserBoard(boards),
+			uint(page),
+			uint(pageSize),
+			total,
+		)
+		return presenter.OK(c, "boards successfully fetched.", data)
 	}
 }
 
