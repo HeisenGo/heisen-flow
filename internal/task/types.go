@@ -27,27 +27,25 @@ var (
 	ErrDescInvalidCharacter           = errors.New("description contains invalid characters")
 	ErrParentTaskNotFound             = errors.New("parent not found")
 	ErrTaskNotFound                   = errors.New("task not found")
-	ErrBoardNotFound = errors.New("board not found")
+	ErrBoardNotFound                  = errors.New("board not found")
+	ErrInvalidStoryPoint              = errors.New("invalid story point: must be one of 1, 2, 3, 5, 8, 13, 21")
 )
 
 type Repo interface {
-	//GetUserTasks(ctx context.Context, userID uuid.UUID, limit, offset uint) ([]Board, uint, error)
 	Insert(ctx context.Context, task *Task) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Task, error)
 	AddDependency(ctx context.Context, t *Task) error
 	GetBoardID(ctx context.Context, id uuid.UUID) (*uuid.UUID, error)
-	//GetByID(ctx context.Context, id uuid.UUID) (*Board, error)
 }
 
 type Task struct {
-	ID          uuid.UUID
-	Title       string
-	Description string
-	// Status      TaskStatus `gorm:"not null"`
+	ID              uuid.UUID
+	Title           string
+	Description     string
 	Order           uint // in column which order is this
 	StartAt         time.Time
 	EndAt           time.Time
-	StoryPoint      uint //(should be less than 10???)
+	StoryPoint      uint
 	AssigneeUserID  *uuid.UUID
 	UserBoardRoleID *uuid.UUID //Assignee
 	CreatedByUserID uuid.UUID
@@ -91,4 +89,14 @@ func validateTitleAndDescription(title, description string) error {
 	}
 
 	return nil
+}
+
+func validateStoryPoint(storyPoint uint) error {
+	allowedStoryPoints := []uint{1, 2, 3, 5, 8, 13, 21}
+	for _, sp := range allowedStoryPoints {
+		if storyPoint == sp {
+			return nil
+		}
+	}
+	return ErrInvalidStoryPoint
 }
