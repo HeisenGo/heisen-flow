@@ -135,7 +135,7 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 
 	inviterRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, inviterID, userBoardRole.BoardID)
 	if err != nil {
-		return err
+		return  errors.New("permission denied: cannot invite users")
 	}
 
 	if !rbac.HasPermission(inviterRole, rbac.PermissionInviteUsers) {
