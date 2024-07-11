@@ -15,7 +15,7 @@ func BoardEntityToDomain(boardEntity entities.Board) board.Board {
 	}
 }
 
-func BoardEntitiesToDomain(boardEntities []entities.Board) []board.Board {
+func BatchBoardEntitiesToDomain(boardEntities []entities.Board) []board.Board {
 	return fp.Map(boardEntities, BoardEntityToDomain)
 }
 
