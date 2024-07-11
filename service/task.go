@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	b "server/internal/board"
 	"server/internal/task"
 	t "server/internal/task"
@@ -20,7 +21,7 @@ type TaskService struct {
 	taskOps          *task.Ops
 }
 
-// NewTaskService creates a new BoardService
+// NewTaskService creates a new TaskService
 func NewTaskService(userOps *u.Ops, boardOps *b.Ops, userBoardOps *userboardrole.Ops, taskOps *task.Ops) *TaskService {
 	return &TaskService{userOps: userOps,
 		boardOps:         boardOps,
@@ -53,8 +54,7 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 		return b.ErrBoardNotFound
 	}
 
-	// To Do
-	//check if parent id is not null the parent task exists
+	//check if parent id is not null and the parent task exists for sub tasks
 	if task.ParentID != nil {
 		_, err := s.taskOps.GetTaskByID(ctx, *task.ParentID)
 		if err != nil {
@@ -65,7 +65,6 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 	// check if assignee exists in this board
 	if task.AssigneeUserID != nil {
 
-		// get role ? can viewer be assigned a task??? TO DOOOO
 		// check membership if assignee is not empty
 		role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, *task.AssigneeUserID, board.ID)
 		if err != nil {
@@ -74,6 +73,10 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 
 		if role == "" {
 			return ErrNotMember
+		}
+		// assignee can not be viewer
+		if !rbac.HasPermission(role, rbac.PermissionMoveOwnTask) {
+			return ErrCantAssigned
 		}
 	}
 
@@ -92,20 +95,22 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 		return err
 	}
 
-	// notif to owner and maintainer!!!
+	// notif to owner and maintainer!!! TO Do
 	return nil
 }
 
 func (s *TaskService) AddDependency(ctx context.Context, task *task.Task) error {
 	// task exists?
 	existedTask, err := s.taskOps.GetTaskByID(ctx, task.ID)
+	fmt.Println(existedTask.BoardID)
+	fmt.Println(task.CreatedByUserID)
 	if err != nil {
 		return err
 	}
 	// check permission
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, task.CreatedByUserID, existedTask.BoardID)
 	if err != nil {
-		return err
+		return ErrPermissionDenied
 	}
 
 	if !rbac.HasPermission(role, rbac.PermissionCreateTask) {
