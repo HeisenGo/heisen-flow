@@ -70,44 +70,42 @@ func (r *taskRepo) Insert(ctx context.Context, t *task.Task) error {
 }
 
 func (r *taskRepo) AddDependency(ctx context.Context, t *task.Task) error {
-	if len(t.DependsOnTaskIDs) > 0 {
-		var errs error
+	var errs error
 
-		var existingTasks []entities.Task
-		if err := r.db.Where("id IN ?", t.DependsOnTaskIDs).Find(&existingTasks).Error; err != nil {
-			return err
-		}
-
-		if len(existingTasks) != len(t.DependsOnTaskIDs) {
-			return task.ErrFailedToFindDependsOnTasks
-		}
-
-		// Check for circular dependencies
-		for _, dependsOnID := range t.DependsOnTaskIDs {
-			if r.CheckCircularDependency(t.ID, dependsOnID) {
-				errs = errors.Join(errs, fmt.Errorf("circular dependency detected with task %v", dependsOnID))
-			}
-		}
-		if errs != nil {
-			return errors.Join(task.ErrCircularDependency, errs)
-		}
-		// Retrieve the main task entity
-		var tEntity entities.Task
-		fmt.Println(t.ID)
-		if err := r.db.WithContext(ctx).Model(&entities.Task{}).Where("id = ?", t.ID).First(&tEntity).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return task.ErrTaskNotFound
-			}
-			return err
-		}
-		// TO DO : Bulk
-		for _, existingTask := range existingTasks {
-			if err := r.db.WithContext(ctx).Model(&tEntity).Association("DependsOn").Append(&existingTask); err != nil {
-				return fmt.Errorf("failed to add dependency %v: %w", existingTask.ID, err)
-			}
-		}
-
+	var existingTasks []entities.Task
+	if err := r.db.Where("id IN ?", t.DependsOnTaskIDs).Find(&existingTasks).Error; err != nil {
+		return err
 	}
+
+	if len(existingTasks) != len(t.DependsOnTaskIDs) {
+		return task.ErrFailedToFindDependsOnTasks
+	}
+
+	// Check for circular dependencies
+	for _, dependsOnID := range t.DependsOnTaskIDs {
+		if r.CheckCircularDependency(t.ID, dependsOnID) {
+			errs = errors.Join(errs, fmt.Errorf("circular dependency detected with task %v", dependsOnID))
+		}
+	}
+	if errs != nil {
+		return errors.Join(task.ErrCircularDependency, errs)
+	}
+	// Retrieve the main task entity
+	var tEntity entities.Task
+	fmt.Println(t.ID)
+	if err := r.db.WithContext(ctx).Model(&entities.Task{}).Where("id = ?", t.ID).First(&tEntity).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return task.ErrTaskNotFound
+		}
+		return err
+	}
+	// TO DO : Bulk
+	for _, existingTask := range existingTasks {
+		if err := r.db.WithContext(ctx).Model(&tEntity).Association("DependsOn").Append(&existingTask); err != nil {
+			return fmt.Errorf("failed to add dependency %v: %w", existingTask.ID, err)
+		}
+	}
+
 	return nil
 }
 
