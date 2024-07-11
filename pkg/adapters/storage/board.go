@@ -36,33 +36,7 @@ func (r *boardRepo) GetByID(ctx context.Context, id uuid.UUID) (*board.Board, er
 }
 
 func (r *boardRepo) GetUserBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) ([]board.Board, uint, error) {
-	// query:=db.Table("boards").
-	// Select("boards.*, user_board_roles.user_role").
-	// Joins("LEFT JOIN user_board_roles ON user_board_roles.board_id = boards.id AND user_board_roles.user_id = ?", userID).
-	// Where("user_board_roles.user_id = ? OR boards.type = 'public'", userID)
-	// var total int64
-
-	// if err := query.Count(&total).Error; err != nil {
-	// 	return nil, 0, err
-	// }
-
-	// if offset > 0 {
-	// 	query = query.Offset(int(offset))
-	// }
-
-	// if limit > 0 {
-	// 	query = query.Limit(int(limit))
-	// }
-
-	// var boards []Board
-	// err = query.Order("boards.updated_at DESC").
-	// 	Distinct("boards.id, boards.name, boards.type, boards.created_at, boards.updated_at, boards.deleted_at").
-	// 	Find(&boards).Error
-	// if err != nil {
-	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
-	// 		log.Println("No boards found")
-	// 		return
-	// 	}
+	
 
 	return nil, 0, nil
 }
