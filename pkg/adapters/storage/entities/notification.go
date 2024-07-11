@@ -5,10 +5,9 @@ import (
 )
 
 type Notification struct {
-    ID                uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-    ISSeen            bool
-    Description       string
-    NotificationType  string
-	UserBoardRoleID uuid.UUID      `gorm:"type:uuid"` //Assignee
-	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
+	ID               uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	ISSeen           bool
+	Description      string
+	NotificationType string
+	UserBoardRoleID  uuid.UUID `gorm:"type:uuid"` //Assignee
 }

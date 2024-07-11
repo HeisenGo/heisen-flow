@@ -4,6 +4,7 @@ import (
 	"context"
 	"server/internal/notification"
 	"server/pkg/adapters/storage/mappers"
+	"server/pkg/adapters/storage/entities"
 	"gorm.io/gorm"
 )
 
@@ -19,12 +20,18 @@ func NewNotificationRepo(db *gorm.DB) notification.Repo {
 }
 
 func (r *notificationRepo) CreateNotification(ctx context.Context, notif *notification.Notification) error {
-	newNotification := mappers.NotificationDomainToEntity(notif)
-	err := r.db.WithContext(ctx).Create(&newNotification).Error
-	if err != nil {
-		return err
-	}
-	return nil
+    var userBoardRole entities.UserBoardRole
+    if err := r.db.WithContext(ctx).First(&userBoardRole, "id = ?", notif.UserBoardRoleID).Error; err != nil {
+        return err
+    }
+
+    newNotification := mappers.NotificationDomainToEntity(notif)
+    if err := r.db.WithContext(ctx).Save(&newNotification).Error; err != nil {
+        return err
+    }
+
+    notif.ID = newNotification.ID
+    return nil
 }
 
 // func (r *notificationRepo) DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) ([]notification.Notification,error) {

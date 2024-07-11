@@ -11,6 +11,7 @@ func NotificationEntityToDomain(entity *entities.Notification) *notification.Not
 		ISSeen:           entity.ISSeen,
 		Description:      entity.Description,
 		NotificationType: entity.NotificationType,
+		UserBoardRoleID: entity.UserBoardRoleID,
 	}
 }
 
@@ -20,5 +21,6 @@ func NotificationDomainToEntity(domainNotification *notification.Notification) *
 		ISSeen:           domainNotification.ISSeen,
 		Description:      domainNotification.Description,
 		NotificationType: domainNotification.NotificationType,
+		UserBoardRoleID:  domainNotification.UserBoardRoleID,
 	}
 }
