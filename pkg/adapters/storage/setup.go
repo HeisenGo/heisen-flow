@@ -24,14 +24,6 @@ func Migrate(db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	// err = migrator.AutoMigrate(&entities.Board{}, &entities.UserBoardRole{})
-	// if err != nil {
-	// 	return err
-	// }
-	// err = migrator.AutoMigrate(&entities.Task{}, &entities.TaskDependency{})
-
-	// if err != nil {
-	// 	return err
-	// }
+	
 	return nil
 }
