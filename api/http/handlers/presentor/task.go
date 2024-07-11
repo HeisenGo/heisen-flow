@@ -19,9 +19,7 @@ type UserTask struct {
 	// for tasks that this task depends on
 	DependsOnTaskIDs []uuid.UUID `json:"depends_on_task_ids"`
 	//for tasks that depend on this task
-	//DependentByTaskIDs []uuid.UUID `json:"dependent_by_task_ids"`
 	ParentID *uuid.UUID `json:"parent_id"`
-	// SubTasksIDs        []uuid.UUID `json:"sub_tasks"`
 }
 
 type DependentTasks struct {
@@ -33,35 +31,27 @@ func AddDependencyRecToTask(dependentTasksReq *DependentTasks, userID uuid.UUID)
 	return &task.Task{
 		ID:               dependentTasksReq.ID,
 		DependsOnTaskIDs: dependentTasksReq.DependsOnTaskIDs,
+		CreatedByUserID:  userID,
 	}
 }
 
 func TaskToUserTask(t task.Task) UserTask {
 	return UserTask{
-		ID: t.ID,
-		// TotalPrice:    o.TotalPrice,
-		// TotalQuantity: o.TotalQuantity,
+		ID:          t.ID,
 		Description: t.Description,
 	}
 }
 
-// func OrdersToUserOrders(orders []order.Order) []UserOrder {
-// 	return fp.Map(orders, OrderToUserOrder)
-// }
-
 func UserTaskToTask(userTaskReq *UserTask, userID uuid.UUID) *task.Task {
 	return &task.Task{
-		Title:           userTaskReq.Title,
-		Description:     userTaskReq.Description,
-		StartAt:         time.Time(userTaskReq.StartAt),
-		EndAt:           time.Time(userTaskReq.EndAt),
-		StoryPoint:      userTaskReq.StoryPoint,
-		BoardID:         userTaskReq.BoardID,
-		CreatedByUserID: userID, //
-		// BoardID: t.BoardID,
+		Title:            userTaskReq.Title,
+		Description:      userTaskReq.Description,
+		StartAt:          time.Time(userTaskReq.StartAt),
+		EndAt:            time.Time(userTaskReq.EndAt),
+		StoryPoint:       userTaskReq.StoryPoint,
+		BoardID:          userTaskReq.BoardID,
+		CreatedByUserID:  userID,
 		ParentID:         userTaskReq.ParentID,
 		DependsOnTaskIDs: userTaskReq.DependsOnTaskIDs,
-		// DependentByTaskIDs: userTaskReq.DependentByTaskIDs,
-		// SubTaskIDs:         userTaskReq.SubTasksIDs,
 	}
 }
