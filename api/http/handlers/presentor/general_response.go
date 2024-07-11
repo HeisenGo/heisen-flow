@@ -2,19 +2,11 @@ package presenter
 
 import "github.com/gofiber/fiber/v2"
 
-// used if needed
-type Meta struct {
-	Page       uint `json:"page,omitempty"`
-	PageSize   uint `json:"page_size,omitempty"`
-	TotalItems uint `json:"total_items,omitempty"`
-}
-
 type Response struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   string      `json:"error,omitempty"`
-	Meta    *Meta       `json:"meta,omitempty"`
 }
 
 func NewResponse() *Response {
@@ -30,15 +22,6 @@ func (r *Response) SetMessage(message string) *Response {
 
 func (r *Response) SetData(data interface{}) *Response {
 	r.Data = data
-	return r
-}
-
-func (r *Response) SetMeta(page, pageSize, totalItems uint) *Response {
-	r.Meta = &Meta{
-		Page:       page,
-		PageSize:   pageSize,
-		TotalItems: totalItems,
-	}
 	return r
 }
 

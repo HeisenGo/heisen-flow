@@ -35,7 +35,7 @@ func GetUserBoards(boardService *service.BoardService) fiber.Handler {
 			uint(pageSize),
 			total,
 		)
-		return presenter.OK(c, "board successfully fetched.", data)
+		return presenter.OK(c, "boards successfully fetched.", data)
 	}
 }
 
@@ -62,7 +62,7 @@ func GetPublicBoards(boardService *service.BoardService) fiber.Handler {
 			uint(pageSize),
 			total,
 		)
-		return presenter.OK(c, "board successfully fetched.", data)
+		return presenter.OK(c, "boards successfully fetched.", data)
 	}
 }
 
