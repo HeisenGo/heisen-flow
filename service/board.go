@@ -34,7 +34,20 @@ func (s *BoardService) GetUserBoards(ctx context.Context, userID uuid.UUID, page
 		return nil, 0, u.ErrUserNotFound
 	}
 
-	return s.boardOps.UserBoards(ctx, userID, page, pageSize)
+	return s.boardOps.GetUserBoards(ctx, userID, page, pageSize)
+}
+
+func (s *BoardService) GetPublicBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]board.Board, uint, error) {
+	user, err := s.userOps.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if user == nil {
+		return nil, 0, u.ErrUserNotFound
+	}
+
+	return s.boardOps.GetPublicBoards(ctx, userID, page, pageSize)
 }
 
 func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *userboardrole.UserBoardRole) error {
@@ -135,7 +148,7 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 
 	inviterRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, inviterID, userBoardRole.BoardID)
 	if err != nil {
-		return  errors.New("permission denied: cannot invite users")
+		return errors.New("permission denied: cannot invite users")
 	}
 
 	if !rbac.HasPermission(inviterRole, rbac.PermissionInviteUsers) {

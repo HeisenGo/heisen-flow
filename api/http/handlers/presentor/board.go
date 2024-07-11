@@ -3,24 +3,30 @@ package presenter
 import (
 	"server/internal/board"
 	userboardrole "server/internal/user_board_role"
+	"server/pkg/fp"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type UserBoard struct {
 	ID        uuid.UUID `json:"board_id"`
-	CreatedAt Timestamp
-	Name      string `json:"name"`
-	Type      string `json:"type"`
+	Name      string    `json:"name"`
+	Type      string    `json:"type"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-func BoardToUserBoard(b board.Board) UserBoard {
+func boardToUserBoard(b board.Board) UserBoard {
 	return UserBoard{
 		ID:        b.ID,
-		CreatedAt: Timestamp(b.CreatedAt),
 		Name:      b.Name,
 		Type:      b.Type,
+		CreatedAt: b.CreatedAt,
 	}
+}
+
+func BatchBoardsToUserBoard(boards []board.Board) []UserBoard {
+	return fp.Map(boards, boardToUserBoard)
 }
 
 func UserBoardToBoard(userBoard *UserBoard, userID uuid.UUID) (*board.Board, *userboardrole.UserBoardRole) {

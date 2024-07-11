@@ -28,10 +28,6 @@ func NewAppContainer(cfg config.Config) (*AppContainer, error) {
 	}
 
 	app.mustInitDB()
-	err := storage.Migrate(app.dbConn)
-	if err != nil {
-		log.Fatal("Migration failed: ", err)
-	}
 
 	app.setAuthService()
 	app.setBoardService()
@@ -55,6 +51,16 @@ func (a *AppContainer) mustInitDB() {
 	}
 
 	a.dbConn = db
+
+	err = storage.AddExtension(a.dbConn)
+	if err != nil {
+		log.Fatal("Cerate extention failed: ", err)
+	}
+
+	err = storage.Migrate(a.dbConn)
+	if err != nil {
+		log.Fatal("Migration failed: ", err)
+	}
 }
 
 func (a *AppContainer) AuthService() *AuthService {
