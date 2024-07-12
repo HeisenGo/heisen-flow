@@ -67,7 +67,7 @@ func GetPublicBoards(boardService *service.BoardService) fiber.Handler {
 	}
 }
 
-func GetBoardByID(boardService *service.BoardService) fiber.Handler {
+func GetFullBoardByID(boardService *service.BoardService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
 		if !ok {
