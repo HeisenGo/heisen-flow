@@ -2,9 +2,16 @@ package service
 
 import (
 	"context"
-	"github.com/google/uuid"
+	"errors"
 	"server/internal/column"
 	"server/pkg/adapters/storage/entities"
+
+	"github.com/google/uuid"
+)
+
+var (
+	ErrPermissionDeniedToCreateColumn        = errors.New("permission denied: can not create column")
+	ErrPermissionDeniedToDeleteColumn = errors.New("permission denied: can not delete the column")
 )
 
 type ColumnService struct {

@@ -91,9 +91,7 @@ func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret
 		handlers.CreateColumns(app.ColumnServiceFromCtx),
 	)
 	router.Delete("/:columnID",
-		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
-		userRoleChecker(),
-		handlers.DeleteColumn(app.ColumnServiceFromCtx),
+		handlers.DeleteColumn(app.ColumnService()),
 	)
 }
