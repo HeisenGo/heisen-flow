@@ -19,11 +19,13 @@ const (
 )
 
 var (
-	ErrWrongType      = errors.New("wrong type for board")
-	ErrInvalidName    = errors.New("invalid board name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
-	ErrWrongBoardTime = errors.New("wrong board time")
-	ErrBoardNotFound  = errors.New("board not found")
-	ErrFailedToDeleteBoard = errors.New("failed to delete board")
+	ErrWrongType                      = errors.New("wrong type for board")
+	ErrInvalidName                    = errors.New("invalid board name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
+	ErrWrongBoardTime                 = errors.New("wrong board time")
+	ErrBoardNotFound                  = errors.New("board not found")
+	ErrFailedToDeleteBoard            = errors.New("failed to delete board")
+	ErrFailedToFetchTasks             = errors.New("failed to fetch all tasks")
+	ErrFailedToDeleteTaskDependencies = errors.New("failed to delete dependencies")
 )
 
 type Repo interface {
