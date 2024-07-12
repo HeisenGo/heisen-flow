@@ -10,6 +10,7 @@ package task
 import (
 	"context"
 	"errors"
+	userboardrole "server/internal/user_board_role"
 	"strings"
 	"time"
 
@@ -34,6 +35,7 @@ var (
 type Repo interface {
 	Insert(ctx context.Context, task *Task) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Task, error)
+	GetFullByID(ctx context.Context, id uuid.UUID) (*Task, error)
 	AddDependency(ctx context.Context, t *Task) error
 }
 
@@ -47,11 +49,13 @@ type Task struct {
 	StoryPoint      uint
 	AssigneeUserID  *uuid.UUID
 	UserBoardRoleID *uuid.UUID //Assignee
+	UserBoardRole   *userboardrole.UserBoardRole
 	CreatedByUserID uuid.UUID
 	ColumnID        uuid.UUID
 	BoardID         uuid.UUID
 
 	ParentID   *uuid.UUID //can be null for tasks not sub tasks
+	Parent     *Task
 	SubTaskIDs []uuid.UUID
 	Subtasks   []Task
 
