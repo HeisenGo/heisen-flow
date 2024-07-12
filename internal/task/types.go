@@ -30,6 +30,8 @@ var (
 	ErrTaskNotFound                   = errors.New("task not found")
 	ErrBoardNotFound                  = errors.New("board not found")
 	ErrInvalidStoryPoint              = errors.New("invalid story point: must be one of 1, 2, 3, 5, 8, 13, 21")
+	ErrConflictedBoards = errors.New("boards of dependent and dependency task mismatch")
+
 )
 
 type Repo interface {

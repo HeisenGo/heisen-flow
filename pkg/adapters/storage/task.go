@@ -71,25 +71,6 @@ func (r *taskRepo) Insert(ctx context.Context, t *task.Task) error {
 
 func (r *taskRepo) AddDependency(ctx context.Context, t *task.Task) error {
 	var errs error
-
-	var existingTasks []entities.Task
-	if err := r.db.Where("id IN ?", t.DependsOnTaskIDs).Find(&existingTasks).Error; err != nil {
-		return err
-	}
-
-	if len(existingTasks) != len(t.DependsOnTaskIDs) {
-		return task.ErrFailedToFindDependsOnTasks
-	}
-
-	// Check for circular dependencies
-	for _, dependsOnID := range t.DependsOnTaskIDs {
-		if r.CheckCircularDependency(t.ID, dependsOnID) {
-			errs = errors.Join(errs, fmt.Errorf("circular dependency detected with task %v", dependsOnID))
-		}
-	}
-	if errs != nil {
-		return errors.Join(task.ErrCircularDependency, errs)
-	}
 	// Retrieve the main task entity
 	var tEntity entities.Task
 	fmt.Println(t.ID)
@@ -99,7 +80,44 @@ func (r *taskRepo) AddDependency(ctx context.Context, t *task.Task) error {
 		}
 		return err
 	}
+
+	// for _, tdi := range t.DependsOnTaskIDs {
+	// 	var count int64
+	// 	//r.db.WithContext(ctx).Model(&entities.Task{}).Where("id = ?", t.ID).First(&tEntity).Error
+	// 	err := r.db.WithContext(ctx).Model(&entities.TaskDependency{}).Where("dependent_task_id = ? AND dependency_task_id = ?", t.ID, tdi).Count(&count).Error
+	// 	if err != nil {
+	// 		return fmt.Errorf("failed to check existing dependency %v: %w", tdi, err)
+	// 	}
+	// 	if count > 0 {
+	// 		return fmt.Errorf("duplicate dependency detected: task %v already depends on task %v", t.ID, tdi)
+	// 	}
+	// }
+
+	existingTasks, err := r.GetExistingTasks(ctx, t.DependsOnTaskIDs)
+
+	if len(existingTasks) != len(t.DependsOnTaskIDs) || err != nil {
+		return task.ErrFailedToFindDependsOnTasks
+	}
+
+	for i, _ := range t.DependsOnTaskIDs {
+		fmt.Println(existingTasks[i].BoardID, t.BoardID)
+		if existingTasks[i].Board.ID != t.BoardID {
+			return errors.Join(task.ErrConflictedBoards, fmt.Errorf(" with %v", existingTasks[i].ID))
+		}
+	}
+
+	// Check for circular dependencies and being in the same board
+	for _, dependsOnID := range t.DependsOnTaskIDs {
+		if r.CheckCircularDependency(t.ID, dependsOnID) {
+			errs = errors.Join(errs, fmt.Errorf("circular dependency detected with task %v", dependsOnID))
+		}
+	}
+	if errs != nil {
+		return errors.Join(task.ErrCircularDependency, errs)
+	}
+
 	// TO DO : Bulk
+	//var tDE entities.TaskDependency
 	for _, existingTask := range existingTasks {
 		if err := r.db.WithContext(ctx).Model(&tEntity).Association("DependsOn").Append(&existingTask); err != nil {
 			return fmt.Errorf("failed to add dependency %v: %w", existingTask.ID, err)
@@ -148,4 +166,15 @@ func (r *taskRepo) GetBoardID(ctx context.Context, id uuid.UUID) (*uuid.UUID, er
 		return nil, err
 	}
 	return &t.BoardID, nil
+}
+
+func (r *taskRepo) GetExistingTasks(ctx context.Context, dependsOnTaskIDs []uuid.UUID) ([]entities.Task, error) {
+	var existingTasks []entities.Task
+	if err := r.db.
+		Where("id IN ?", dependsOnTaskIDs).
+		Preload("Board").
+		Find(&existingTasks).Error; err != nil {
+		return nil, err
+	}
+	return existingTasks, nil
 }

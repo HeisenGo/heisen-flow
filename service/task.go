@@ -113,6 +113,6 @@ func (s *TaskService) AddDependency(ctx context.Context, task *task.Task) error 
 	if !rbac.HasPermission(role, rbac.PermissionCreateTask) {
 		return ErrPermissionDenied
 	}
-
+	task.BoardID = existedTask.BoardID
 	return s.taskOps.AddDependency(ctx, task)
 }
