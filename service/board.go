@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"server/internal/board"
+	"server/internal/column"
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/rbac"
@@ -27,11 +28,17 @@ type BoardService struct {
 	userOps          *u.Ops
 	boardOps         *board.Ops
 	userBoardRoleOps *userboardrole.Ops
+	columnOps        *column.Ops
 }
 
 // NewBoardService creates a new BoardService
-func NewBoardService(userOps *u.Ops, boardOps *board.Ops, userBoardOps *userboardrole.Ops) *BoardService {
-	return &BoardService{userOps: userOps, boardOps: boardOps, userBoardRoleOps: userBoardOps}
+func NewBoardService(userOps *u.Ops, boardOps *board.Ops,
+	userBoardOps *userboardrole.Ops,
+	columnOps *column.Ops) *BoardService {
+	return &BoardService{userOps: userOps,
+		boardOps:         boardOps,
+		userBoardRoleOps: userBoardOps,
+		columnOps:        columnOps}
 }
 
 func (s *BoardService) GetFullBoardByID(ctx context.Context, userID uuid.UUID, boardID uuid.UUID) (*board.Board, error) {
@@ -99,6 +106,13 @@ func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *user
 	if err != nil {
 		return err
 	}
+	// set first "done" default column
+
+	col, err := s.columnOps.SetDoneAsDefault(ctx, ub.BoardID)
+	if err != nil {
+		return err
+	}
+	b.Columns = append(b.Columns, *col)
 	return nil
 }
 

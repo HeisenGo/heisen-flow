@@ -100,6 +100,7 @@ func (a *AppContainer) BoardServiceFromCtx(ctx context.Context) *BoardService {
 		user.NewOps(storage.NewUserRepo(gc)),
 		board.NewOps(storage.NewBoardRepo(gc)),
 		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
+		column.NewOps(storage.NewColumnRepo(gc)),
 	)
 }
 
@@ -127,7 +128,7 @@ func (a *AppContainer) setBoardService() {
 	if a.boardService != nil {
 		return
 	}
-	a.boardService = NewBoardService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)))
+	a.boardService = NewBoardService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), column.NewOps(storage.NewColumnRepo(a.dbConn)))
 }
 
 func (a *AppContainer) setColumnService() {

@@ -14,6 +14,10 @@ var (
 	ErrInvalidName = errors.New("invalid column name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
 )
 
+const (
+	DoneDefaultColumn = "done"
+)
+
 type Repo interface {
 	Create(ctx context.Context, column *Column) (*Column, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*Column, error)
@@ -22,6 +26,7 @@ type Repo interface {
 	CreateBatch(ctx context.Context, columns []Column) ([]Column, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByBoardID(ctx context.Context, boardID uuid.UUID) ([]Column, error)
+	SetDoneAsDefault(ctx context.Context, column *Column) error
 }
 
 type Column struct {
@@ -32,6 +37,15 @@ type Column struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Tasks     []task.Task
+}
+
+func NewColumn(name string, boardID uuid.UUID, orderNum uint, createdAt time.Time) *Column {
+	return &Column{
+		Name:      name,
+		BoardID:   boardID,
+		OrderNum:  orderNum,
+		CreatedAt: createdAt,
+	}
 }
 
 func ValidateColumnName(name string) error {

@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	presenter "server/api/http/handlers/presentor"
 	"server/internal/board"
 	"server/internal/user"
 	"server/pkg/jwt"
 	"server/service"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -118,6 +119,9 @@ func CreateUserBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber
 		return presenter.Created(c, "Board created successfully", fiber.Map{
 			"board_id":        b.ID,
 			"user_board_role": ubr.ID,
+			"name":            b.Name,
+			"type":            b.Type,
+			"columns":         b.Columns,
 		})
 	}
 }

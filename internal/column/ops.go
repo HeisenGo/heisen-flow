@@ -3,6 +3,8 @@ package column
 import (
 	"context"
 
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -48,4 +50,13 @@ func (o *Ops) Delete(ctx context.Context, columnID uuid.UUID) error {
 
 func (o *Ops) GetColumnsByBoardID(ctx context.Context, boardID uuid.UUID) ([]Column, error) {
 	return o.repo.GetByBoardID(ctx, boardID)
+}
+
+func (o *Ops) SetDoneAsDefault(ctx context.Context, boardID uuid.UUID) (*Column, error) {
+	col := NewColumn(DoneDefaultColumn, boardID, uint(1), time.Now())
+	err := o.repo.SetDoneAsDefault(ctx, col)
+	if err != nil {
+		return nil, err
+	}
+	return col, nil
 }
