@@ -26,7 +26,7 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 		if err != nil {
 			return presenter.BadRequest(c, err)
 		}
-		
+
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
 		if !ok {
 			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
@@ -40,16 +40,13 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 				status = fiber.StatusForbidden
 			}
 			if errors.Is(err, service.ErrNotMember) || errors.Is(err, user.ErrUserNotFound) || errors.Is(err, board.ErrBoardNotFound) || errors.Is(err, service.ErrCantAssigned) || errors.Is(err, task.ErrInvalidStoryPoint) {
-				status = fiber.StatusBadGateway
+				status = fiber.StatusBadRequest
 			}
 
 			return SendError(c, err, status)
 		}
 
-		return presenter.Created(c, "Board created successfully", fiber.Map{
-			"message": "task created",
-			"task_id": t.ID,
-		})
+		return presenter.Created(c, "Task created successfully", presenter.TaskToCreateTaskResp(t))
 	}
 }
 
@@ -80,15 +77,14 @@ func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Ha
 			if errors.Is(err, service.ErrPermissionDenied) {
 				status = fiber.StatusForbidden
 			}
-			if errors.Is(err, task.ErrCircularDependency) || errors.Is(err, task.ErrTaskNotFound) || errors.Is(err, task.ErrFailedToFindDependsOnTasks) {
+			if errors.Is(err, task.ErrCircularDependency) || errors.Is(err, task.ErrTaskNotFound) || errors.Is(err, task.ErrFailedToFindDependsOnTasks) || errors.Is(err, task.ErrDuplicateDependency) {
 				status = fiber.StatusBadGateway
 			}
 
 			return SendError(c, err, status)
 		}
 
-		return presenter.Created(c, "Board created successfully", fiber.Map{
-			"message": "task dependency created",
+		return presenter.Created(c, "Task dependency added successfully", fiber.Map{
 			"task_id": t.ID,
 		})
 	}
