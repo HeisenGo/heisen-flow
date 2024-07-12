@@ -146,18 +146,18 @@ func DeleteBoardParamToUserBoardRole(boardID uuid.UUID, userID uuid.UUID) *userb
 }
 
 type CreateBoardResponse struct {
-	ID        uuid.UUID            `json:"id"`
-	CreatedAt Timestamp            `json:"created_at"`
+	ID        uuid.UUID            `json:"board_id"`
+	CreatedAt time.Time            `json:"created_at"`
 	Name      string               `json:"name"`
 	Type      string               `json:"type"`
 	Columns   []ColumnResponseItem `json:"columns"`
 }
 
 func BoardToCreateBoardResponse(b *board.Board) *CreateBoardResponse {
-	cols := fp.Map(b.Columns, ColumnToColumnResponseItem)
+	cols := BatchColumnToColumnResponseItem(b.Columns)
 	return &CreateBoardResponse{
 		ID:        b.ID,
-		CreatedAt: Timestamp(b.CreatedAt),
+		CreatedAt: b.CreatedAt,
 		Name:      b.Name,
 		Type:      b.Type,
 		Columns:   cols,

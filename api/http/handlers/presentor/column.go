@@ -3,6 +3,7 @@ package presenter
 import (
 	"server/internal/column"
 	"server/pkg/adapters/storage/entities"
+	"server/pkg/fp"
 
 	"github.com/google/uuid"
 )
@@ -85,4 +86,8 @@ func ColumnToColumnResponseItem(c column.Column) ColumnResponseItem {
 		Name:  c.Name,
 		Order: c.OrderNum,
 	}
+}
+
+func BatchColumnToColumnResponseItem(cols []column.Column) []ColumnResponseItem {
+	return fp.Map(cols, ColumnToColumnResponseItem)
 }
