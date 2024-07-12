@@ -23,6 +23,6 @@ func (r *commentRepo) Insert(ctx context.Context, comment *comment.Comment) erro
 		return err
 	}
 
-	comment.ID = comment.ID
+	comment.ID = commentEntity.ID
 	return nil
 }
