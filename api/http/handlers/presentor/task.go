@@ -16,7 +16,7 @@ type UserTask struct {
 	StartAt        Timestamp `json:"start_at"`
 	EndAt          Timestamp `json:"end_at"`
 	AssigneeUserID uuid.UUID `json:"assignee_user_id" validate:"required"`
-	Title          string    `json:"title"`
+	Title          string    `json:"title" validate:"required"`
 	Description    string    `json:"desc"`
 	StoryPoint     uint      `json:"story_point"`
 	// for tasks that this task depends on
