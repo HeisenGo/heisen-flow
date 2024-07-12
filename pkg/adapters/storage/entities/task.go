@@ -46,6 +46,10 @@ type Task struct {
 }
 
 type TaskDependency struct {
-	DependentTaskID  uuid.UUID `gorm:"type:uuid;primaryKey"`
-	DependencyTaskID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	ID               uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	DeletedAt        gorm.DeletedAt `gorm:"index"`
+	DependentTaskID  uuid.UUID      `gorm:"index:idx_together_dependent_dependency,unique"`
+	DependencyTaskID uuid.UUID      `gorm:"index:idx_together_dependent_dependency,unique"`
 }
