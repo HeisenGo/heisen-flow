@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"server/internal/task"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,6 +18,7 @@ type Repo interface {
 	Create(ctx context.Context, column *Column) (*Column, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*Column, error)
 	GetMaxOrderForBoard(ctx context.Context, boardID uuid.UUID) (uint, error)
+	GetMinOrderColumn(ctx context.Context, boardID uuid.UUID) (*Column, error)
 	CreateBatch(ctx context.Context, columns []Column) ([]Column, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByBoardID(ctx context.Context, boardID uuid.UUID) ([]Column, error)
@@ -26,9 +28,10 @@ type Column struct {
 	ID        uuid.UUID
 	Name      string
 	BoardID   uuid.UUID
-	Order     uint
+	OrderNum  uint
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Tasks     []task.Task
 }
 
 func ValidateColumnName(name string) error {
