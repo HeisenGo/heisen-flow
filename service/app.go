@@ -5,6 +5,7 @@ import (
 	"log"
 	"server/config"
 	"server/internal/board"
+	"server/internal/task"
 	"server/internal/column"
 	"server/internal/user"
 	userboardrole "server/internal/user_board_role"
@@ -15,10 +16,11 @@ import (
 )
 
 type AppContainer struct {
-	cfg           config.Config
-	dbConn        *gorm.DB
-	authService   *AuthService
-	boardService  *BoardService
+	cfg          config.Config
+	dbConn       *gorm.DB
+	authService  *AuthService
+	boardService *BoardService
+	taskService  *TaskService
 	columnService *ColumnService
 }
 
@@ -31,6 +33,8 @@ func NewAppContainer(cfg config.Config) (*AppContainer, error) {
 
 	app.setAuthService()
 	app.setBoardService()
+	app.setTaskService()
+
 	app.setColumnService()
 
 	return app, nil
@@ -132,3 +136,34 @@ func (a *AppContainer) setColumnService() {
 	}
 	a.columnService = NewColumnService(column.NewOps(storage.NewColumnRepo(a.dbConn)))
 }
+
+func (a *AppContainer) TaskService() *TaskService {
+	return a.taskService
+}
+
+func (a *AppContainer) TaskServiceFromCtx(ctx context.Context) *TaskService {
+	tx, ok := valuecontext.TryGetTxFromContext(ctx)
+	if !ok {
+		return a.taskService
+	}
+
+	gc, ok := tx.Tx().(*gorm.DB)
+	if !ok {
+		return a.taskService
+	}
+
+	return NewTaskService(
+		user.NewOps(storage.NewUserRepo(gc)),
+		board.NewOps(storage.NewBoardRepo(gc)),
+		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
+		task.NewOps(storage.NewTaskRepo(gc)),
+	)
+}
+
+func (a *AppContainer) setTaskService() {
+	if a.taskService != nil {
+		return
+	}
+	a.taskService = NewTaskService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), task.NewOps(storage.NewTaskRepo(a.dbConn)))
+}
+

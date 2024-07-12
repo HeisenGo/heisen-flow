@@ -28,6 +28,5 @@ func Migrate(db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

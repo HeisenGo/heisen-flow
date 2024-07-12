@@ -13,6 +13,9 @@ import (
 )
 
 var (
+	ErrPermissionDenied = errors.New("permission denied")
+	ErrNotMember        = errors.New("the assignee is not a member of this board")
+	ErrCantAssigned     = errors.New("assignee is a viewer")
 	ErrOwnerExists              = errors.New("owner already exists")
 	ErrUndefinedRole            = errors.New("undefined role, role should be one of the following values:viewer, editor, maintainer")
 	ErrPermissionDeniedToInvite = errors.New("permission denied: cannot invite users")
@@ -73,7 +76,6 @@ func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *user
 	}
 
 	ub.BoardID = b.ID
-	ub.Role = string(rbac.RoleOwner)
 	ub.Role = string(rbac.RoleOwner)
 	err = s.userBoardRoleOps.SetUserBoardRole(ctx, ub)
 	if err != nil {

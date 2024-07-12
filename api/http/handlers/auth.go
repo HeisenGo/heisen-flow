@@ -64,6 +64,7 @@ func LoginUser(authService *service.AuthService) fiber.Handler {
 
 		authToken, err := authService.Login(c.Context(), req.Email, req.Password)
 		if err != nil {
+
 			return presenter.BadRequest(c, err)
 		}
 
@@ -80,6 +81,7 @@ func RefreshToken(authService *service.AuthService) fiber.Handler {
 		pureToken := strings.Split(refToken, " ")[1]
 		authToken, err := authService.RefreshAuth(c.UserContext(), pureToken)
 		if err != nil {
+
 			return presenter.Unauthorized(c, err)
 		}
 
