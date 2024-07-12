@@ -11,6 +11,7 @@ import (
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/adapters/storage"
 	"server/pkg/valuecontext"
+	"server/internal/notification"
 
 	"gorm.io/gorm"
 )
@@ -22,6 +23,7 @@ type AppContainer struct {
 	boardService  *BoardService
 	taskService   *TaskService
 	columnService *ColumnService
+	notificationService *NotificationService
 }
 
 func NewAppContainer(cfg config.Config) (*AppContainer, error) {
@@ -34,7 +36,7 @@ func NewAppContainer(cfg config.Config) (*AppContainer, error) {
 	app.setAuthService()
 	app.setBoardService()
 	app.setTaskService()
-
+	app.setNotificationService()
 	app.setColumnService()
 
 	return app, nil
@@ -167,4 +169,12 @@ func (a *AppContainer) setTaskService() {
 		return
 	}
 	a.taskService = NewTaskService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), task.NewOps(storage.NewTaskRepo(a.dbConn)), column.NewOps(storage.NewColumnRepo(a.dbConn)))
+}
+
+func (a *AppContainer) NotificationService() *NotificationService {
+	return a.notificationService
+}
+
+func (a *AppContainer) setNotificationService(){
+	a.notificationService = NewNotificationService(notification.NewOps(storage.NewNotificationRepo(a.dbConn)))
 }

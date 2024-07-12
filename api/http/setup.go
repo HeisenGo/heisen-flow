@@ -29,6 +29,8 @@ func registerGlobalRoutes(router fiber.Router, app *service.AppContainer) {
 	router.Post("/register", handlers.RegisterUser(app.AuthService()))
 	router.Post("/login", handlers.LoginUser(app.AuthService()))
 	router.Get("/refresh", handlers.RefreshToken(app.AuthService()))
+	router.Get("/notifications",handlers.GetNotifications(app.NotificationService()))
+	router.Post("/notifications/Update",handlers.UpdateNotifications(app.NotificationService()))
 }
 
 func userRoleChecker() fiber.Handler {
