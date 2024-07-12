@@ -78,3 +78,11 @@ func EntitiesToGetColumnsResponse(columns []column.Column) GetColumnsResponse {
 		Message: "Columns fetched successfully",
 	}
 }
+
+func ColumnToColumnResponseItem(c column.Column) ColumnResponseItem {
+	return ColumnResponseItem{
+		ID:    c.ID,
+		Name:  c.Name,
+		Order: c.OrderNum,
+	}
+}

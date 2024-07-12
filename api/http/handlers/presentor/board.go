@@ -5,7 +5,7 @@ import (
 	"server/internal/column"
 	"server/internal/task"
 	"server/internal/user"
-	userBoardRole "server/internal/user_board_role"
+	userboardrole "server/internal/user_board_role"
 	"server/pkg/fp"
 	"time"
 
@@ -113,12 +113,12 @@ func BatchBoardsToUserBoard(boards []board.Board) []UserBoard {
 	return fp.Map(boards, boardToUserBoard)
 }
 
-func UserBoardToBoard(userBoard *UserBoard, userID uuid.UUID) (*board.Board, *userBoardRole.UserBoardRole) {
+func UserBoardToBoard(userBoard *UserBoard, userID uuid.UUID) (*board.Board, *userboardrole.UserBoardRole) {
 	b := &board.Board{
 		Name: userBoard.Name,
 		Type: userBoard.Type,
 	}
-	ubr := &userBoardRole.UserBoardRole{
+	ubr := &userboardrole.UserBoardRole{
 		UserID: userID,
 	}
 	return b, ubr
@@ -131,16 +131,51 @@ type InviteUserToBoard struct {
 	Role    string    `json:"role"`
 }
 
-func InviteUserToBoardToUserBoardRole(inviteUserToBoard *InviteUserToBoard) *userBoardRole.UserBoardRole {
-	return &userBoardRole.UserBoardRole{
+func InviteUserToBoardToUserBoardRole(inviteUserToBoard *InviteUserToBoard) *userboardrole.UserBoardRole {
+	return &userboardrole.UserBoardRole{
 		Role:    inviteUserToBoard.Role,
 		BoardID: inviteUserToBoard.BoardID,
 	}
 }
 
-func DeleteBoardParamToUserBoardRole(boardID uuid.UUID, userID uuid.UUID) *userBoardRole.UserBoardRole {
-	return &userBoardRole.UserBoardRole{
+func DeleteBoardParamToUserBoardRole(boardID uuid.UUID, userID uuid.UUID) *userboardrole.UserBoardRole {
+	return &userboardrole.UserBoardRole{
 		UserID:  userID,
 		BoardID: boardID,
+	}
+}
+
+type CreateBoardResponse struct {
+	ID        uuid.UUID            `json:"id"`
+	CreatedAt Timestamp            `json:"created_at"`
+	Name      string               `json:"name"`
+	Type      string               `json:"type"`
+	Columns   []ColumnResponseItem `json:"columns"`
+}
+
+func BoardToCreateBoardResponse(b *board.Board) *CreateBoardResponse {
+	cols := fp.Map(b.Columns, ColumnToColumnResponseItem)
+	return &CreateBoardResponse{
+		ID:        b.ID,
+		CreatedAt: Timestamp(b.CreatedAt),
+		Name:      b.Name,
+		Type:      b.Type,
+		Columns:   cols,
+	}
+}
+
+type InviteMemberResponse struct {
+	Email       string    `json:"email"`
+	Role        string    `json:"role"`
+	UserBoardID uuid.UUID `json:"user_board_role_id"`
+	BoardID     uuid.UUID `json:"board_id"`
+}
+
+func InviteMemberToInviteMemberResponse(ubr *userboardrole.UserBoardRole, email string) *InviteMemberResponse {
+	return &InviteMemberResponse{
+		Role:        ubr.Role,
+		Email:       email,
+		UserBoardID: ubr.ID,
+		BoardID:     ubr.BoardID,
 	}
 }

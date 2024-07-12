@@ -116,14 +116,11 @@ func CreateUserBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber
 
 			return presenter.InternalServerError(c, err)
 		}
+		res := presenter.BoardToCreateBoardResponse(b)
+		response := presenter.NewResponse()
+		response.SetData(res)
 
-		return presenter.Created(c, "Board created successfully", fiber.Map{
-			"board_id":        b.ID,
-			"user_board_role": ubr.ID,
-			"name":            b.Name,
-			"type":            b.Type,
-			"columns":         b.Columns,
-		})
+		return presenter.Created(c, "Board created successfully", response.Data)
 	}
 }
 
@@ -152,13 +149,11 @@ func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.H
 			}
 			return presenter.InternalServerError(c, err)
 		}
+		res := presenter.InviteMemberToInviteMemberResponse(ubr, req.Email)
+		response := presenter.NewResponse()
+		response.SetData(res)
 
-		return presenter.OK(c, "User successfully invited", fiber.Map{
-			"role":               ubr.Role,
-			"user_board_role_id": ubr.ID,
-			"board_id":           ubr.BoardID,
-			"email":              req.Email,
-		})
+		return presenter.Created(c, "User successfully invited", response.Data)
 	}
 }
 
