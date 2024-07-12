@@ -5,6 +5,7 @@ import (
 	"log"
 	"server/config"
 	"server/internal/board"
+	"server/internal/comment"
 	"server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/adapters/storage"
@@ -14,10 +15,11 @@ import (
 )
 
 type AppContainer struct {
-	cfg          config.Config
-	dbConn       *gorm.DB
-	authService  *AuthService
-	boardService *BoardService
+	cfg            config.Config
+	dbConn         *gorm.DB
+	authService    *AuthService
+	boardService   *BoardService
+	commentService *CommentService
 }
 
 func NewAppContainer(cfg config.Config) (*AppContainer, error) {
@@ -29,6 +31,7 @@ func NewAppContainer(cfg config.Config) (*AppContainer, error) {
 
 	app.setAuthService()
 	app.setBoardService()
+	app.setCommentService()
 
 	return app, nil
 }
@@ -101,4 +104,31 @@ func (a *AppContainer) setBoardService() {
 		return
 	}
 	a.boardService = NewBoardService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)))
+}
+
+func (a *AppContainer) setCommentService() {
+	if a.commentService != nil {
+		return
+	}
+	a.commentService = NewCommentService(
+		comment.NewOps(storage.NewCommentRepo(a.dbConn)),
+		userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)),
+	)
+}
+
+func (a *AppContainer) CommentServiceFromCtx(ctx context.Context) *CommentService {
+	tx, ok := valuecontext.TryGetTxFromContext(ctx)
+	if !ok {
+		return a.commentService
+	}
+
+	gc, ok := tx.Tx().(*gorm.DB)
+	if !ok {
+		return a.commentService
+	}
+
+	return NewCommentService(
+		comment.NewOps(storage.NewCommentRepo(gc)),
+		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
+	)
 }

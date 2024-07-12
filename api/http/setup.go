@@ -20,6 +20,7 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	registerGlobalRoutes(api, app)
 	secret := []byte(cfg.TokenSecret)
 	registerBoardRoutes(api, app, secret)
+	registerCommentRoutes(api, app, secret)
 
 	// registering users APIs
 	//registerUsersAPI(api, app.UserService(), secret)
@@ -67,4 +68,14 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 		middlewares.Auth(secret),
 		//	userRoleChecker(),
 		handlers.InviteToBoard(app.BoardServiceFromCtx))
+}
+
+func registerCommentRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
+	router = router.Group("/tasks/comment")
+
+	router.Post("",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		handlers.CreateUserComment(app.CommentServiceFromCtx),
+	)
 }
