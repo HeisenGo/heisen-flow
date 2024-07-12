@@ -12,15 +12,10 @@ import (
 
 func GetNotifications(notificationService *service.NotificationService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var req presenter.NotificationReq
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
 		if !ok {
 			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
 		}
-		if err := c.BodyParser(&req); err != nil {
-			return SendError(c, err, fiber.StatusBadRequest)
-		}
-		
 		notifList , err := notificationService.GetUserUnseenNotifications(c.UserContext(),userClaims.UserID )
 		if err != nil {
 			status := fiber.StatusInternalServerError

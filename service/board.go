@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"server/internal/board"
 	"server/internal/column"
+	"server/internal/notification"
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/rbac"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -29,16 +31,18 @@ type BoardService struct {
 	boardOps         *board.Ops
 	userBoardRoleOps *userboardrole.Ops
 	columnOps        *column.Ops
+	notificatinOps   *notification.Ops
 }
 
 // NewBoardService creates a new BoardService
 func NewBoardService(userOps *u.Ops, boardOps *board.Ops,
 	userBoardOps *userboardrole.Ops,
-	columnOps *column.Ops) *BoardService {
+	columnOps *column.Ops,notificatinOps *notification.Ops) *BoardService {
 	return &BoardService{userOps: userOps,
 		boardOps:         boardOps,
 		userBoardRoleOps: userBoardOps,
-		columnOps:        columnOps}
+		columnOps:        columnOps,
+		notificatinOps:   notificatinOps,}
 }
 
 func (s *BoardService) GetFullBoardByID(ctx context.Context, userID uuid.UUID, boardID uuid.UUID) (*board.Board, error) {
@@ -188,5 +192,17 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 		return err
 	}
 	// apply your notification record create here
+	notif := notification.Notification{
+        IsSeen:           false,
+        Description:      "Invited To New Board",
+        NotificationType: "Invite",
+        UserBoardRoleID:  userBoardRole.ID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+    }
+	err = s.notificatinOps.CreateNotification(ctx,&notif)
+	if err != nil {
+		return err
+	}
 	return nil
 }
