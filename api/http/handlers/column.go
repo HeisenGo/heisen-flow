@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	presenter "server/api/http/handlers/presentor"
+	"server/internal/board"
 	"server/internal/column"
 	"server/pkg/jwt"
 	"server/service"
@@ -36,6 +37,9 @@ func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.
 		if err != nil {
 			if errors.Is(err, service.ErrPermissionDeniedToDeleteColumn) {
 				presenter.Forbidden(c, err)
+			}
+			if errors.Is(err, board.ErrBoardNotFound) {
+				presenter.BadRequest(c, err)
 			}
 			return presenter.InternalServerError(c, err)
 		}

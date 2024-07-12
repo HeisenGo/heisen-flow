@@ -121,6 +121,8 @@ func (a *AppContainer) ColumnServiceFromCtx(ctx context.Context) *ColumnService 
 
 	return NewColumnService(
 		column.NewOps(storage.NewColumnRepo(gc)),
+		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
+		board.NewOps(storage.NewBoardRepo(gc)),
 	)
 }
 
@@ -135,7 +137,8 @@ func (a *AppContainer) setColumnService() {
 	if a.columnService != nil { // Fixed condition
 		return
 	}
-	a.columnService = NewColumnService(column.NewOps(storage.NewColumnRepo(a.dbConn)))
+	a.columnService = NewColumnService(column.NewOps(storage.NewColumnRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)),
+		board.NewOps(storage.NewBoardRepo(a.dbConn)))
 }
 
 func (a *AppContainer) TaskService() *TaskService {

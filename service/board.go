@@ -195,11 +195,12 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 func (s *BoardService) DeleteBoardByID(ctx context.Context, ub *userboardrole.UserBoardRole) error {
 	// check board exists
 	b, err := s.boardOps.GetBoardByID(ctx, ub.BoardID)
-	if b == nil {
-		return board.ErrBoardNotFound
-	}
+
 	if err != nil {
 		return err
+	}
+	if b == nil {
+		return board.ErrBoardNotFound
 	}
 
 	// check user exists

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"server/internal/board"
 	"server/internal/column"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/adapters/storage/entities"
@@ -19,10 +20,13 @@ var (
 type ColumnService struct {
 	colOps           *column.Ops
 	userBoardRoleOps *userboardrole.Ops
+	boardOps         *board.Ops
 }
 
-func NewColumnService(colOps *column.Ops) *ColumnService {
-	return &ColumnService{colOps: colOps}
+func NewColumnService(colOps *column.Ops, userBoardRoleOps *userboardrole.Ops, boardOps *board.Ops) *ColumnService {
+	return &ColumnService{colOps: colOps,
+		boardOps:         boardOps,
+		userBoardRoleOps: userBoardRoleOps}
 }
 
 func (s *ColumnService) CreateColumn(ctx context.Context, name string, boardID, userID uuid.UUID, order uint) (*entities.Column, error) {
@@ -96,6 +100,14 @@ func (s *ColumnService) CreateColumns(ctx context.Context, columns []entities.Co
 		}
 	}
 	//check to see board exists?
+	b, err := s.boardOps.GetBoardByID(ctx, colModels[0].BoardID)
+
+	if err != nil {
+		return nil, err
+	}
+	if b == nil {
+		return nil, board.ErrBoardNotFound
+	}
 	// check permission
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, colModels[0].BoardID)
 	if err != nil {
