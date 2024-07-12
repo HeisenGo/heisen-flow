@@ -69,5 +69,6 @@ var RolePermissions = map[Role][]Permission{
 		PermissionCommentAnyTask,
 		PermissionManageColumns,
 		PermissionInviteUsers,
+		PermissionRemoveBoard,
 	},
 }
