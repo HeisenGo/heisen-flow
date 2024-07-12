@@ -46,13 +46,24 @@ func (r *columnRepo) GetMaxOrderForBoard(ctx context.Context, boardID uuid.UUID)
 	err := r.db.WithContext(ctx).Model(&entities.Column{}).Where("board_id = ?", boardID).Select("COALESCE(MAX(\"order\"), 0)").Scan(&maxOrder).Error
 	return maxOrder, err
 }
-
+func (r *columnRepo) GetMinOrderColumn(ctx context.Context, boardID uuid.UUID) (*column.Column, error) {
+	// Query to find the column with the minimum order
+	var minOrderColumn entities.Column
+	if err := r.db.WithContext(ctx).
+		Where("board_id = ?", boardID).
+		Order("order_num ASC").
+		First(&minOrderColumn).Error; err != nil {
+		return nil, err
+	}
+	domainColumn := mappers.ColumnEntityToDomain(minOrderColumn)
+	return &domainColumn, nil
+}
 func (r *columnRepo) CreateBatch(ctx context.Context, cols []column.Column) ([]column.Column, error) {
 	columnEntities := mappers.ColumnDomainsToEntities(cols)
 	if err := r.db.WithContext(ctx).Create(&columnEntities).Error; err != nil {
 		return nil, err
 	}
-	return mappers.ColumnEntitiesToDomain(columnEntities), nil
+	return mappers.BatchColumnEntitiesToDomain(columnEntities), nil
 }
 
 func (r *columnRepo) Delete(ctx context.Context, columnID uuid.UUID) error {
@@ -67,7 +78,7 @@ func (r *columnRepo) GetByBoardID(ctx context.Context, boardID uuid.UUID) ([]col
 	if err := r.db.WithContext(ctx).Where("board_id = ?", boardID).Find(&colEntities).Error; err != nil {
 		return nil, err
 	}
-	return mappers.ColumnEntitiesToDomain(colEntities), nil
+	return mappers.BatchColumnEntitiesToDomain(colEntities), nil
 }
 
 func (r *columnRepo) UpdateColumns(ctx context.Context, columns []column.Column) ([]column.Column, error) {
