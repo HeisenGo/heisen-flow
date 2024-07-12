@@ -29,6 +29,9 @@ func (o *Ops) Create(ctx context.Context, column *Column) error {
 func (o *Ops) GetMaxOrderForBoard(ctx context.Context, boardID uuid.UUID) (uint, error) {
 	return o.repo.GetMaxOrderForBoard(ctx, boardID)
 }
+func (o *Ops) GetMinOrderColumn(ctx context.Context, boardID uuid.UUID) (*Column, error) {
+	return o.repo.GetMinOrderColumn(ctx, boardID)
+}
 
 func (o *Ops) CreateColumns(ctx context.Context, columns []Column) ([]Column, error) {
 	for _, column := range columns {
