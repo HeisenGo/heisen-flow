@@ -83,13 +83,13 @@ func BatchTaskToBoardTaskResp(t []task.Task) []BoardTaskResp {
 func BatchUserToBoardUserResp(u []user.User) []BoardUserResp {
 	return fp.Map(u, userToBoardUserResp)
 }
-func BatchColumnToBoardUserResp(c []column.Column) []BoardColumnResp {
+func BatchColumnToBoardColumnResp(c []column.Column) []BoardColumnResp {
 	return fp.Map(c, columnToBoardColumnResp)
 }
 
 func BoardToFullBoardResp(b board.Board) FullBoardResp {
 	usersResp := BatchUserToBoardUserResp(b.Users)
-	columnsResp := BatchColumnToBoardUserResp(b.Columns)
+	columnsResp := BatchColumnToBoardColumnResp(b.Columns)
 	return FullBoardResp{
 		ID:        b.ID,
 		Name:      b.Name,
