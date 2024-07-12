@@ -20,6 +20,15 @@ func NewColumnRepo(db *gorm.DB) column.Repo {
 	}
 }
 
+func (r *columnRepo) SetDoneAsDefault(ctx context.Context, column *column.Column) error {
+	columnEntity := mappers.ColumnDomainToEntity(*column)
+	if err := r.db.WithContext(ctx).Save(&columnEntity).Error; err != nil {
+		return err
+	}
+	column.ID = columnEntity.ID
+	return nil
+}
+
 func (r *columnRepo) Create(ctx context.Context, col *column.Column) (*column.Column, error) {
 	columnEntity := mappers.ColumnDomainToEntity(*col)
 	if err := r.db.WithContext(ctx).Save(&columnEntity).Error; err != nil {

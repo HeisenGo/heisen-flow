@@ -4,7 +4,6 @@ import (
 	"context"
 	b "server/internal/board"
 	"server/internal/column"
-	"server/internal/task"
 	t "server/internal/task"
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
@@ -18,12 +17,12 @@ type TaskService struct {
 	userOps          *u.Ops
 	boardOps         *b.Ops
 	userBoardRoleOps *userboardrole.Ops
-	taskOps          *task.Ops
+	taskOps          *t.Ops
 	columnOps        *column.Ops
 }
 
 // NewTaskService creates a new TaskService
-func NewTaskService(userOps *u.Ops, boardOps *b.Ops, userBoardOps *userboardrole.Ops, taskOps *task.Ops, columnOps *column.Ops) *TaskService {
+func NewTaskService(userOps *u.Ops, boardOps *b.Ops, userBoardOps *userboardrole.Ops, taskOps *t.Ops, columnOps *column.Ops) *TaskService {
 	return &TaskService{userOps: userOps,
 		boardOps:         boardOps,
 		userBoardRoleOps: userBoardOps,
@@ -32,11 +31,11 @@ func NewTaskService(userOps *u.Ops, boardOps *b.Ops, userBoardOps *userboardrole
 	}
 }
 
-func (s *BoardService) GetUserTasks(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]task.Task, uint, error) {
+func (s *BoardService) GetUserTasks(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]t.Task, uint, error) {
 	return nil, 0, nil
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
+func (s *TaskService) CreateTask(ctx context.Context, task *t.Task) error {
 	// check if the creator exists
 	user, err := s.userOps.GetUserByID(ctx, task.CreatedByUserID)
 	if err != nil {
@@ -94,6 +93,9 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 	}
 
 	col, err := s.columnOps.GetMinOrderColumn(ctx, task.BoardID)
+	if err != nil {
+		return err
+	}
 	task.ColumnID = col.ID
 	err = s.taskOps.Create(ctx, task)
 	if err != nil {
@@ -104,7 +106,7 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 	return nil
 }
 
-func (s *TaskService) AddDependency(ctx context.Context, task *task.Task) error {
+func (s *TaskService) AddDependency(ctx context.Context, task *t.Task) error {
 	// task exists?
 	existedTask, err := s.taskOps.GetTaskByID(ctx, task.ID)
 	if err != nil {
