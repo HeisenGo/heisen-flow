@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	presenter "server/api/http/handlers/presentor"
+	"server/internal/column"
 	"server/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -46,9 +48,17 @@ func DeleteColumn(serviceFactory ServiceFactory[*service.ColumnService]) fiber.H
 
 		err = columnService.DeleteColumn(c.UserContext(), columnID)
 		if err != nil {
+			if err != nil {
+				if errors.Is(err, column.ErrColumnNotEmpty) {
+					return presenter.BadRequest(c, err)
+				}
+				if errors.Is(err, column.ErrColumnNotFound) {
+					return presenter.NotFound(c, err)
+				}
+			}
 			return presenter.InternalServerError(c, err)
 		}
 
-		return presenter.OK(c, "Column deleted successfully", nil)
+		return presenter.NoContent(c)
 	}
 }

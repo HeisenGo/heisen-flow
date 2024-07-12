@@ -11,7 +11,9 @@ import (
 )
 
 var (
-	ErrInvalidName = errors.New("invalid column name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
+	ErrInvalidName    = errors.New("invalid column name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
+	ErrColumnNotEmpty = errors.New("you can't delete a column that has some tasks")
+	ErrColumnNotFound = errors.New("column doesn't exists")
 )
 
 type Repo interface {
