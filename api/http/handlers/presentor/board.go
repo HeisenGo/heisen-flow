@@ -137,3 +137,10 @@ func InviteUserToBoardToUserBoardRole(inviteUserToBoard *InviteUserToBoard) *use
 		BoardID: inviteUserToBoard.BoardID,
 	}
 }
+
+func DeleteBoardParamToUserBoardRole(boardID uuid.UUID, userID uuid.UUID) *userBoardRole.UserBoardRole {
+	return &userBoardRole.UserBoardRole{
+		UserID:  userID,
+		BoardID: boardID,
+	}
+}
