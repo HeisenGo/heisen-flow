@@ -42,14 +42,17 @@ func (r *notificationRepo) GetUserUnseenNotifications(ctx context.Context, userI
     if err := r.db.WithContext(ctx).
         Joins("JOIN user_board_roles ON user_board_roles.id = notifications.user_board_role_id").
         Where("user_board_roles.user_id = ? AND notifications.is_seen = ?", userID, false).
+        Order("notifications.created_at ASC"). // Sort by CreatedAt in ascending order
         Find(&notifications).Error; err != nil {
         return nil, err
     }
-	var domainNotifications []notification.Notification
-	for _, notif := range notifications {
+
+    var domainNotifications []notification.Notification
+    for _, notif := range notifications {
         domainNotification := mappers.NotificationEntityToDomain(&notif)
         domainNotifications = append(domainNotifications, *domainNotification)
     }
+
     return domainNotifications, nil
 }
 

@@ -3,6 +3,7 @@ package notification
 import (
 	"context"
 	"github.com/google/uuid"
+	"time"
 )
 
 type Repo interface {
@@ -12,7 +13,9 @@ type Repo interface {
 }
 
 type Notification struct {
-    ID                uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ID                uuid.UUID
     IsSeen            bool
     Description       string
     NotificationType  string

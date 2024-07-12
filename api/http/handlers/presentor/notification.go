@@ -2,6 +2,7 @@ package presenter
 
 import (
 	"server/internal/notification"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -11,6 +12,8 @@ type NotificationReq struct {
 	Description      string    `json:"description"`
 	IsSeen           bool      `json:"is_seen"`
 	NotificationType string    `json:"type"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func NotificationToNotificationDomain(not *NotificationReq) *notification.Notification {

@@ -20,7 +20,6 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	registerGlobalRoutes(api, app)
 	secret := []byte(cfg.TokenSecret)
 	registerBoardRoutes(api, app, secret)
-	registerNotificationRoutes(api,app)
 	// registering users APIs
 	//registerUsersAPI(api, app.UserService(), secret)
 
@@ -45,13 +44,9 @@ func registerGlobalRoutes(router fiber.Router, app *service.AppContainer) {
 	router.Post("/register", handlers.RegisterUser(app.AuthService()))
 	router.Post("/login", handlers.LoginUser(app.AuthService()))
 	router.Get("/refresh", handlers.RefreshToken(app.AuthService()))
+	router.Get("/notifications",handlers.GetNotifications(app.NotificationService()))
+	router.Post("/notifications/Update",handlers.UpdateNotifications(app.NotificationService()))
 }
-
-func registerNotificationRoutes(router fiber.Router, app *service.AppContainer){
-	router.Post("/notification", handlers.CreateNotification(app.NotificationService()))
-
-}
-
 func userRoleChecker() fiber.Handler {
 	return middlewares.RoleChecker("user")
 }

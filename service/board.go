@@ -9,7 +9,7 @@ import (
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/rbac"
-
+	"time"
 	"github.com/google/uuid"
 )
 
@@ -172,6 +172,8 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
         Description:      "Invited To New Board",
         NotificationType: "Invite",
         UserBoardRoleID:  userBoardRole.ID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
     }
 	err = s.notificatinOps.CreateNotification(ctx,&notif)
 	if err != nil {
