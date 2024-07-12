@@ -4,6 +4,7 @@ import (
 	"errors"
 	presenter "server/api/http/handlers/presentor"
 	"server/internal/column"
+	"server/pkg/jwt"
 	"server/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,11 @@ import (
 func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		columnService := serviceFactory(c.UserContext())
+
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
 
 		var req presenter.CreateColumnsRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -26,8 +32,11 @@ func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.
 		}
 
 		columns := presenter.CreateColumnsRequestToEntities(req, maxOrder)
-		createdColumns, err := columnService.CreateColumns(c.UserContext(), columns)
+		createdColumns, err := columnService.CreateColumns(c.UserContext(), columns, userClaims.UserID)
 		if err != nil {
+			if errors.Is(err, service.ErrPermissionDeniedToDeleteColumn) {
+				presenter.Forbidden(c, err)
+			}
 			return presenter.InternalServerError(c, err)
 		}
 
@@ -38,14 +47,17 @@ func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.
 
 func DeleteColumn(columnService *service.ColumnService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
 		columnIDParam := c.Params("columnID")
 		columnID, err := uuid.Parse(columnIDParam)
 		if err != nil {
 			return SendError(c, err, fiber.StatusBadRequest)
 		}
 
-		err = columnService.DeleteColumn(c.UserContext(), columnID)
+		err = columnService.DeleteColumn(c.UserContext(), columnID, userClaims.UserID)
 		if err != nil {
 			if errors.Is(err, service.ErrPermissionDeniedToDeleteColumn) {
 				presenter.Forbidden(c, err)
