@@ -40,7 +40,7 @@ type Task struct {
 	Parent   *Task      `gorm:"foreignKey:ParentID"`
 	Subtasks []Task     `gorm:"foreignKey:ParentID"`
 
-	DependsOn   []Task `gorm:"many2many:task_dependencies;"`
+	DependsOn   []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
 	DependentBy []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
 }
 
