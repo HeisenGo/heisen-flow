@@ -164,6 +164,6 @@ func (r *taskRepo) GetFullByID(ctx context.Context, id uuid.UUID) (*task.Task, e
 		First(&t, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-	domainTask := mappers.TaskEntityToDomain(t) ///////////////////////////
+	domainTask := mappers.TaskEntityToDomain(t)
 	return &domainTask, nil
 }

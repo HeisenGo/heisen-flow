@@ -10,7 +10,7 @@ import (
 
 func TaskEntityToDomain(taskEntity entities.Task) task.Task {
 	subTasks := BatchTaskEntitiesToDomain(taskEntity.Subtasks)
-	ubr := UserBoardRoleEntityToDomain(taskEntity.UserBoardRole) ////////////////////
+	ubr := UserBoardRoleEntityToDomain(taskEntity.UserBoardRole)
 	return task.Task{
 		ID:              taskEntity.ID,
 		Title:           taskEntity.Title,

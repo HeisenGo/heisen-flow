@@ -138,7 +138,7 @@ func (s *TaskService) GetFullTaskByID(ctx context.Context, userID uuid.UUID, tas
 	}
 
 	if !rbac.HasPermission(fetcherRole, rbac.PermissionViewTask) {
-		return nil, ErrPermissionDeniedToInvite
+		return nil, ErrPermissionDenied
 	}
 
 	return task, err
