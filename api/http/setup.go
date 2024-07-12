@@ -51,6 +51,10 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 		middlewares.Auth(secret),
 		handlers.GetPublicBoards(app.BoardService()),
 	)
+	router.Get("/:boardID",
+		middlewares.Auth(secret),
+		handlers.GetBoardByID(app.BoardService()),
+	)
 
 	router.Post("/invite", middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
@@ -72,7 +76,6 @@ func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret [
 		handlers.AddDependency(app.TaskServiceFromCtx),
 	)
 }
-
 
 func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
 	router = router.Group("/columns")
