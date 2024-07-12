@@ -46,10 +46,7 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 			return SendError(c, err, status)
 		}
 
-		return presenter.Created(c, "Task created successfully", fiber.Map{
-			"message": "task created",
-			"task_id": t.ID,
-		})
+		return presenter.Created(c, "Task created successfully", presenter.TaskToCreateTaskResp(t))
 	}
 }
 
