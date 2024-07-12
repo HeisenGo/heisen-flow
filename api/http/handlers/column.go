@@ -2,15 +2,15 @@ package handlers
 
 import (
 	presenter "server/api/http/handlers/presentor"
+	"server/internal/column"
 	"server/service"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
-func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
+func CreateColumns(columnService *service.ColumnService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		columnService := serviceFactory(c.UserContext())
 
 		var req presenter.CreateColumnsRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -34,9 +34,8 @@ func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.
 	}
 }
 
-func DeleteColumn(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
+func DeleteColumn(columnService *service.ColumnService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		columnService := serviceFactory(c.UserContext())
 
 		columnIDParam := c.Params("columnID")
 		columnID, err := uuid.Parse(columnIDParam)
