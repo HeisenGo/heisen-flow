@@ -14,7 +14,7 @@ type Comment struct {
 	UserBoardRoleID uuid.UUID      `gorm:"type:uuid"`
 	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 	TaskID          uuid.UUID      `gorm:"type:uuid"`
-	Task            *Task          `gorm:"foreignKey:TaskId"`
+	Task            *Task          `gorm:"foreignKey:TaskID"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       gorm.DeletedAt `gorm:"index"`

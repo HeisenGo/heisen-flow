@@ -20,10 +20,10 @@ func NewCommentService(commentOps *comment.Ops, userBoardOps *userboardrole.Ops)
 	return &CommentService{commentOps: commentOps, userBoardRoleOps: userBoardOps}
 }
 
-func (s *CommentService) CreateComment(ctx context.Context, c *comment.Comment, userID uuid.UUID) error {
+func (s *CommentService) CreateComment(ctx context.Context, c *comment.Comment, ub *userboardrole.UserBoardRole) error {
 
 	//Validate Comment
-
+	
 	err := s.commentOps.Insert(ctx, c)
 	if err != nil {
 		return err
