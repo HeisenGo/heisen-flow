@@ -45,7 +45,7 @@ func (s *BoardService) GetFullBoardByID(ctx context.Context, userID uuid.UUID, b
 			return nil, ErrPermissionDeniedToInvite
 		}
 
-		if !rbac.HasPermission(fetcherRole, rbac.PermissionInviteUsers) {
+		if !rbac.HasPermission(fetcherRole, rbac.PermissionViewBoard) {
 			return nil, ErrPermissionDeniedToInvite
 		}
 	}
