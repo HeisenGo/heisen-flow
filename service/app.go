@@ -5,8 +5,8 @@ import (
 	"log"
 	"server/config"
 	"server/internal/board"
-	"server/internal/task"
 	"server/internal/column"
+	"server/internal/task"
 	"server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/adapters/storage"
@@ -16,11 +16,11 @@ import (
 )
 
 type AppContainer struct {
-	cfg          config.Config
-	dbConn       *gorm.DB
-	authService  *AuthService
-	boardService *BoardService
-	taskService  *TaskService
+	cfg           config.Config
+	dbConn        *gorm.DB
+	authService   *AuthService
+	boardService  *BoardService
+	taskService   *TaskService
 	columnService *ColumnService
 }
 
@@ -157,6 +157,7 @@ func (a *AppContainer) TaskServiceFromCtx(ctx context.Context) *TaskService {
 		board.NewOps(storage.NewBoardRepo(gc)),
 		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
 		task.NewOps(storage.NewTaskRepo(gc)),
+		column.NewOps(storage.NewColumnRepo(gc)),
 	)
 }
 
@@ -164,6 +165,5 @@ func (a *AppContainer) setTaskService() {
 	if a.taskService != nil {
 		return
 	}
-	a.taskService = NewTaskService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), task.NewOps(storage.NewTaskRepo(a.dbConn)))
+	a.taskService = NewTaskService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), task.NewOps(storage.NewTaskRepo(a.dbConn)), column.NewOps(storage.NewColumnRepo(a.dbConn)))
 }
-
