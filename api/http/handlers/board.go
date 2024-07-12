@@ -115,13 +115,13 @@ func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.H
 
 		ubr := presenter.InviteUserToBoardToUserBoardRole(&req)
 		if err := boardService.InviteUser(c.UserContext(), userClaims.UserID, req.Email, ubr); err != nil {
-			//status := fiber.StatusInternalServerError
-			/// needs to be checked by error wrapping
-			// if errors.Is(err, board.ErrWrongType) || errors.Is(err, board.ErrInvalidName) {
-			// 	status = fiber.StatusBadRequest
-			// }
-
-			return presenter.BadRequest(c, err)
+			if errors.Is(err, service.ErrPermissionDeniedToInvite) {
+				return presenter.Forbidden(c, err)
+			}
+			if errors.Is(err, service.ErrAMember) || errors.Is(err, service.ErrOwnerExists) || errors.Is(err, service.ErrUndefinedRole) {
+				return presenter.BadRequest(c, err)
+			}
+			return presenter.InternalServerError(c, err)
 		}
 
 		return presenter.OK(c, "User successfully invited", fiber.Map{
