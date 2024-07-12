@@ -19,6 +19,10 @@ func (o *Ops) GetUserBoardRole(ctx context.Context, userID, boardID uuid.UUID) (
 	return o.repo.GetUserBoardRole(ctx, userID, boardID)
 }
 
+func (o *Ops) GetUserBoardRoleObj(ctx context.Context, userID, boardID uuid.UUID) (*UserBoardRole, error) {
+	return o.repo.GetUserBoardRoleObj(ctx, userID, boardID)
+}
+
 func (o *Ops) SetUserBoardRole(ctx context.Context, ub *UserBoardRole) error {
 	return o.repo.SetUserBoardRole(ctx, ub)
 }

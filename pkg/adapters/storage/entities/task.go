@@ -27,8 +27,8 @@ type Task struct {
 	StoryPoint  uint 
 
 	// Relationships
-	UserBoardRoleID *uuid.UUID     `gorm:"type:uuid"` //Assignee
-	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
+	UserBoardRoleID *uuid.UUID    `gorm:"type:uuid"` //Assignee
+	UserBoardRole   UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 
 	ColumnID uuid.UUID `gorm:"type:uuid"`
 	Column   *Column   `gorm:"foreignKey:ColumnID;constraint:OnDelete:CASCADE"`

@@ -52,7 +52,7 @@ func (r *columnRepo) GetByID(ctx context.Context, id uuid.UUID) (*column.Column,
 
 func (r *columnRepo) GetMaxOrderForBoard(ctx context.Context, boardID uuid.UUID) (uint, error) {
 	var maxOrder uint
-	err := r.db.WithContext(ctx).Model(&entities.Column{}).Where("board_id = ?", boardID).Select("COALESCE(MAX(\"order\"), 0)").Scan(&maxOrder).Error
+	err := r.db.WithContext(ctx).Model(&entities.Column{}).Where("board_id = ?", boardID).Select("COALESCE(MAX(\"order_num\"), 0)").Scan(&maxOrder).Error
 	return maxOrder, err
 }
 func (r *columnRepo) GetMinOrderColumn(ctx context.Context, boardID uuid.UUID) (*column.Column, error) {
