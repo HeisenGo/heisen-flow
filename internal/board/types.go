@@ -32,6 +32,7 @@ type Repo interface {
 	GetFullByID(ctx context.Context, id uuid.UUID) (*Board, error)
 	GetUserBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) (userBoards []Board, total uint, err error)
 	GetPublicBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) (publicBoards []Board, total uint, err error)
+	DeleteByID(ctx context.Context, boardID uuid.UUID) error
 }
 
 type Board struct {
