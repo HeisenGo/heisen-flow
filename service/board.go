@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"server/internal/board"
+	"server/internal/column"
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/rbac"
@@ -12,16 +13,50 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	ErrPermissionDenied         = errors.New("permission denied")
+	ErrNotMember                = errors.New("the assignee is not a member of this board")
+	ErrCantAssigned             = errors.New("assignee is a viewer")
+	ErrOwnerExists              = errors.New("owner already exists")
+	ErrUndefinedRole            = errors.New("undefined role, role should be one of the following values:viewer, editor, maintainer")
+	ErrPermissionDeniedToInvite = errors.New("permission denied: cannot invite users")
+	ErrAMember                  = errors.New("user already is a member")
+)
+
 // BoardService handles board-related operations
 type BoardService struct {
 	userOps          *u.Ops
 	boardOps         *board.Ops
 	userBoardRoleOps *userboardrole.Ops
+	columnOps        *column.Ops
 }
 
 // NewBoardService creates a new BoardService
-func NewBoardService(userOps *u.Ops, boardOps *board.Ops, userBoardOps *userboardrole.Ops) *BoardService {
-	return &BoardService{userOps: userOps, boardOps: boardOps, userBoardRoleOps: userBoardOps}
+func NewBoardService(userOps *u.Ops, boardOps *board.Ops,
+	userBoardOps *userboardrole.Ops,
+	columnOps *column.Ops) *BoardService {
+	return &BoardService{userOps: userOps,
+		boardOps:         boardOps,
+		userBoardRoleOps: userBoardOps,
+		columnOps:        columnOps}
+}
+
+func (s *BoardService) GetFullBoardByID(ctx context.Context, userID uuid.UUID, boardID uuid.UUID) (*board.Board, error) {
+	b, err := s.boardOps.GetFullBoardByID(ctx, boardID)
+	if err != nil {
+		return nil, err
+	}
+	if b.Type == "private" {
+		fetcherRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
+		if err != nil {
+			return nil, ErrPermissionDeniedToInvite
+		}
+
+		if !rbac.HasPermission(fetcherRole, rbac.PermissionViewBoard) {
+			return nil, ErrPermissionDeniedToInvite
+		}
+	}
+	return b, err
 }
 
 func (s *BoardService) GetUserBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]board.Board, uint, error) {
@@ -34,7 +69,20 @@ func (s *BoardService) GetUserBoards(ctx context.Context, userID uuid.UUID, page
 		return nil, 0, u.ErrUserNotFound
 	}
 
-	return s.boardOps.UserBoards(ctx, userID, page, pageSize)
+	return s.boardOps.GetUserBoards(ctx, userID, page, pageSize)
+}
+
+func (s *BoardService) GetPublicBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]board.Board, uint, error) {
+	user, err := s.userOps.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if user == nil {
+		return nil, 0, u.ErrUserNotFound
+	}
+
+	return s.boardOps.GetPublicBoards(ctx, userID, page, pageSize)
 }
 
 func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *userboardrole.UserBoardRole) error {
@@ -54,27 +102,17 @@ func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *user
 
 	ub.BoardID = b.ID
 	ub.Role = string(rbac.RoleOwner)
-	ub.Role = string(rbac.RoleOwner)
 	err = s.userBoardRoleOps.SetUserBoardRole(ctx, ub)
 	if err != nil {
 		return err
 	}
-	return nil
-	// return errors.New("test error") -> for testing transaction
-}
+	// set first "done" default column
 
-// CreateTask creates a new task in a board
-func (s *BoardService) CreateTask(ctx context.Context, userID, boardID uuid.UUID, taskDetails map[string]interface{}) error {
-	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
+	col, err := s.columnOps.SetDoneAsDefault(ctx, ub.BoardID)
 	if err != nil {
 		return err
 	}
-
-	if !rbac.HasPermission(role, rbac.PermissionCreateTask) {
-		return errors.New("permission denied: cannot create task")
-	}
-
-	// To Do create task
+	b.Columns = append(b.Columns, *col)
 	return nil
 }
 
@@ -106,41 +144,25 @@ func (s *BoardService) MoveTask(ctx context.Context, userID, boardID uuid.UUID, 
 	return nil
 }
 
-// AddColumn adds a new column to the board
-func (s *BoardService) AddColumn(ctx context.Context, userID, boardID uuid.UUID, columnDetails map[string]interface{}) error {
-	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
-	if err != nil {
-		return err
-	}
-
-	if !rbac.HasPermission(role, rbac.PermissionManageColumns) {
-		return errors.New("permission denied: cannot add column")
-	}
-
-	// column addition logic
-
-	return nil
-}
-
 // InviteUser invites a user to the board
 func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, inviteeEmail string, userBoardRole *userboardrole.UserBoardRole) error {
 
 	if userBoardRole.Role == string(rbac.RoleOwner) {
-		return errors.New("owner already exists")
+		return ErrOwnerExists
 	}
 	isPossibleRole := rbac.IsAPossibleRole(userBoardRole.Role)
 
 	if !isPossibleRole {
-		return errors.New("undefined role, role should be one of the following values:viewer, editor, maintainer")
+		return ErrUndefinedRole
 	}
 
 	inviterRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, inviterID, userBoardRole.BoardID)
 	if err != nil {
-		return err
+		return ErrPermissionDeniedToInvite
 	}
 
 	if !rbac.HasPermission(inviterRole, rbac.PermissionInviteUsers) {
-		return errors.New("permission denied: cannot invite users")
+		return ErrPermissionDeniedToInvite
 	}
 
 	invitedUser, err := s.userOps.GetUserByEmail(ctx, inviteeEmail)
@@ -157,8 +179,8 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 	}
 
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, invitedUser.ID, b.ID)
-	if role != "" && err==nil {
-		return errors.New("user already is a member")
+	if role != "" && err == nil {
+		return ErrAMember
 	}
 
 	err = s.userBoardRoleOps.SetUserBoardRole(ctx, userBoardRole)

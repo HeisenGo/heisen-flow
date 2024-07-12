@@ -1,20 +1,12 @@
-package handlers
+package presenter
 
 import "github.com/gofiber/fiber/v2"
-
-// used if needed
-type Meta struct {
-	Page       int `json:"page,omitempty"`
-	PageSize   int `json:"page_size,omitempty"`
-	TotalItems int `json:"total_items,omitempty"`
-}
 
 type Response struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   string      `json:"error,omitempty"`
-	Meta    *Meta       `json:"meta,omitempty"`
 }
 
 func NewResponse() *Response {
@@ -30,15 +22,6 @@ func (r *Response) SetMessage(message string) *Response {
 
 func (r *Response) SetData(data interface{}) *Response {
 	r.Data = data
-	return r
-}
-
-func (r *Response) SetMeta(page, pageSize, totalItems int) *Response {
-	r.Meta = &Meta{
-		Page:       page,
-		PageSize:   pageSize,
-		TotalItems: totalItems,
-	}
 	return r
 }
 
@@ -82,11 +65,4 @@ func NotFound(c *fiber.Ctx, err error) error {
 
 func InternalServerError(c *fiber.Ctx, err error) error {
 	return Send(c, fiber.StatusInternalServerError, NewResponse().SetError(err))
-}
-
-func Paginated(c *fiber.Ctx, message string, data interface{}, page, pageSize, totalItems int) error {
-	return Send(c, fiber.StatusOK, NewResponse().
-		SetMessage(message).
-		SetData(data).
-		SetMeta(page, pageSize, totalItems))
 }

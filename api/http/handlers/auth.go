@@ -29,21 +29,24 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 		if err := c.BodyParser(&req); err != nil {
 			return SendError(c, err, fiber.StatusBadRequest)
 		}
+		err := BodyValidator(req)
+		if err != nil {
+			return presenter.BadRequest(c, err)
+		}
 
 		u := presenter.UserRegisterToUserDomain(&req)
 
-		new_user, err := authService.CreateUser(c.Context(), u)
+		newUser, err := authService.CreateUser(c.Context(), u)
 		if err != nil {
-			status := fiber.StatusInternalServerError
 			if errors.Is(err, user.ErrInvalidEmail) || errors.Is(err, user.ErrInvalidPassword) || errors.Is(err, user.ErrEmailAlreadyExists) {
-				status = fiber.StatusBadRequest
+				presenter.BadRequest(c, err)
 			}
 
-			return SendError(c, err, status)
+			return presenter.InternalServerError(c, err)
 		}
 
-		return Created(c, "user successfully registered", fiber.Map{
-			"user_id": new_user.ID,
+		return presenter.Created(c, "user successfully registered", fiber.Map{
+			"user_id": newUser.ID,
 		})
 	}
 }
@@ -59,9 +62,15 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 // @Router /login [post]
 func LoginUser(authService *service.AuthService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var input struct {
-			Email    string `json:"email"`
-			Password string `json:"password"`
+		var req presenter.UserLoginReq
+
+		if err := c.BodyParser(&req); err != nil {
+			return SendError(c, err, fiber.StatusBadRequest)
+		}
+
+		err := BodyValidator(req)
+		if err != nil {
+			return presenter.BadRequest(c, err)
 		}
 
 		c.Cookie(&fiber.Cookie{
@@ -71,13 +80,10 @@ func LoginUser(authService *service.AuthService) fiber.Handler {
 			SessionOnly: true,
 		})
 
-		if err := c.BodyParser(&input); err != nil {
-			return SendError(c, err, fiber.StatusBadRequest)
-		}
-
-		authToken, err := authService.Login(c.Context(), input.Email, input.Password)
+		authToken, err := authService.Login(c.Context(), req.Email, req.Password)
 		if err != nil {
-			return SendError(c, err, fiber.StatusBadRequest)
+
+			return presenter.BadRequest(c, err)
 		}
 
 		return SendUserToken(c, authToken)
@@ -103,7 +109,8 @@ func RefreshToken(authService *service.AuthService) fiber.Handler {
 		pureToken := strings.Split(refToken, " ")[1]
 		authToken, err := authService.RefreshAuth(c.UserContext(), pureToken)
 		if err != nil {
-			return SendError(c, err, fiber.StatusUnauthorized)
+
+			return presenter.Unauthorized(c, err)
 		}
 
 		return SendUserToken(c, authToken)

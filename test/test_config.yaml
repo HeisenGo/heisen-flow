@@ -8,5 +8,10 @@ db:
   user: "root"
   pass: "123456"
   host : "localhost"
+<<<<<<< HEAD:config.yaml
   port: 5433
   db_name: "heisenflow"
+=======
+  port: 5432
+  db_name: "heisenflow_test"
+>>>>>>> 432903ec96e43f22a1186ff54476b14201b06c82:test/test_config.yaml

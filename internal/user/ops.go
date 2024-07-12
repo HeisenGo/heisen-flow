@@ -19,6 +19,7 @@ func NewOps(repo Repo) *Ops {
 }
 
 func (o *Ops) Create(ctx context.Context, user *User) (*User, error) {
+
 	err := validateUserRegistration(user)
 	if err != nil {
 		return nil, err
@@ -28,6 +29,9 @@ func (o *Ops) Create(ctx context.Context, user *User) (*User, error) {
 		return nil, err
 	}
 	user.SetPassword(hashedPass)
+
+	// lowercase email
+	user.Email = LowerCaseEmail(user.Email)
 	createdUser, err := o.repo.Create(ctx, user)
 	if err != nil {
 		if errors.Is(err, utils.DbErrDuplicateKey) {
@@ -43,6 +47,7 @@ func (o *Ops) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
 }
 
 func (o *Ops) GetUserByEmailAndPassword(ctx context.Context, email, password string) (*User, error) {
+	email = LowerCaseEmail(email)
 	user, err := o.repo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, err
@@ -60,6 +65,7 @@ func (o *Ops) GetUserByEmailAndPassword(ctx context.Context, email, password str
 }
 
 func (o *Ops) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	email = LowerCaseEmail(email)
 	user, err := o.repo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, err

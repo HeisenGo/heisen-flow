@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"server/internal/column"
+	"server/internal/user"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,21 +22,24 @@ var (
 	ErrWrongType      = errors.New("wrong type for board")
 	ErrInvalidName    = errors.New("invalid board name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
 	ErrWrongBoardTime = errors.New("wrong board time")
-	ErrBoardNotFound = errors.New("board not found")
+	ErrBoardNotFound  = errors.New("board not found")
 )
 
 type Repo interface {
-	GetUserBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) ([]Board, uint, error)
 	Insert(ctx context.Context, board *Board) error
-	GetByID(ctx context.Context, id uuid.UUID) (*Board, error)}
+	GetByID(ctx context.Context, id uuid.UUID) (*Board, error)
+	GetFullByID(ctx context.Context, id uuid.UUID) (*Board, error)
+	GetUserBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) (userBoards []Board, total uint, err error)
+	GetPublicBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) (publicBoards []Board, total uint, err error)
+}
 
 type Board struct {
-	// UpdatedAt time.Time
-	// DeletedAt gorm.DeletedAt
 	ID        uuid.UUID
 	CreatedAt time.Time
 	Name      string
 	Type      string
+	Users     []user.User
+	Columns   []column.Column
 }
 
 func ValidateBoardName(name string) error {

@@ -21,25 +21,10 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	registerGlobalRoutes(api, app)
 	secret := []byte(cfg.TokenSecret)
 	registerBoardRoutes(api, app, secret)
-	// registering users APIs
-	//registerUsersAPI(api, app.UserService(), secret)
-
-	// run server
+	registerTaskRoutes(api, app, secret)
+	registerColumnRoutes(api, app, secret)
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
 }
-
-//func registerUsersAPI(router fiber.Router, _ *service.UserService, secret []byte) {
-//	userGroup := router.Group("/users", middlewares.Auth(secret), middlewares.RoleChecker("user", "admin"))
-//
-//	userGroup.Get("/claims", func(c *fiber.Ctx) error {
-//		claims := c.Locals(jwt.UserClaimKey).(*jwt.UserClaims)
-//
-//		return c.JSON(map[string]any{
-//			"user_id": claims.UserID,
-//			"role":    claims.Role,
-//		})
-//	})
-//}
 
 func registerGlobalRoutes(router fiber.Router, app *service.AppContainer) {
 	router.Post("/register", handlers.RegisterUser(app.AuthService()))
@@ -60,17 +45,57 @@ func userRoleChecker() fiber.Handler {
 func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
 	router = router.Group("/boards")
 
-	//router.Get("", middlerwares.Auth(secret), userRoleChecker(), handlers.UserOrders(app.OrderService()))
-
 	router.Post("",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
-		userRoleChecker(),
 		handlers.CreateUserBoard(app.BoardServiceFromCtx),
+	)
+	router.Get("/my-boards",
+		middlewares.Auth(secret),
+		handlers.GetUserBoards(app.BoardService()),
+	)
+	router.Get("/publics",
+		middlewares.Auth(secret),
+		handlers.GetPublicBoards(app.BoardService()),
+	)
+	router.Get("/:boardID",
+		middlewares.Auth(secret),
+		handlers.GetFullBoardByID(app.BoardService()),
 	)
 
 	router.Post("/invite", middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
-		//	userRoleChecker(),
 		handlers.InviteToBoard(app.BoardServiceFromCtx))
+}
+
+func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
+	router = router.Group("/tasks")
+
+	router.Post("",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		handlers.CreateTask(app.TaskServiceFromCtx),
+	)
+
+	router.Post("/dependency",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		handlers.AddDependency(app.TaskServiceFromCtx),
+	)
+}
+
+func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
+	router = router.Group("/columns")
+	router.Post("",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		userRoleChecker(),
+		handlers.CreateColumns(app.ColumnServiceFromCtx),
+	)
+	router.Delete("/:columnID",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		userRoleChecker(),
+		handlers.DeleteColumn(app.ColumnServiceFromCtx),
+	)
 }

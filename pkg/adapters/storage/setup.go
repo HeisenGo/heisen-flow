@@ -15,23 +15,18 @@ func NewPostgresGormConnection(dbConfig config.DB) (*gorm.DB, error) {
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
 }
 
+func AddExtension(db *gorm.DB) error {
+	return db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error
+}
+
 func Migrate(db *gorm.DB) error {
 	migrator := db.Migrator()
 
 	err := migrator.AutoMigrate(&entities.User{},
 		&entities.Board{}, &entities.UserBoardRole{},
-		&entities.Task{}, &entities.TaskDependency{})
+		&entities.Task{}, &entities.TaskDependency{}, &entities.Board{}, &entities.UserBoardRole{}, &entities.Column{})
 	if err != nil {
 		return err
 	}
-	// err = migrator.AutoMigrate(&entities.Board{}, &entities.UserBoardRole{})
-	// if err != nil {
-	// 	return err
-	// }
-	// err = migrator.AutoMigrate(&entities.Task{}, &entities.TaskDependency{})
-
-	// if err != nil {
-	// 	return err
-	// }
 	return nil
 }
