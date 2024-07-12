@@ -179,3 +179,50 @@ func TaskToFullTaskResp(t task.Task) FullTaskResp {
 		DependsOn:   dependsOns,
 	}
 }
+
+type CreateTaskResp struct {
+	ID             uuid.UUID  `json:"id"`
+	Title          string     `json:"title"`
+	Description    string     `json:"description"`
+	StartAt        *time.Time `json:"start_at"`
+	EndAt          *time.Time `json:"end_at"`
+	StoryPoint     uint       `json:"story_at"`
+	AssigneeUserID *uuid.UUID `json:"assignee_user_id"`
+	ColumnID       uuid.UUID  `json:"column_id"`
+	BoardID        uuid.UUID  `json:"board_id"`
+
+	ParentID *uuid.UUID `json:"parent_id"` //can be null for tasks not sub tasks
+
+	DependsOn []DependTaskResp
+}
+
+type DependTaskResp struct {
+	ID uuid.UUID `json:"id"`
+}
+
+func DomainTaskToDependTaskResp(task task.Task) DependTaskResp {
+	return DependTaskResp{
+		ID: task.ID,
+	}
+}
+
+func BatchDomainTaskToDependTaskResp(tasks []task.Task) []DependTaskResp {
+	return fp.Map(tasks, DomainTaskToDependTaskResp)
+}
+
+func DomainTaskToCreateTaskResp(task *task.Task) *CreateTaskResp {
+	dependsOnTasks := BatchDomainTaskToDependTaskResp(task.DependsOn)
+	return &CreateTaskResp{
+		ID:             task.ID,
+		Title:          task.Title,
+		Description:    task.Description,
+		StartAt:        &task.StartAt,
+		EndAt:          &task.EndAt,
+		StoryPoint:     task.StoryPoint,
+		AssigneeUserID: task.AssigneeUserID,
+		ColumnID:       task.ColumnID,
+		BoardID:        task.BoardID,
+		ParentID:       task.ParentID,
+		DependsOn:      dependsOnTasks,
+	}
+}
