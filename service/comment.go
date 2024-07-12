@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"server/internal/comment"
 	userboardrole "server/internal/user_board_role"
 )
@@ -20,7 +19,7 @@ func NewCommentService(commentOps *comment.Ops, userBoardOps *userboardrole.Ops)
 	return &CommentService{commentOps: commentOps, userBoardRoleOps: userBoardOps}
 }
 
-func (s *CommentService) CreateComment(ctx context.Context, c *comment.Comment, userID uuid.UUID) error {
+func (s *CommentService) CreateComment(ctx context.Context, c *comment.Comment, ubr *userboardrole.UserBoardRole) error {
 
 	//Validate Comment
 

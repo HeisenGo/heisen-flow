@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
 	presenter "server/api/http/handlers/presentor"
 	"server/pkg/jwt"
 	"server/service"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func CreateUserComment(serviceFactory ServiceFactory[*service.CommentService]) fiber.Handler {
@@ -22,16 +23,16 @@ func CreateUserComment(serviceFactory ServiceFactory[*service.CommentService]) f
 			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
 		}
 
-		cr := presenter.CommentReqToCommentDomain(&req)
+		cr, ubr := presenter.CommentReqToCommentDomain(&req, userClaims.UserID)
 
-		if err := commentService.CreateComment(c.UserContext(), cr, userClaims.UserID); err != nil { //here
+		if err := commentService.CreateComment(c.UserContext(), cr, ubr); err != nil { //here
 			//if errors.Is(err, comment.ErrWrongType) || errors.Is(err, comment.ErrInvalidName) {
 			//	return BadRequest(c, err)
 			//}
 
-			return InternalServerError(c, err)
+			return presenter.InternalServerError(c, err)
 		}
 
-		return Created(c, "Comment created successfully", fiber.Map{})
+		return presenter.Created(c, "Comment created successfully", fiber.Map{})
 	}
 }
