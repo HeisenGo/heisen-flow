@@ -56,6 +56,11 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 		handlers.GetFullBoardByID(app.BoardService()),
 	)
 
+	router.Delete("/:boardID",
+		middlewares.Auth(secret),
+		handlers.DeleteBoard(app.BoardService()),
+	)
+
 	router.Post("/invite", middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
 		handlers.InviteToBoard(app.BoardServiceFromCtx))
