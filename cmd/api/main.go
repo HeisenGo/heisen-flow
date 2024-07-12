@@ -6,12 +6,19 @@ import (
 	"os"
 	"server/config"
 	"server/service"
-
 	http_server "server/api/http"
 )
 
 var configPath = flag.String("config", "", "configuration path")
+//	@Title			heisenflow-System
+//	@version		1.0
+//	@description	Task Mangment backend server
 
+//	@contact.name	heisen-GO
+//	@contact.url	https://github.com/HeisenGo
+
+// @host			localhost:8080
+// @BasePath		/
 func main() {
 	cfg := readConfig()
 

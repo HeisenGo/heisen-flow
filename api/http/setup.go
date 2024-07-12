@@ -8,16 +8,16 @@ import (
 	"server/config"
 	"server/pkg/adapters"
 	"server/service"
-	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
+	"github.com/swaggo/fiber-swagger"
+    _ "server/docs" // This is necessary for `swag init` to find your docs
 )
 
 func Run(cfg config.Server, app *service.AppContainer) {
 	fiberApp := fiber.New()
 	api := fiberApp.Group("/api/v1", middlewares.SetUserContext())
-
+	fiberApp.Get("/swagger/*", fiberSwagger.WrapHandler)
 	// register global routes
-	registerSwagger(fiberApp)
 	registerGlobalRoutes(api, app)
 	secret := []byte(cfg.TokenSecret)
 	registerBoardRoutes(api, app, secret)
@@ -47,15 +47,7 @@ func registerGlobalRoutes(router fiber.Router, app *service.AppContainer) {
 	router.Get("/refresh", handlers.RefreshToken(app.AuthService()))
 }
 
-func registerSwagger(app *fiber.App){
-	scfg := swagger.Config{
-		BasePath: "/",
-		FilePath: "./docs/swagger.json",
-		Path:     "swagger",
-		Title:    "Swagger API Docs",
-	}
-	app.Use(swagger.New(scfg))
-}
+
 
 func userRoleChecker() fiber.Handler {
 	return middlewares.RoleChecker("user")

@@ -1,0 +1,117 @@
+basePath: /
+definitions:
+  presenter.UserRegisterReq:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: heisen-GO
+    url: https://github.com/HeisenGo
+  description: Task Mangment backend server
+  title: heisenflow-System
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user with email and password.
+      parameters:
+      - description: Login details
+        in: body
+        name: login
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'auth_token: the authentication token for the user'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: bad request, invalid email or password'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login an existing user
+      tags:
+      - Auth
+  /refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Refresh the user's authentication token using a valid refresh token.
+      parameters:
+      - description: Bearer {refresh_token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'auth_token: the new authentication token'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: bad request, token should be provided'
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 'error: unauthorized, invalid or expired token'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Refresh authentication token
+      tags:
+      - Auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with the provided details.
+      parameters:
+      - description: User registration details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/presenter.UserRegisterReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'user_id: the ID of the newly registered user'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: bad request, invalid email or password, or email already
+            exists'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: internal server error'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Auth
+swagger: "2.0"
