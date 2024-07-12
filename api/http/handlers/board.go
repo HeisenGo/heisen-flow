@@ -175,9 +175,7 @@ func DeleteBoard(boardService *service.BoardService) fiber.Handler {
 			if errors.Is(err, board.ErrBoardNotFound) || errors.Is(err, user.ErrUserNotFound) {
 				return presenter.BadRequest(c, err)
 			}
-			if errors.Is(err, column.ErrColumnNotFound) {
-				return presenter.NotFound(c, err)
-			}
+			
 			return presenter.InternalServerError(c, err)
 		}
 
