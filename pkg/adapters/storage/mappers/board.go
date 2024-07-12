@@ -7,11 +7,15 @@ import (
 )
 
 func BoardEntityToDomain(boardEntity entities.Board) board.Board {
+	domainUsers := BatchUserEntityToDomain(boardEntity.Users)
+	domainColumns := BatchColumnEntitiesToDomain(boardEntity.Columns)
 	return board.Board{
 		ID:        boardEntity.ID,
 		CreatedAt: boardEntity.CreatedAt,
 		Name:      boardEntity.Name,
 		Type:      boardEntity.Type,
+		Users:     domainUsers,
+		Columns:   domainColumns,
 	}
 }
 

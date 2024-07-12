@@ -26,6 +26,17 @@ func (o *Ops) GetBoardByID(ctx context.Context, id uuid.UUID) (*Board, error) {
 	return board, nil
 }
 
+func (o *Ops) GetFullBoardByID(ctx context.Context, id uuid.UUID) (*Board, error) {
+	board, err := o.repo.GetFullByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if board == nil {
+		return nil, ErrBoardNotFound
+	}
+	return board, nil
+}
+
 func (o *Ops) GetUserBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]Board, uint, error) {
 	limit := pageSize
 	offset := (page - 1) * pageSize

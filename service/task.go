@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	b "server/internal/board"
+	"server/internal/column"
 	"server/internal/task"
 	t "server/internal/task"
 	u "server/internal/user"
@@ -18,14 +19,17 @@ type TaskService struct {
 	boardOps         *b.Ops
 	userBoardRoleOps *userboardrole.Ops
 	taskOps          *task.Ops
+	columnOps        *column.Ops
 }
 
 // NewTaskService creates a new TaskService
-func NewTaskService(userOps *u.Ops, boardOps *b.Ops, userBoardOps *userboardrole.Ops, taskOps *task.Ops) *TaskService {
+func NewTaskService(userOps *u.Ops, boardOps *b.Ops, userBoardOps *userboardrole.Ops, taskOps *task.Ops, columnOps *column.Ops) *TaskService {
 	return &TaskService{userOps: userOps,
 		boardOps:         boardOps,
 		userBoardRoleOps: userBoardOps,
-		taskOps:          taskOps}
+		taskOps:          taskOps,
+		columnOps:        columnOps,
+	}
 }
 
 func (s *BoardService) GetUserTasks(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]task.Task, uint, error) {
@@ -89,6 +93,8 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 		return ErrPermissionDenied
 	}
 
+	col, err := s.columnOps.GetMinOrderColumn(ctx, task.BoardID)
+	task.ColumnID = col.ID
 	err = s.taskOps.Create(ctx, task)
 	if err != nil {
 		return err

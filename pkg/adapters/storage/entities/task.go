@@ -31,7 +31,7 @@ type Task struct {
 	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 
 	ColumnID uuid.UUID `gorm:"type:uuid"`
-	//Column      *Column  !!!!!!!!!! need TO Do
+	Column   *Column   `gorm:"foreignKey:ColumnID"`
 
 	BoardID uuid.UUID `gorm:"type:uuid;not null"`
 	Board   *Board    `gorm:"foreignKey:BoardID"`
@@ -39,11 +39,18 @@ type Task struct {
 	ParentID *uuid.UUID `gorm:"type:uuid"` //can be null for tasks not sub tasks
 	Parent   *Task      `gorm:"foreignKey:ParentID"`
 	Subtasks []Task     `gorm:"foreignKey:ParentID"`
-	// for tasks that this task depends on
-	DependsOn []*Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
-	// for tasks that depend on this task.
-	DependentBy []*Task `gorm:"many2many:task_dependencies;joinForeignKey:dependency_task_id;joinReferences:dependent_task_id"`
+
+	DependsOn   []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
+	DependentBy []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
 }
+
+// type TaskStatus string
+
+// const (
+// 	TaskStatusToDo       TaskStatus = "todo"
+// 	TaskStatusInProgress TaskStatus = "in_progress"
+// 	TaskStatusDone       TaskStatus = "done"
+// )
 
 type TaskDependency struct {
 	DependentTaskID  uuid.UUID `gorm:"type:uuid;primaryKey"`

@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	ErrPermissionDenied = errors.New("permission denied")
-	ErrNotMember        = errors.New("the assignee is not a member of this board")
-	ErrCantAssigned     = errors.New("assignee is a viewer")
+	ErrPermissionDenied         = errors.New("permission denied")
+	ErrNotMember                = errors.New("the assignee is not a member of this board")
+	ErrCantAssigned             = errors.New("assignee is a viewer")
 	ErrOwnerExists              = errors.New("owner already exists")
 	ErrUndefinedRole            = errors.New("undefined role, role should be one of the following values:viewer, editor, maintainer")
 	ErrPermissionDeniedToInvite = errors.New("permission denied: cannot invite users")
@@ -32,6 +32,24 @@ type BoardService struct {
 // NewBoardService creates a new BoardService
 func NewBoardService(userOps *u.Ops, boardOps *board.Ops, userBoardOps *userboardrole.Ops) *BoardService {
 	return &BoardService{userOps: userOps, boardOps: boardOps, userBoardRoleOps: userBoardOps}
+}
+
+func (s *BoardService) GetFullBoardByID(ctx context.Context, userID uuid.UUID, boardID uuid.UUID) (*board.Board, error) {
+	b, err := s.boardOps.GetFullBoardByID(ctx, boardID)
+	if err != nil {
+		return nil, err
+	}
+	if b.Type == "private" {
+		fetcherRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
+		if err != nil {
+			return nil, ErrPermissionDeniedToInvite
+		}
+
+		if !rbac.HasPermission(fetcherRole, rbac.PermissionViewBoard) {
+			return nil, ErrPermissionDeniedToInvite
+		}
+	}
+	return b, err
 }
 
 func (s *BoardService) GetUserBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]board.Board, uint, error) {

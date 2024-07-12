@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"server/internal/column"
+	"server/internal/user"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,6 +28,7 @@ var (
 type Repo interface {
 	Insert(ctx context.Context, board *Board) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Board, error)
+	GetFullByID(ctx context.Context, id uuid.UUID) (*Board, error)
 	GetUserBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) (userBoards []Board, total uint, err error)
 	GetPublicBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) (publicBoards []Board, total uint, err error)
 }
@@ -35,6 +38,8 @@ type Board struct {
 	CreatedAt time.Time
 	Name      string
 	Type      string
+	Users     []user.User
+	Columns   []column.Column
 }
 
 func ValidateBoardName(name string) error {

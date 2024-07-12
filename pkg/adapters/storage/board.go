@@ -122,3 +122,16 @@ func (r *boardRepo) Insert(ctx context.Context, b *board.Board) error {
 	b.ID = boardEntity.ID
 	return nil
 }
+
+func (r *boardRepo) GetFullByID(ctx context.Context, id uuid.UUID) (*board.Board, error) {
+	var b entities.Board
+
+	if err := r.db.Preload("Users").
+		Preload("Columns").
+		Preload("Columns.Tasks").
+		First(&b, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	domainBoard := mappers.BoardEntityToDomain(b)
+	return &domainBoard, nil
+}

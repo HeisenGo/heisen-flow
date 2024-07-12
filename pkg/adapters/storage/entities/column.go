@@ -15,5 +15,6 @@ type Column struct {
 	Name      string         `gorm:"index;unique"`
 	BoardID   uuid.UUID      `gorm:"index:idx_together_order_board_id,unique"`
 	Board     Board          `gorm:"foreignKey:BoardID"`
-	Order     uint           `gorm:"index:idx_together_order_board_id,unique"`
+	OrderNum  uint           `gorm:"index:idx_together_order_board_id,unique"`
+	Tasks     []Task         `gorm:"foreignKey:ColumnID"`
 }

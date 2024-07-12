@@ -9,17 +9,19 @@ import (
 )
 
 func ColumnEntityToDomain(col entities.Column) column.Column {
+	tasks := BatchTaskEntitiesToDomain(col.Tasks)
 	return column.Column{
 		ID:        col.ID,
 		Name:      col.Name,
 		BoardID:   col.BoardID,
-		Order:     col.Order,
+		OrderNum:  col.OrderNum,
 		CreatedAt: col.CreatedAt,
 		UpdatedAt: col.UpdatedAt,
+		Tasks:     tasks,
 	}
 }
 
-func ColumnEntitiesToDomain(cols []entities.Column) []column.Column {
+func BatchColumnEntitiesToDomain(cols []entities.Column) []column.Column {
 	return fp.Map(cols, ColumnEntityToDomain)
 }
 
@@ -28,7 +30,7 @@ func ColumnDomainToEntity(col column.Column) entities.Column {
 		ID:        col.ID,
 		Name:      col.Name,
 		BoardID:   col.BoardID,
-		Order:     col.Order,
+		OrderNum:  col.OrderNum,
 		CreatedAt: col.CreatedAt,
 		UpdatedAt: col.UpdatedAt,
 		DeletedAt: gorm.DeletedAt{},
