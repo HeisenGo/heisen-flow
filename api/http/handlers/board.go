@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	presenter "server/api/http/handlers/presentor"
 	"server/internal/board"
 	"server/internal/user"
@@ -63,6 +64,29 @@ func GetPublicBoards(boardService *service.BoardService) fiber.Handler {
 			total,
 		)
 		return presenter.OK(c, "boards successfully fetched.", data)
+	}
+}
+
+func GetBoardByID(boardService *service.BoardService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
+		boardID, err := uuid.Parse(c.Params("boardID"))
+		if err != nil {
+			return presenter.BadRequest(c, errors.New("given board_id format in path is not correct"))
+		}
+		fetchedBoard, err := boardService.GetFullBoardByID(c.UserContext(), userClaims.UserID, boardID)
+		if err != nil {
+			status := fiber.StatusInternalServerError
+			if errors.Is(err, user.ErrUserNotFound) {
+				status = fiber.StatusBadRequest
+			}
+			return SendError(c, err, status)
+		}
+		data := presenter.BoardToFullBoardResp(*fetchedBoard)
+		return presenter.OK(c, "board successfully fetched.", data)
 	}
 }
 
