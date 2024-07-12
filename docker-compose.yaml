@@ -23,7 +23,7 @@ services:
     environment:
       DB_USER: root
       DB_PASS: 123456
-      DB_HOST: postgres
+      DB_HOST: localhost
       DB_PORT: 5432
       DB_NAME: heisen-flow
 
