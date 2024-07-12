@@ -10,10 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
+func CreateColumns(columnService *service.ColumnService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		columnService := serviceFactory(c.UserContext())
-
 		var req presenter.CreateColumnsRequest
 		if err := c.BodyParser(&req); err != nil {
 			return SendError(c, err, fiber.StatusBadRequest)
