@@ -21,11 +21,7 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	secret := []byte(cfg.TokenSecret)
 	registerBoardRoutes(api, app, secret)
 	registerTaskRoutes(api, app, secret)
-
-	// registering users APIs
-	//registerUsersAPI(api, app.UserService(), secret)
-
-	// run server
+	registerColumnRoutes(api, app, secret)
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
 }
 
@@ -74,5 +70,22 @@ func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret [
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
 		handlers.AddDependency(app.TaskServiceFromCtx),
+	)
+}
+
+
+func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
+	router = router.Group("/columns")
+	router.Post("",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		userRoleChecker(),
+		handlers.CreateColumns(app.ColumnServiceFromCtx),
+	)
+	router.Delete("/:columnID",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		userRoleChecker(),
+		handlers.DeleteColumn(app.ColumnServiceFromCtx),
 	)
 }
