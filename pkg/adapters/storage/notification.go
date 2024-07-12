@@ -3,8 +3,10 @@ package storage
 import (
 	"context"
 	"server/internal/notification"
-	"server/pkg/adapters/storage/mappers"
 	"server/pkg/adapters/storage/entities"
+	"server/pkg/adapters/storage/mappers"
+
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -34,21 +36,25 @@ func (r *notificationRepo) CreateNotification(ctx context.Context, notif *notifi
     return nil
 }
 
-// func (r *notificationRepo) DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) ([]notification.Notification,error) {
-// 	var n entities.Notification
-// 	var notifs []notification.Notification
-// 	err := r.db.WithContext(ctx).Model(&entities.Notification{}).Where("id = ?", userID).First(&n).Error
-// 	if err != nil {
-// 		if errors.Is(err, gorm.ErrRecordNotFound) {
-// 			return nil, nil
-// 		}
-// 		return nil, err
-// 	}
-	
-// 	append()
-// 	return mappers.NotificationEntityToDomain(&n), nil
-// }
+func (r *notificationRepo) GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]notification.Notification, error) {
+    var notifications []entities.Notification
 
-// func (r *notificationRepo) DeleteNotification(ctx context.Context, notif *notification.Notification) error {
+    if err := r.db.WithContext(ctx).
+        Joins("JOIN user_board_roles ON user_board_roles.id = notifications.user_board_role_id").
+        Where("user_board_roles.user_id = ? AND notifications.is_seen = ?", userID, false).
+        Find(&notifications).Error; err != nil {
+        return nil, err
+    }
+	var domainNotifications []notification.Notification
+	for _, notif := range notifications {
+        domainNotification := mappers.NotificationEntityToDomain(&notif)
+        domainNotifications = append(domainNotifications, *domainNotification)
+    }
+    return domainNotifications, nil
+}
 
-// }
+func (r *notificationRepo) MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) error {
+    return r.db.WithContext(ctx).Model(&entities.Notification{}).
+        Where("id = ?", notificationID).
+        Update("is_seen", true).Error
+}

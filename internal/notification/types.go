@@ -7,13 +7,13 @@ import (
 
 type Repo interface {
 	CreateNotification(ctx context.Context, notif *Notification) error
-	// DisplyNotification(ctx context.Context, userID, boardID uuid.UUID) ([]Notification,error)
-	// DeleteNotification(ctx context.Context, notif *Notification) error
+	GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]Notification, error)
+	MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) error
 }
 
 type Notification struct {
     ID                uuid.UUID
-    ISSeen            bool
+    IsSeen            bool
     Description       string
     NotificationType  string
     UserBoardRoleID   uuid.UUID `gorm:"type:uuid;not null"`

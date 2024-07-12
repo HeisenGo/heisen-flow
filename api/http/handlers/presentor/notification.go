@@ -9,7 +9,7 @@ import (
 type NotificationReq struct {
 	UserBoardRoleID               uuid.UUID `json:"user_board_role_id"`
 	Description      string    `json:"description"`
-	ISSeen           bool      `json:"is_seen"`
+	IsSeen           bool      `json:"is_seen"`
 	NotificationType string    `json:"type"`
 }
 
@@ -18,6 +18,6 @@ func NotificationToNotificationDomain(not *NotificationReq) *notification.Notifi
 		UserBoardRoleID: not.UserBoardRoleID,
 		Description:not.Description  ,
 		NotificationType:     not.NotificationType,
-		ISSeen:  not.ISSeen,
+		IsSeen:  not.IsSeen,
 	}
 }

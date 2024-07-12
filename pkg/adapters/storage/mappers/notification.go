@@ -8,7 +8,7 @@ import (
 func NotificationEntityToDomain(entity *entities.Notification) *notification.Notification {
 	return &notification.Notification{
 		ID:               entity.ID,
-		ISSeen:           entity.ISSeen,
+		IsSeen:           entity.IsSeen,
 		Description:      entity.Description,
 		NotificationType: entity.NotificationType,
 		UserBoardRoleID: entity.UserBoardRoleID,
@@ -17,8 +17,7 @@ func NotificationEntityToDomain(entity *entities.Notification) *notification.Not
 
 func NotificationDomainToEntity(domainNotification *notification.Notification) *entities.Notification {
 	return &entities.Notification{
-		ID:               domainNotification.ID,
-		ISSeen:           domainNotification.ISSeen,
+		IsSeen:           domainNotification.IsSeen,
 		Description:      domainNotification.Description,
 		NotificationType: domainNotification.NotificationType,
 		UserBoardRoleID:  domainNotification.UserBoardRoleID,

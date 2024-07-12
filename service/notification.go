@@ -2,16 +2,13 @@ package service
 
 import (
 	"context"
-	"server/internal/board"
 	"server/internal/notification"
 	u "server/internal/user"
-	userboardrole "server/internal/user_board_role"
+	"github.com/google/uuid"
 )
 
 type NotificationService struct {
 	userOps          *u.Ops
-	boardOps         *board.Ops
-	userBoardRoleOps *userboardrole.Ops
 	notificationOps  *notification.Ops
 }
 
@@ -27,15 +24,20 @@ func (s *NotificationService) CreateNotification(ctx context.Context,n *notifica
 	return nil
 }
 
-// func (s *NotificationService) GetNotifications(ctx context.Context, userID , boardID uuid.UUID) ([]notification.Notification, error) {
-// 	user, err := s.userOps.GetUserByID(ctx, userID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func (s *NotificationService) GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]notification.Notification, error) {
+	user, err := s.userOps.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	if user == nil {
-// 		return nil, u.ErrUserNotFound
-// 	}
+	if user == nil {
+		return nil, u.ErrUserNotFound
+	}
 
-// 	return s.notificationOps.DisplyNotification(ctx, userID,boardID)
-// }
+	return s.notificationOps.GetUserUnseenNotifications(ctx, userID)
+}
+
+func (s *NotificationService) MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID)  error {
+	err := s.notificationOps.MarkNotificationAsSeen(ctx,notificationID)
+	return err
+}
