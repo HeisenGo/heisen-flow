@@ -27,7 +27,7 @@ type BoardUserResp struct {
 	Role      string    `json:"role"`
 }
 type BoardColumnResp struct {
-	ID    uuid.UUID       `json:"board_id"`
+	ID    uuid.UUID       `json:"id"`
 	Name  string          `json:"name"`
 	Order uint            `json:"order"`
 	Tasks []BoardTaskResp `json:"tasks"`

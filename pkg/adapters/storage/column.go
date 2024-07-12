@@ -67,7 +67,20 @@ func (r *columnRepo) CreateBatch(ctx context.Context, cols []column.Column) ([]c
 }
 
 func (r *columnRepo) Delete(ctx context.Context, columnID uuid.UUID) error {
-	if err := r.db.WithContext(ctx).Where("id = ?", columnID).Delete(&entities.Column{}).Error; err != nil {
+	var count int64
+	if err := r.db.WithContext(ctx).Model(&entities.Task{}).Where("column_id = ?", columnID).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return column.ErrColumnNotEmpty
+	}
+
+	result := r.db.WithContext(ctx).Where("id = ?", columnID).Delete(&entities.Column{})
+	if result.RowsAffected == 0 {
+		return column.ErrColumnNotFound
+	}
+	if err := result.Error; err != nil {
 		return err
 	}
 	return nil
