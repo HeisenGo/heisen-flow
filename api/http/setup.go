@@ -70,6 +70,11 @@ func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret [
 		handlers.CreateTask(app.TaskServiceFromCtx),
 	)
 
+	router.Get("/:taskID",
+		middlewares.Auth(secret),
+		handlers.GetFullTaskByID(app.TaskService()),
+	)
+
 	router.Post("/dependency",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
@@ -80,10 +85,9 @@ func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret [
 func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
 	router = router.Group("/columns")
 	router.Post("",
-		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
 		userRoleChecker(),
-		handlers.CreateColumns(app.ColumnServiceFromCtx),
+		handlers.CreateColumns(app.ColumnService()),
 	)
 	router.Delete("/:columnID",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),

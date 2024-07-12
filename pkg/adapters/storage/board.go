@@ -75,6 +75,7 @@ func (r *boardRepo) GetUserBoards(ctx context.Context, userID uuid.UUID, limit, 
 }
 
 func (r *boardRepo) GetPublicBoards(ctx context.Context, userID uuid.UUID, limit, offset uint) (publicBoards []board.Board, total uint, err error) {
+	var publicBoardsEntities []entities.Board
 	var int64Total int64
 	// Query to get the count of user boards
 	publicBoardsCountQuery := r.db.Table("boards").
@@ -103,13 +104,14 @@ func (r *boardRepo) GetPublicBoards(ctx context.Context, userID uuid.UUID, limit
 		publicBoardsQuery = publicBoardsQuery.Limit(int(limit))
 	}
 
-	if err := publicBoardsQuery.Find(&publicBoards).Error; err != nil {
+	if err := publicBoardsQuery.Find(&publicBoardsEntities).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, 0, nil
 		}
 		return nil, 0, err
 	}
 	total = uint(int64Total)
+	publicBoards = mappers.BatchBoardEntitiesToDomain(publicBoardsEntities)
 	return publicBoards, total, nil
 }
 

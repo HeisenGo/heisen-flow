@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	presenter "server/api/http/handlers/presentor"
 	"server/internal/board"
 	"server/internal/task"
@@ -91,5 +92,28 @@ func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Ha
 			"message": "task dependency created",
 			"task_id": t.ID,
 		})
+	}
+}
+
+func GetFullTaskByID(taskService *service.TaskService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
+		taskID, err := uuid.Parse(c.Params("taskID"))
+		if err != nil {
+			return presenter.BadRequest(c, errors.New("given task_id format in path is not correct"))
+		}
+		fetchedTask, err := taskService.GetFullTaskByID(c.UserContext(), userClaims.UserID, taskID)
+		if err != nil {
+			status := fiber.StatusInternalServerError
+			if errors.Is(err, user.ErrUserNotFound) {
+				status = fiber.StatusBadRequest
+			}
+			return SendError(c, err, status)
+		}
+		data := presenter.TaskToFullTaskResp(*fetchedTask)
+		return presenter.OK(c, "task successfully fetched.", data)
 	}
 }

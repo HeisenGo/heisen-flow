@@ -2,6 +2,8 @@ package presenter
 
 import (
 	"server/internal/task"
+	"server/internal/user"
+	"server/pkg/fp"
 	"time"
 
 	"github.com/google/uuid"
@@ -53,5 +55,127 @@ func UserTaskToTask(userTaskReq *UserTask, userID uuid.UUID) *task.Task {
 		CreatedByUserID:  userID,
 		ParentID:         userTaskReq.ParentID,
 		DependsOnTaskIDs: userTaskReq.DependsOnTaskIDs,
+		AssigneeUserID:   &userTaskReq.AssigneeUserID,
+	}
+}
+
+type TaskUserResp struct {
+	ID        uuid.UUID `json:"id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+}
+
+type TaskColumnResp struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
+type TaskBoardResp struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
+type TaskParentResp struct {
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+}
+
+type TaskSubTaskResp struct {
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+}
+
+type TaskDependTaskResp struct {
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+}
+
+type FullTaskResp struct {
+	ID          uuid.UUID `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Order       uint      `json:"order"`
+	StartAt     time.Time `json:"start_at"`
+	EndAt       time.Time `json:"end_at"`
+	StoryPoint  uint      `json:"story_point"`
+
+	// Relationships
+	User     *TaskUserResp     `json:"user"`
+	Parent   *TaskParentResp   `json:"parent"`
+	Subtasks []TaskSubTaskResp `json:"subtasks"`
+	//TODO:Comments []Comment  `gorm:"foreignKey:TaskID"`
+
+	DependsOn []TaskDependTaskResp `json:"depends_on"`
+}
+
+func UserToTaskUserResp(u user.User) TaskUserResp {
+	return TaskUserResp{
+		ID:        u.ID,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+	}
+}
+
+func TaskToTaskSubTaskResp(t task.Task) TaskSubTaskResp {
+	return TaskSubTaskResp{
+		ID:    t.ID,
+		Title: t.Title,
+	}
+}
+
+func TaskToTaskDependTaskResp(t task.Task) TaskDependTaskResp {
+	return TaskDependTaskResp{
+		ID:    t.ID,
+		Title: t.Title,
+	}
+}
+
+func TaskToTaskParentResp(t task.Task) *TaskParentResp {
+	return &TaskParentResp{
+		ID:    t.ID,
+		Title: t.Title,
+	}
+}
+
+func BatchTaskToTaskSubTaskResp(tasks []task.Task) []TaskSubTaskResp {
+	return fp.Map(tasks, TaskToTaskSubTaskResp)
+}
+
+func BatchTaskToTaskDependTaskResp(tasks []task.Task) []TaskDependTaskResp {
+	return fp.Map(tasks, TaskToTaskDependTaskResp)
+}
+
+func TaskToFullTaskResp(t task.Task) FullTaskResp {
+	var (
+		p          *TaskParentResp
+		subs       []TaskSubTaskResp
+		dependsOns []TaskDependTaskResp
+	)
+
+	u := UserToTaskUserResp(*t.UserBoardRole.User)
+	if t.Parent != nil {
+		p = TaskToTaskParentResp(*t.Parent)
+	}
+	if t.Subtasks != nil {
+		subs = BatchTaskToTaskSubTaskResp(t.Subtasks)
+	}
+	if t.DependsOn != nil {
+		dependsOns = BatchTaskToTaskDependTaskResp(t.DependsOn)
+
+	}
+	return FullTaskResp{
+		ID:          t.ID,
+		Title:       t.Title,
+		Description: t.Description,
+		Order:       t.Order,
+		StartAt:     t.StartAt,
+		EndAt:       t.EndAt,
+		StoryPoint:  t.StoryPoint,
+		User:        &u,
+		Parent:      p,
+		Subtasks:    subs,
+		DependsOn:   dependsOns,
 	}
 }

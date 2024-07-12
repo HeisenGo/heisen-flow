@@ -27,8 +27,8 @@ type Task struct {
 	StoryPoint  uint //(should be less than 1 2 3 5 8 13 21 ???)
 
 	// Relationships
-	UserBoardRoleID *uuid.UUID     `gorm:"type:uuid"` //Assignee
-	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
+	UserBoardRoleID *uuid.UUID    `gorm:"type:uuid"` //Assignee
+	UserBoardRole   UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 
 	ColumnID uuid.UUID `gorm:"type:uuid"`
 	Column   *Column   `gorm:"foreignKey:ColumnID"`
@@ -39,6 +39,7 @@ type Task struct {
 	ParentID *uuid.UUID `gorm:"type:uuid"` //can be null for tasks not sub tasks
 	Parent   *Task      `gorm:"foreignKey:ParentID"`
 	Subtasks []Task     `gorm:"foreignKey:ParentID"`
+	//TODO:Comments []Comment  `gorm:"foreignKey:TaskID"`
 
 	DependsOn   []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
 	DependentBy []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`

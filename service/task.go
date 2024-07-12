@@ -80,6 +80,8 @@ func (s *TaskService) CreateTask(ctx context.Context, task *t.Task) error {
 		if !rbac.HasPermission(role, rbac.PermissionMoveOwnTask) {
 			return ErrCantAssigned
 		}
+		ubrObj, err := s.userBoardRoleOps.GetUserBoardRoleObj(ctx, *task.AssigneeUserID, board.ID)
+		task.UserBoardRoleID = &ubrObj.ID
 	}
 
 	// check permission for creator
@@ -123,4 +125,21 @@ func (s *TaskService) AddDependency(ctx context.Context, task *t.Task) error {
 	}
 
 	return s.taskOps.AddDependency(ctx, task)
+}
+
+func (s *TaskService) GetFullTaskByID(ctx context.Context, userID uuid.UUID, taskID uuid.UUID) (*t.Task, error) {
+	task, err := s.taskOps.GetFullTaskByID(ctx, taskID)
+	if err != nil {
+		return nil, err
+	}
+	fetcherRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, task.BoardID)
+	if err != nil {
+		return nil, ErrPermissionDenied
+	}
+
+	if !rbac.HasPermission(fetcherRole, rbac.PermissionViewTask) {
+		return nil, ErrPermissionDenied
+	}
+
+	return task, err
 }
