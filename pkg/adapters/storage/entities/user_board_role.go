@@ -20,12 +20,3 @@ type UserBoardRole struct {
 	User  *User  `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Board *Board `gorm:"foreignKey:BoardID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
-
-// // Ensure uniqueness of UserID and BoardID combination
-// func (UserBoardRole) TableName() string {
-// 	return "user_board_roles"
-// }
-
-// func (ubr *UserBoardRole) BeforeCreate(tx *gorm.DB) error {
-// 	return tx.SetupJoinTable(&User{}, "Boards", &UserBoardRole{})
-// }

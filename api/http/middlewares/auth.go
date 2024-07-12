@@ -4,18 +4,21 @@ import (
 	"errors"
 	"server/api/http/handlers"
 	"server/pkg/jwt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func Auth(secret []byte) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		h := c.GetReqHeaders()["Authorization"]
+		h := c.GetReqHeaders()["Authorization"][0]
+
 		if len(h) == 0 {
 			return handlers.SendError(c, errors.New("authorization token not specified"), fiber.StatusUnauthorized)
 		}
 
-		claims, err := jwt.ParseToken(h[0], secret)
+		pureToken := strings.Split(h, " ")[1]
+		claims, err := jwt.ParseToken(pureToken, secret)
 		if err != nil {
 			return handlers.SendError(c, err, fiber.StatusUnauthorized)
 		}

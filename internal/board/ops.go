@@ -26,11 +26,18 @@ func (o *Ops) GetBoardByID(ctx context.Context, id uuid.UUID) (*Board, error) {
 	return board, nil
 }
 
-func (o *Ops) UserBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]Board, uint, error) {
+func (o *Ops) GetUserBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]Board, uint, error) {
 	limit := pageSize
 	offset := (page - 1) * pageSize
 
 	return o.repo.GetUserBoards(ctx, userID, limit, offset)
+}
+
+func (o *Ops) GetPublicBoards(ctx context.Context, userID uuid.UUID, page, pageSize uint) ([]Board, uint, error) {
+	limit := pageSize
+	offset := (page - 1) * pageSize
+
+	return o.repo.GetPublicBoards(ctx, userID, limit, offset)
 }
 
 func (o *Ops) Create(ctx context.Context, board *Board) error {
