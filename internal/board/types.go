@@ -23,6 +23,7 @@ var (
 	ErrInvalidName    = errors.New("invalid board name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
 	ErrWrongBoardTime = errors.New("wrong board time")
 	ErrBoardNotFound  = errors.New("board not found")
+	ErrFailedToDeleteBoard = errors.New("failed to delete board")
 )
 
 type Repo interface {

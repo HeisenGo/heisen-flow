@@ -3,11 +3,12 @@ package storage
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"server/internal/board"
 	"server/pkg/adapters/storage/entities"
 	"server/pkg/adapters/storage/mappers"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type boardRepo struct {
@@ -92,8 +93,6 @@ func (r *boardRepo) GetPublicBoards(ctx context.Context, userID uuid.UUID, limit
 		Select("boards.id, boards.name, boards.type, boards.created_at").
 		Where("boards.type = ?", "public").
 		Order("boards.created_at DESC")
-	//Where("boards.type = ? AND boards.id NOT IN (?)", "public",
-	//	r.db.Table("user_board_roles").Select("board_id").Where("user_id = ?", userID)).
 
 	if offset > 0 {
 		publicBoardsQuery = publicBoardsQuery.Offset(int(offset))
@@ -134,4 +133,12 @@ func (r *boardRepo) GetFullByID(ctx context.Context, id uuid.UUID) (*board.Board
 	}
 	domainBoard := mappers.BoardEntityToDomain(b)
 	return &domainBoard, nil
+}
+
+func (r *boardRepo) DeleteByID(ctx context.Context, boardID uuid.UUID) error {
+	// Delete the board, using cascading deletes to delete related records
+	if err := r.db.Where("id = ?", boardID).Delete(&entities.Board{}).Error; err != nil {
+		return errors.Join(board.ErrFailedToDeleteBoard, err)
+	}
+	return nil
 }
