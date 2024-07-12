@@ -14,7 +14,7 @@ type Column struct {
 	ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	Name      string         `gorm:"index;unique"`
 	BoardID   uuid.UUID      `gorm:"index:idx_together_order_board_id,unique"`
-	Board     Board          `gorm:"foreignKey:BoardID"`
+	Board     Board          `gorm:"foreignKey:BoardID;constraint:OnDelete:CASCADE"`
 	OrderNum  uint           `gorm:"index:idx_together_order_board_id,unique"`
-	Tasks     []Task         `gorm:"foreignKey:ColumnID"`
+	Tasks     []Task         `gorm:"foreignKey:ColumnID;constraint:OnDelete:CASCADE"`
 }
