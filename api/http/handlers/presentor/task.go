@@ -1,13 +1,11 @@
 package presenter
 
 import (
-	"reflect"
 	"server/internal/task"
 	"server/internal/user"
 	"server/pkg/fp"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
@@ -186,14 +184,14 @@ type CreateTaskResp struct {
 	ID             uuid.UUID  `json:"id"`
 	Title          string     `json:"title"`
 	Description    string     `json:"description"`
-	StartAt        time.Time  `json:"start_at"`
-	EndAt          time.Time  `json:"end_at"`
+	StartAt        *time.Time `json:"start_at"`
+	EndAt          *time.Time `json:"end_at"`
 	StoryPoint     uint       `json:"story_at"`
 	AssigneeUserID *uuid.UUID `json:"assignee_user_id"`
 	ColumnID       uuid.UUID  `json:"column_id"`
 	BoardID        uuid.UUID  `json:"board_id"`
 
-	ParentID *uuid.UUID `json:"parentID"` //can be null for tasks not sub tasks
+	ParentID *uuid.UUID `json:"parent_id"` //can be null for tasks not sub tasks
 
 	DependsOn []DependTaskResp
 }
@@ -218,8 +216,8 @@ func DomainTaskToCreateTaskResp(task *task.Task) *CreateTaskResp {
 		ID:             task.ID,
 		Title:          task.Title,
 		Description:    task.Description,
-		StartAt:        task.StartAt,
-		EndAt:          task.EndAt,
+		StartAt:        &task.StartAt,
+		EndAt:          &task.EndAt,
 		StoryPoint:     task.StoryPoint,
 		AssigneeUserID: task.AssigneeUserID,
 		ColumnID:       task.ColumnID,
@@ -227,36 +225,4 @@ func DomainTaskToCreateTaskResp(task *task.Task) *CreateTaskResp {
 		ParentID:       task.ParentID,
 		DependsOn:      dependsOnTasks,
 	}
-}
-
-func TaskToCreateTaskResp(task *task.Task) fiber.Map {
-	return StructToFiberMap(DomainTaskToCreateTaskResp(task))
-}
-
-// Function to convert struct to fiber.Map
-func StructToFiberMap(s interface{}) fiber.Map {
-	result := fiber.Map{}
-	val := reflect.ValueOf(s)
-	typ := reflect.TypeOf(s)
-
-	if val.Kind() == reflect.Ptr {
-		val = val.Elem()
-		typ = typ.Elem()
-	}
-
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Field(i)
-		typeField := typ.Field(i)
-		jsonTag := typeField.Tag.Get("json")
-
-		// Skip if there's no json tag or it's set to "-"
-		if jsonTag == "" || jsonTag == "-" {
-			continue
-		}
-
-		// Set the field in the map
-		result[jsonTag] = field.Interface()
-	}
-
-	return result
 }

@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	presenter "server/api/http/handlers/presentor"
 	"server/internal/board"
 	"server/internal/task"
 	"server/internal/user"
 	"server/pkg/jwt"
 	"server/service"
+
+	"github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -46,8 +47,8 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 
 			return SendError(c, err, status)
 		}
-
-		return presenter.Created(c, "Task created successfully", presenter.TaskToCreateTaskResp(t))
+		res := presenter.DomainTaskToCreateTaskResp(t)
+		return presenter.Created(c, "Task created successfully", res)
 	}
 }
 

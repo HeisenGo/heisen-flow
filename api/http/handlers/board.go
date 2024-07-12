@@ -4,7 +4,6 @@ import (
 	"errors"
 	presenter "server/api/http/handlers/presentor"
 	"server/internal/board"
-	"server/internal/column"
 	"server/internal/user"
 	"server/pkg/jwt"
 	"server/service"
@@ -147,8 +146,6 @@ func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.H
 			return presenter.InternalServerError(c, err)
 		}
 		res := presenter.InviteMemberToInviteMemberResponse(ubr, req.Email)
-		// response := presenter.NewResponse()
-		// response.SetData(res)
 
 		return presenter.Created(c, "User successfully invited", res)
 	}
@@ -175,7 +172,7 @@ func DeleteBoard(boardService *service.BoardService) fiber.Handler {
 			if errors.Is(err, board.ErrBoardNotFound) || errors.Is(err, user.ErrUserNotFound) {
 				return presenter.BadRequest(c, err)
 			}
-			
+
 			return presenter.InternalServerError(c, err)
 		}
 
