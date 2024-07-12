@@ -36,10 +36,10 @@ func CreateColumnsRequestToEntities(req CreateColumnsRequest, maxOrder uint) []e
 	columns := make([]entities.Column, len(req.Columns))
 	for i, col := range req.Columns {
 		columns[i] = entities.Column{
-			ID:      uuid.New(),
-			Name:    col.Name,
-			BoardID: req.BoardID,
-			Order:   maxOrder + uint(i) + 1,
+			ID:       uuid.New(),
+			Name:     col.Name,
+			BoardID:  req.BoardID,
+			OrderNum: maxOrder + uint(i) + 1,
 		}
 	}
 	return columns
@@ -51,7 +51,7 @@ func EntitiesToCreateColumnsResponse(columns []entities.Column) CreateColumnsRes
 		respItems[i] = ColumnResponseItem{
 			ID:    col.ID,
 			Name:  col.Name,
-			Order: col.Order,
+			Order: col.OrderNum,
 		}
 	}
 	return CreateColumnsResponse{
@@ -64,7 +64,7 @@ func EntityToColumnResponse(c column.Column) ColumnResponseItem {
 	return ColumnResponseItem{
 		ID:    c.ID,
 		Name:  c.Name,
-		Order: c.Order,
+		Order: c.OrderNum,
 	}
 }
 
