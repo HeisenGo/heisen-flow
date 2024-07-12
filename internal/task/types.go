@@ -19,6 +19,7 @@ import (
 var (
 	ErrCircularDependency             = errors.New("circular dependency detected")
 	ErrFailedToFindDependsOnTasks     = errors.New("failed to find depends on tasks")
+	ErrDuplicateDependency            = errors.New("dependency already exists")
 	ErrFailedToCreateTaskDependencies = errors.New("failed to create task dependencies")
 	ErrEmptyTitle                     = errors.New("title is required")
 	ErrLongTitle                      = errors.New("title cannot be longer than 255 characters")
