@@ -82,7 +82,7 @@ func (s *TaskService) CreateTask(ctx context.Context, task *task.Task) error {
 	// check permission for creator
 	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, user.ID, board.ID)
 	if err != nil {
-		return err
+		return ErrPermissionDenied
 	}
 
 	if !rbac.HasPermission(role, rbac.PermissionCreateTask) {
