@@ -53,7 +53,7 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 	)
 	router.Get("/:boardID",
 		middlewares.Auth(secret),
-		handlers.GetBoardByID(app.BoardService()),
+		handlers.GetFullBoardByID(app.BoardService()),
 	)
 
 	router.Post("/invite", middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
