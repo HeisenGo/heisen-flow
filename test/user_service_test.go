@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"testing"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,19 +32,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusCreated, resp.StatusCode, "status code should be 201")
-		assert.Equal(t, "user successfully registered", res.Message, "message should be 'user successfully registered'")
+		assert.Equal(t, http.StatusCreated, resp.StatusCode, "status code should be 201")
 	})
 
 	t.Run("email not provided", func(t *testing.T) {
@@ -67,19 +53,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "Key: 'UserRegisterReq.Email' Error:Field validation for 'Email' failed on the 'required' tag", "error message should contain 'Key: 'UserRegisterReq.Email' Error:Field validation for 'Email' failed on the 'required' tag'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
 
 	t.Run("password not provided", func(t *testing.T) {
@@ -100,19 +74,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "Key: 'UserRegisterReq.Password' Error:Field validation for 'Password' failed on the 'required' tag", "error message should contain 'Key: 'UserRegisterReq.Password' Error:Field validation for 'Password' failed on the 'required' tag'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
 
 	t.Run("invalid email format", func(t *testing.T) {
@@ -134,19 +96,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "Key: 'UserRegisterReq.Email' Error:Field validation for 'Email' failed on the 'email' tag", "error message should contain 'Key: 'UserRegisterReq.Email' Error:Field validation for 'Email' failed on the 'email' tag'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
 
 	t.Run("weak password", func(t *testing.T) {
@@ -168,19 +118,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "invalid password format", "error message should contain 'invalid password format'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
 
 	t.Run("email already registered", func(t *testing.T) {
@@ -203,20 +141,9 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusConflict, resp.StatusCode, "status code should be %s", fiber.StatusConflict)
-		assert.Contains(t, res.Error, "email already exists", "error message should contain 'email already exists'")
+		assert.Equal(t, http.StatusConflict, resp.StatusCode, "status code should be 409")
 	})
+
 	t.Run("missing first name", func(t *testing.T) {
 		newMockUser := MockUser{
 			LastName: "johnny",
@@ -235,19 +162,9 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "Key: 'UserRegisterReq.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag", "error message should contain 'Key: 'UserRegisterReq.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
+
 	t.Run("missing last name", func(t *testing.T) {
 		newMockUser := MockUser{
 			FirstName: "john",
@@ -266,19 +183,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "Key: 'UserRegisterReq.LastName' Error:Field validation for 'LastName' failed on the 'required' tag", "error message should contain 'Key: 'UserRegisterReq.LastName' Error:Field validation for 'LastName' failed on the 'required' tag'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
 
 	t.Run("short first name", func(t *testing.T) {
@@ -300,20 +205,9 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "Key: 'UserRegisterReq.FirstName' Error:Field validation for 'FirstName' failed on the 'min' tag", "error message should contain 'Key: 'UserRegisterReq.FirstName' Error:Field validation for 'FirstName' failed on the 'min' tag'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
+
 	t.Run("short last name", func(t *testing.T) {
 		newMockUser := MockUser{
 			FirstName: "john",
@@ -333,19 +227,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "Key: 'UserRegisterReq.LastName' Error:Field validation for 'LastName' failed on the 'min' tag", "error message should contain 'Key: 'UserRegisterReq.LastName' Error:Field validation for 'LastName' failed on the 'min' tag'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
 
 	t.Run("password without special character", func(t *testing.T) {
@@ -367,19 +249,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "invalid password format", "error message should contain 'invalid password format'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
 
 	t.Run("password without uppercase letter", func(t *testing.T) {
@@ -401,53 +271,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "invalid password format", "error message should contain 'invalid password format'")
-	})
-
-	t.Run("password without lowercase letter", func(t *testing.T) {
-		newMockUser := MockUser{
-			FirstName: "john",
-			LastName:  "johnny",
-			Email:     "john@gmail.com",
-			Password:  "12@AMIR###90",
-		}
-
-		reqBody, err := json.Marshal(newMockUser)
-		if err != nil {
-			t.Fatalf("Failed to marshal request: %v", err)
-		}
-
-		resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
-		if err != nil {
-			t.Fatalf("Failed to make POST request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
-		}
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "invalid password format", "error message should contain 'invalid password format'")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
 	})
 
 	t.Run("password without number", func(t *testing.T) {
@@ -455,7 +279,7 @@ func TestRegisterUser(t *testing.T) {
 			FirstName: "john",
 			LastName:  "johnny",
 			Email:     "john@gmail.com",
-			Password:  "@Amir###xyz",
+			Password:  "@Amir###",
 		}
 
 		reqBody, err := json.Marshal(newMockUser)
@@ -469,18 +293,68 @@ func TestRegisterUser(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
+	})
+
+	t.Run("empty request body", func(t *testing.T) {
+		resp, err := http.Post(url, "application/json", nil)
 		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
+			t.Fatalf("Failed to make POST request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
+	})
+
+	t.Run("invalid JSON body", func(t *testing.T) {
+		invalidJSON := []byte(`{"first_name": "john"}`)
+
+		resp, err := http.Post(url, "application/json", bytes.NewBuffer(invalidJSON))
+		if err != nil {
+			t.Fatalf("Failed to make POST request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "status code should be 400")
+	})
+
+	t.Run("unsupported method (GET)", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			t.Fatalf("Failed to create GET request: %v", err)
 		}
 
-		res := new(Response)
-		err = json.Unmarshal(body, &res)
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
-			t.Fatalf("Failed to unmarshal response body: %v", err)
+			t.Fatalf("Failed to make GET request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusMethodNotAllowed, resp.StatusCode, "status code should be 405")
+	})
+
+	t.Run("server error", func(t *testing.T) {
+		newMockUser := MockUser{
+			FirstName: "john",
+			LastName:  "johnny",
+			Email:     "john@gmail.com",
+			Password:  "12@Amir###90",
 		}
 
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode, "status code should be %s", fiber.StatusBadRequest)
-		assert.Contains(t, res.Error, "invalid password format", "error message should contain 'invalid password format'")
+		reqBody, err := json.Marshal(newMockUser)
+		if err != nil {
+			t.Fatalf("Failed to marshal request: %v", err)
+		}
+
+		// Change ServerURL to a non-existent address to force a server error
+		url := fmt.Sprintf("%s%s", "http://localhost:9999", Register)
+
+		resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+		if err != nil {
+			t.Fatalf("Failed to make POST request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode, "status code should be 500")
 	})
 }

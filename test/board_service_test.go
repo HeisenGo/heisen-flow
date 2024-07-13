@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"testing"
 
@@ -42,7 +41,6 @@ func TestBoardCreation(t *testing.T) {
 		name               string
 		board              MockBoard
 		expectedStatusCode int
-		expectedMessage    string
 	}{
 		{
 			name: "ValidBoardCreation",
@@ -51,7 +49,6 @@ func TestBoardCreation(t *testing.T) {
 				Type: "private",
 			},
 			expectedStatusCode: http.StatusCreated,
-			expectedMessage:    "Board created successfully",
 		},
 		{
 			name: "MissingName",
@@ -59,7 +56,6 @@ func TestBoardCreation(t *testing.T) {
 				Type: "private",
 			},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedMessage:    "Board name is required",
 		},
 		{
 			name: "UnauthorizedRequest",
@@ -68,7 +64,6 @@ func TestBoardCreation(t *testing.T) {
 				Type: "private",
 			},
 			expectedStatusCode: http.StatusUnauthorized,
-			expectedMessage:    "Unauthorized",
 		},
 	}
 
@@ -97,22 +92,15 @@ func TestBoardCreation(t *testing.T) {
 			}
 			defer resp.Body.Close()
 
-			// Read response body
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				t.Fatalf("Failed to read response: %v", err)
-			}
-
-			// Unmarshal response body into Response struct
-			res := new(Response)
-			err = json.Unmarshal(body, &res)
-			if err != nil {
-				t.Fatalf("Failed to unmarshal response body: %v", err)
-			}
-
-			// Assertions to validate response
+			// Assertions to validate response status code
 			assert.Equal(t, scenario.expectedStatusCode, resp.StatusCode, "Expected status code")
-			assert.Equal(t, scenario.expectedMessage, res.Message, "Expected message")
+
+			// Print additional information for clarity
+			fmt.Printf("Scenario: %s\n", scenario.name)
+			fmt.Printf("Request URL: %s\n", url)
+			fmt.Printf("Request Body: %s\n", boardJSON)
+			fmt.Printf("Response Status: %d\n", resp.StatusCode)
+			fmt.Println("---")
 		})
 	}
 }

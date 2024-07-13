@@ -148,22 +148,22 @@ func TestTaskCreation(t *testing.T) {
 			}
 			defer taskResp.Body.Close()
 
-			// Read response body
-			body, err := io.ReadAll(taskResp.Body)
-			if err != nil {
-				t.Fatalf("Failed to read response: %v", err)
-			}
-
 			// Verify if task creation was successful
 			assert.Equal(t, scenario.expectedStatusCode, taskResp.StatusCode, "Expected status code")
+
+			// Optionally, you can validate the response body further if needed
 			if taskResp.StatusCode == http.StatusCreated {
-				// Optionally, you can validate the response body further if needed
+				body, err := io.ReadAll(taskResp.Body)
+				if err != nil {
+					t.Fatalf("Failed to read response: %v", err)
+				}
+
 				var res Response
 				err = json.Unmarshal(body, &res)
 				if err != nil {
 					t.Fatalf("Failed to unmarshal response body: %v", err)
 				}
-				// Add more assertions if needed for successful creation scenario
+
 			}
 		})
 	}

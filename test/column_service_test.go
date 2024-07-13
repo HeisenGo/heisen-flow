@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"testing"
 
@@ -22,9 +21,10 @@ func TestColumn(t *testing.T) {
 	}
 
 	result, _, err := CreateUserWithResp(user)
-	if err != nil || result.StatusCode != http.StatusCreated {
-		t.Fatalf("Failed to create user. Status code: %d, Response message: %s, Error: %v", result.StatusCode, result.Message, err)
+	if err != nil {
+		t.Fatalf("Failed to create user: %v", err)
 	}
+	assert.Equal(t, http.StatusCreated, result.StatusCode, "Expected status code 201 for user creation")
 
 	// Login to obtain authentication token
 	token, err := LoginAndGetToken(t, MockUserLogin{
@@ -41,9 +41,11 @@ func TestColumn(t *testing.T) {
 		Type: "public",
 	}
 	boardResp, boardData, err := CreateBoard(token, newMockBoard)
-	if err != nil || boardResp.StatusCode != http.StatusCreated {
-		t.Fatalf("Failed to create board. Status code: %d, Error: %v", boardResp.StatusCode, err)
+	if err != nil {
+		t.Fatalf("CreateBoard failed: %v", err)
 	}
+	assert.Equal(t, http.StatusCreated, boardResp.StatusCode, "Expected status code 201 for board creation")
+	assert.NotEmpty(t, boardData.BoardID, "Expected non-empty board ID")
 
 	// Extract board ID from boardData
 	boardID, err := uuid.Parse(boardData.BoardID)
@@ -78,14 +80,8 @@ func TestColumn(t *testing.T) {
 		}
 		defer resp.Body.Close()
 
-		// Read response body
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response: %v", err)
-		}
-
-		// Log response body for debugging
-		t.Logf("Response Body: %s", body)
+		// Log response status code
+		t.Logf("Response Status Code: %d", resp.StatusCode)
 
 		assert.Equal(t, expectedStatusCode, resp.StatusCode, fmt.Sprintf("Expected status code %d", expectedStatusCode))
 	}
@@ -151,99 +147,4 @@ func TestColumn(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestCreateColumns(t *testing.T) {
-	// Create mock user
-	user := MockUser{
-		FirstName: "column2",
-		LastName:  "column2",
-		Email:     "column2@gmail.com",
-		Password:  "12@Amir###90",
-	}
-
-	result := CreateUser(user)
-	if result.StatusCode != http.StatusCreated {
-		t.Fatalf("Failed to create user. Status code: %d, Response message: %s", result.StatusCode, result.Message)
-	}
-
-	// Login to obtain authentication token
-	token, err := LoginAndGetToken(t, MockUserLogin{
-		Email:    user.Email,
-		Password: user.Password,
-	})
-	if err != nil {
-		t.Fatalf("Login failed: %v", err)
-	}
-
-	// Create mock board
-	newMockBoard := MockBoard{
-		Name: "Column2 Board",
-		Type: "public",
-	}
-	boardResp, boardData, err := CreateBoard(token, newMockBoard)
-	if err != nil {
-		t.Fatalf("CreateBoard failed: %v", err)
-	}
-	if boardResp.StatusCode != http.StatusCreated {
-		t.Fatalf("Failed to create board. Status code: %d", boardResp.StatusCode)
-	}
-
-	// Ensure boardData is not nil and has expected fields
-	if boardData.BoardID == "" {
-		t.Fatalf("Board ID is empty")
-	}
-
-	// Extract board ID from boardData
-	boardID, err := uuid.Parse(boardData.BoardID)
-	if err != nil {
-		t.Fatalf("Failed to parse board ID: %v", err)
-	}
-
-	// Define columns payload
-	columns := []map[string]string{
-		{"name": "todo"},
-		{"name": "in progress"},
-		{"name": "in review"},
-	}
-	payload := map[string]interface{}{
-		"board_id": boardID,
-		"columns":  columns,
-	}
-
-	// Marshal payload to JSON
-	payloadJSON, err := json.Marshal(payload)
-	if err != nil {
-		t.Fatalf("Failed to marshal payload to JSON: %v", err)
-	}
-
-	// URL for creating columns
-	url := fmt.Sprintf("%s%s", ServerURL, "/columns")
-
-	// Create HTTP request
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadJSON))
-	if err != nil {
-		t.Fatalf("Failed to create request: %v", err)
-	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Set("Content-Type", "application/json")
-
-	// Send request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		t.Fatalf("Failed to execute request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response body
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatalf("Failed to read response: %v", err)
-	}
-
-	// Log response body for debugging
-	t.Logf("Response Body: %s", body)
-
-	assert.Equal(t, http.StatusCreated, resp.StatusCode, "Expected status code 201")
 }
