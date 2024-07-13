@@ -31,6 +31,7 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	registerTaskRoutes(api, app, secret, createGroupLogger("tasks"))
 	registerColumnRoutes(api, app, secret, createGroupLogger("columns"))
 	registerNotificationRoutes(api, app, secret, createGroupLogger("notifs"))
+	registerCommentRoutes(api,  app, secret, createGroupLogger("comments"))
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
 }
 
@@ -162,4 +163,16 @@ func registerNotificationRoutes(router fiber.Router, app *service.AppContainer, 
 	router.Use(loggerMiddleWare)
 	router.Get("", middlewares.Auth(secret), handlers.GetNotifications(app.NotificationService()))
 	router.Patch("/read/:notifID", middlewares.Auth(secret), handlers.UpdateNotifications(app.NotificationService()))
+}
+
+
+func registerCommentRoutes(router fiber.Router, app *service.AppContainer, secret []byte, loggerMiddleWare fiber.Handler) {
+	router = router.Group("/comments")
+	router.Use(loggerMiddleWare)
+	
+	router.Post("",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		handlers.CreateUserComment(app.CommentServiceFromCtx),
+	)
 }
