@@ -22,9 +22,9 @@ type Task struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	StartAt     time.Time
-	EndAt       time.Time
-	StoryPoint  uint 
+	StartAt     *time.Time
+	EndAt       *time.Time
+	StoryPoint  uint
 
 	// Relationships
 	UserBoardRoleID *uuid.UUID    `gorm:"type:uuid"` //Assignee

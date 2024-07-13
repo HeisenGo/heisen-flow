@@ -61,8 +61,8 @@ func TaskToBoardTaskResp(t task.Task) BoardTaskResp {
 	return BoardTaskResp{
 		ID:         t.ID,
 		Title:      t.Title,
-		StartAt:    t.StartAt,
-		EndAt:      t.EndAt,
+		StartAt:    *t.StartAt,
+		EndAt:      *t.EndAt,
 		StoryPoint: t.StoryPoint,
 	}
 }
@@ -181,6 +181,6 @@ func InviteMemberToInviteMemberResponse(ubr *userboardrole.UserBoardRole, email 
 }
 
 type CreateBoardReq struct {
-	Name      string    `json:"name" example:"myboard123"`
-	Type      string    `json:"type" example:"private(public)"`
+	Name string `json:"name" example:"myboard123"`
+	Type string `json:"type" example:"private(public)"`
 }
