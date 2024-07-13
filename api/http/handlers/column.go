@@ -100,7 +100,19 @@ func DeleteColumn(columnService *service.ColumnService) fiber.Handler {
 		return presenter.NoContent(c)
 	}
 }
-
+// ReorderColumns reorders the columns of a board.
+// @Summary Reorder columns
+// @Description Reorder the columns of a board for the authenticated user.
+// @Tags Columns
+// @Accept  json
+// @Produce  json
+// @Param ReorderColumnsRequest body presenter.ReorderColumnsRequest true "Reorder Columns Request"
+// @Success 200 {object} []presenter.ColumnResponseItem "Columns reordered successfully"
+// @Failure 400 {object} map[string]interface{} "Bad request, invalid reorder details"
+// @Failure 403 {object} map[string]interface{} "Forbidden, permission denied"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security BearerAuth
+// @Router /columns/reorder [put]
 func ReorderColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		columnService := serviceFactory(c.UserContext())

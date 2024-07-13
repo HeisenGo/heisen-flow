@@ -22,7 +22,7 @@ import (
 // @Produce  json
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
-// @Success 200 {object} map[string]interface{} "boards: paginated list of user's boards"
+// @Success 200 {object} presenter.BoardUserResp "boards: paginated list of user's boards"
 // @Failure 400 {object} map[string]interface{} "error: bad request, wrong claim type"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
 // @Router /user/boards [get]
@@ -133,7 +133,7 @@ func GetFullBoardByID(boardService *service.BoardService) fiber.Handler {
 // @Accept  json
 // @Produce  json
 // @Param board body presenter.UserBoard true "Board details"
-// @Success 201 {object} map[string]interface{} "board: the created board details"
+// @Success 201 {object} presenter.CreateBoardResponse "board: the created board details"
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid board details"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
 // @Router /user/boards [post]
@@ -173,7 +173,7 @@ func CreateUserBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber
 // @Accept  json
 // @Produce  json
 // @Param invite body presenter.InviteUserToBoard true "Invitation details"
-// @Success 200 {object} map[string]interface{} "invite: the details of the invitation"
+// @Success 200 {object} presenter.InviteMemberResponse "invite: the details of the invitation"
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid invitation details"
 // @Failure 403 {object} map[string]interface{} "error: forbidden, permission denied to invite"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
