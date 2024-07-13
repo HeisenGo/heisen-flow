@@ -98,4 +98,10 @@ func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret
 		middlewares.Auth(secret),
 		handlers.DeleteColumn(app.ColumnService()),
 	)
+
+	router.Put("",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		handlers.ReorderColumns(app.ColumnServiceFromCtx),
+	)
 }
