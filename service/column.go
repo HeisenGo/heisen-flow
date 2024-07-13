@@ -157,3 +157,21 @@ func (s *ColumnService) DeleteColumn(ctx context.Context, columnID, userID uuid.
 	}
 	return s.colOps.Delete(ctx, columnID)
 }
+
+func (s *ColumnService) ReorderColumns(ctx context.Context, userID, boardID uuid.UUID, newOrder map[uuid.UUID]uint) ([]column.Column, error) {
+
+	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
+	if err != nil {
+		return nil, ErrPermissionDenied
+	}
+
+	if !rbac.HasPermission(role, rbac.PermissionManageColumns) {
+		return nil, ErrPermissionDeniedToDelete
+	}
+	err = s.colOps.ReorderColumns(ctx, boardID, newOrder)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.colOps.GetColumns(ctx, boardID)
+}
