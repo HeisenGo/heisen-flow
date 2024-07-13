@@ -4,11 +4,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/storage/redis/v3"
+	"runtime"
+	"server/config"
 	"time"
 )
 
 // SetupLimiterMiddleware Define a function to configure limiter middleware
-func SetupLimiterMiddleware(durationMinutes int, max int) fiber.Handler {
+func SetupLimiterMiddleware(durationMinutes int, max int, cfg config.Redis) fiber.Handler {
 	// Create limiter middleware with customized settings
 	exp := time.Duration(durationMinutes)
 	return limiter.New(limiter.Config{
@@ -19,6 +21,14 @@ func SetupLimiterMiddleware(durationMinutes int, max int) fiber.Handler {
 		//},
 		Max:        max,
 		Expiration: exp * time.Minute,
-		Storage:    redis.New(),
+		Storage: redis.New(redis.Config{
+			Host:      cfg.Host,
+			Port:      cfg.Port,
+			Password:  cfg.Pass,
+			Database:  0,
+			Reset:     false,
+			TLSConfig: nil,
+			PoolSize:  10 * runtime.GOMAXPROCS(0),
+		}),
 	})
 }
