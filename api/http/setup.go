@@ -34,7 +34,7 @@ func Run(cfg config.Server, app *service.AppContainer) {
 
 func registerGlobalRoutes(router fiber.Router, app *service.AppContainer, loggerMiddleWare fiber.Handler) {
 	router.Use(loggerMiddleWare)
-	router.Post("/register", handlers.RegisterUser(app.AuthService()))
+	router.Post("/register", middlewares.SetupLimiterMiddleware(1, 1), handlers.RegisterUser(app.AuthService()))
 	router.Post("/login", handlers.LoginUser(app.AuthService()))
 	router.Get("/refresh", handlers.RefreshToken(app.AuthService()))
 }
@@ -58,6 +58,7 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 	)
 	router.Get("/publics",
 		middlewares.Auth(secret),
+		middlewares.SetupCacheMiddleware(5),
 		handlers.GetPublicBoards(app.BoardService()),
 	)
 	router.Get("/:boardID",
