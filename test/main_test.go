@@ -15,8 +15,6 @@ import (
 
 	http_server "server/api/http"
 	"server/config"
-	"server/internal/board"
-	"server/internal/user"
 
 	"server/service"
 )
@@ -50,26 +48,25 @@ func TestMain(m *testing.M) {
 	time.Sleep(2 * time.Second)
 
 	// Clear database tables
-	ClearDatabaseTables(app.RawDBConnection())
+	ClearDatabase(app.RawDBConnection())
+
 	// Run tests
 	code := m.Run()
 
 	os.Exit(code)
 }
 
-func ClearDatabaseTables(db *gorm.DB) error {
-	tables := []interface{}{
-		&user.User{},
-		&board.Board{},
-	}
+func ClearDatabase(db *gorm.DB) error {
+	// Disable foreign key checks
+	db.Exec("SET session_replication_role = 'replica';")
 
-	for _, model := range tables {
-		if err := db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(model).Error; err != nil {
-			return err
-		}
-	}
+	// Clear all tables
+	err := db.Exec("TRUNCATE TABLE user_board_roles, users, boards, columns, tasks RESTART IDENTITY CASCADE;").Error
 
-	return nil
+	// Re-enable foreign key checks
+	db.Exec("SET session_replication_role = 'origin';")
+
+	return err
 }
 
 func readConfig() config.Config {
