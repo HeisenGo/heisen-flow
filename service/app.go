@@ -177,5 +177,5 @@ func (a *AppContainer) NotificationService() *NotificationService {
 }
 
 func (a *AppContainer) setNotificationService(){
-	a.notificationService = NewNotificationService(notification.NewOps(storage.NewNotificationRepo(a.dbConn)))
+	a.notificationService = NewNotificationService(notification.NewOps(storage.NewNotificationRepo(a.dbConn)), user.NewOps(storage.NewUserRepo(a.dbConn)))
 }
