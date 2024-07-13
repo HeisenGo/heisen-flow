@@ -22,9 +22,10 @@ import (
 // @Produce  json
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
-// @Success 200 {object} map[string]interface{} "boards: paginated list of user's boards"
+// @Success 200 {object} presenter.BoardUserResp "boards: paginated list of user's boards"
 // @Failure 400 {object} map[string]interface{} "error: bad request, wrong claim type"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /user/boards [get]
 func GetUserBoards(boardService *service.BoardService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -64,6 +65,7 @@ func GetUserBoards(boardService *service.BoardService) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "boards: paginated list of public boards"
 // @Failure 400 {object} map[string]interface{} "error: bad request, wrong claim type"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /public/boards [get]
 func GetPublicBoards(boardService *service.BoardService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -102,6 +104,7 @@ func GetPublicBoards(boardService *service.BoardService) fiber.Handler {
 // @Success 200 {object} presenter.FullBoardResp "board: the full board details"
 // @Failure 400 {object} map[string]interface{} "error: bad request, wrong claim type or invalid board ID format"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /boards/{boardID} [get]
 func GetFullBoardByID(boardService *service.BoardService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -132,11 +135,12 @@ func GetFullBoardByID(boardService *service.BoardService) fiber.Handler {
 // @Tags Boards
 // @Accept  json
 // @Produce  json
-// @Param board body presenter.UserBoard true "Board details"
-// @Success 201 {object} map[string]interface{} "board: the created board details"
+// @Param board body presenter.CreateBoardReq true "Board details"
+// @Success 201 {object} presenter.CreateBoardResponse "board: the created board details"
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid board details"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
-// @Router /user/boards [post]
+// @Security BearerAuth
+// @Router /boards [post]
 func CreateUserBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		boardService := serviceFactory(c.UserContext())
@@ -173,10 +177,11 @@ func CreateUserBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber
 // @Accept  json
 // @Produce  json
 // @Param invite body presenter.InviteUserToBoard true "Invitation details"
-// @Success 200 {object} map[string]interface{} "invite: the details of the invitation"
+// @Success 200 {object} presenter.InviteMemberResponse "invite: the details of the invitation"
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid invitation details"
 // @Failure 403 {object} map[string]interface{} "error: forbidden, permission denied to invite"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /boards/invite [post]
 func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -208,7 +213,19 @@ func InviteToBoard(serviceFactory ServiceFactory[*service.BoardService]) fiber.H
 		return presenter.Created(c, "User successfully invited", res)
 	}
 }
-
+// DeleteBoard deletes a board by its ID for the authenticated user.
+// @Summary Delete board
+// @Description Deletes a specific board by its ID for the authenticated user.
+// @Tags Boards
+// @Accept  json
+// @Produce  json
+// @Param boardID path string true "Board ID"
+// @Success 204 "No Content"
+// @Failure 400 {object} map[string]interface{} "Bad request, invalid user claims, or board ID format"
+// @Failure 403 {object} map[string]interface{} "Forbidden, user does not have permission to delete the board"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security BearerAuth
+// @Router /boards/{boardID} [delete]
 func DeleteBoard(boardService *service.BoardService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)

@@ -13,9 +13,9 @@ import (
 )
 
 type UserBoard struct {
-	ID        uuid.UUID `json:"board_id"`
-	Name      string    `json:"name"`
-	Type      string    `json:"type"`
+	ID        uuid.UUID `json:"board_id" example:"1e8d41b-a84e-41c6-9564-4e932fccf213"`
+	Name      string    `json:"name" example:"myboard123"`
+	Type      string    `json:"type" example:"private"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -125,10 +125,10 @@ func UserBoardToBoard(userBoard *UserBoard, userID uuid.UUID) (*board.Board, *us
 }
 
 type InviteUserToBoard struct {
-	ID      uuid.UUID `json:"user_board_role_id"`
-	Email   string    `json:"email"`
-	BoardID uuid.UUID `json:"board_id"`
-	Role    string    `json:"role"`
+	ID      uuid.UUID `json:"user_board_role_id" example:"31e8d41b-a84e-41c6-9564-4e932fccf213"`
+	Email   string    `json:"email" example:"inviatee_email.com"`
+	BoardID uuid.UUID `json:"board_id" example:"aeec51f9-dde3-409d-9415-df771f5b8a62"`
+	Role    string    `json:"role" example:"editor"`
 }
 
 func InviteUserToBoardToUserBoardRole(inviteUserToBoard *InviteUserToBoard) *userboardrole.UserBoardRole {
@@ -178,4 +178,9 @@ func InviteMemberToInviteMemberResponse(ubr *userboardrole.UserBoardRole, email 
 		UserBoardID: ubr.ID,
 		BoardID:     ubr.BoardID,
 	}
+}
+
+type CreateBoardReq struct {
+	Name      string    `json:"name" example:"myboard123"`
+	Type      string    `json:"type" example:"private(public)"`
 }
