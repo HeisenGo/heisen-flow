@@ -29,6 +29,10 @@ type DependentTasks struct {
 	DependsOnTaskIDs []uuid.UUID `json:"depends_on_task_ids" validate:"required"`
 }
 
+type UpdateTaskColReq struct {
+	ColumnID uuid.UUID `json:"column_id" validate:"required"`
+}
+
 func AddDependencyReqToTask(dependentTasksReq *DependentTasks, userID uuid.UUID) *task.Task {
 	return &task.Task{
 		ID:               dependentTasksReq.ID,
@@ -145,6 +149,28 @@ func BatchTaskToTaskSubTaskResp(tasks []task.Task) []TaskSubTaskResp {
 
 func BatchTaskToTaskDependTaskResp(tasks []task.Task) []TaskDependTaskResp {
 	return fp.Map(tasks, TaskToTaskDependTaskResp)
+}
+
+type UpdatedTaskResp struct {
+	ID          uuid.UUID `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Order       uint      `json:"order"`
+	StartAt     time.Time `json:"start_at"`
+	EndAt       time.Time `json:"end_at"`
+	StoryPoint  uint      `json:"story_point"`
+}
+
+func TaskToUpdatedTaskResp(t task.Task) UpdatedTaskResp {
+	return UpdatedTaskResp{
+		ID:          t.ID,
+		Title:       t.Title,
+		Description: t.Description,
+		Order:       t.Order,
+		StartAt:     t.StartAt,
+		EndAt:       t.EndAt,
+		StoryPoint:  t.StoryPoint,
+	}
 }
 
 func TaskToFullTaskResp(t task.Task) FullTaskResp {
