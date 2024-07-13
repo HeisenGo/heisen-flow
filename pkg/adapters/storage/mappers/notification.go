@@ -10,7 +10,7 @@ func NotificationEntityToDomain(entity *entities.Notification) *notification.Not
 		ID:               entity.ID,
 		IsSeen:           entity.IsSeen,
 		Description:      entity.Description,
-		NotificationType: entity.NotificationType,
+		NotificationType: notification.NotificationType(entity.NotificationType),
 		UserBoardRoleID:  entity.UserBoardRoleID,
 	}
 }
@@ -19,7 +19,7 @@ func NotificationDomainToEntity(domainNotification *notification.Notification) *
 	return &entities.Notification{
 		IsSeen:           domainNotification.IsSeen,
 		Description:      domainNotification.Description,
-		NotificationType: domainNotification.NotificationType,
+		NotificationType: string(domainNotification.NotificationType),
 		UserBoardRoleID:  domainNotification.UserBoardRoleID,
 		CreatedAt:        domainNotification.CreatedAt,
 		UpdatedAt:        domainNotification.UpdatedAt,
