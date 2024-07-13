@@ -29,6 +29,7 @@ const (
 	Login      = "/login"
 	BoardPost  = "/boards"
 	configPath = "test_config.yaml"
+	TaskPost   = "/tasks"
 )
 
 func TestMain(m *testing.M) {
@@ -41,7 +42,7 @@ func TestMain(m *testing.M) {
 	}
 
 	go func() {
-		http_server.Run(cfg.Server, app)
+		http_server.Run(cfg, app)
 	}()
 
 	// wait for server to start
@@ -79,35 +80,93 @@ func readConfig() config.Config {
 	return cfg
 }
 
-func CreateUser(user MockUser) UserCreationResult {
+func CreateUserWithResp(user MockUser) (UserCreationResult, UserCreationData, error) {
 	url := fmt.Sprintf("%s%s", ServerURL, Register)
 
 	reqBody, err := json.Marshal(user)
 	if err != nil {
-		log.Fatalf("Failed to marshal request: %v", err)
+		return UserCreationResult{}, UserCreationData{}, fmt.Errorf("failed to marshal request: %v", err)
 	}
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
-		log.Fatalf("Failed to make POST request: %v", err)
+		return UserCreationResult{}, UserCreationData{}, fmt.Errorf("failed to make POST request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("Failed to read response: %v", err)
+		return UserCreationResult{}, UserCreationData{}, fmt.Errorf("failed to read response: %v", err)
 	}
 
 	res := new(Response)
-	err = json.Unmarshal(body, &res)
+	err = json.Unmarshal(body, res)
 	if err != nil {
-		log.Fatalf("Failed to unmarshal response body: %v", err)
+		return UserCreationResult{}, UserCreationData{}, fmt.Errorf("failed to unmarshal response body: %v", err)
 	}
 
-	return UserCreationResult{
+	dataBytes, err := json.Marshal(res.Data)
+	if err != nil {
+		return UserCreationResult{}, UserCreationData{}, fmt.Errorf("failed to marshal data: %v", err)
+	}
+
+	data := UserCreationData{}
+	if err := json.Unmarshal(dataBytes, &data); err != nil {
+		return UserCreationResult{}, UserCreationData{}, fmt.Errorf("failed to unmarshal user data: %v", err)
+	}
+
+	userResult := UserCreationResult{
 		StatusCode: resp.StatusCode,
 		Message:    res.Message,
 	}
+
+	return userResult, data, nil
+}
+
+func CreateBoard(token string, board MockBoard) (*http.Response, BoardCreationData, error) {
+	url := fmt.Sprintf("%s%s", ServerURL, BoardPost)
+
+	reqBody, err := json.Marshal(board)
+	if err != nil {
+		return nil, BoardCreationData{}, fmt.Errorf("failed to marshal request: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, BoardCreationData{}, fmt.Errorf("failed to create HTTP request: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, BoardCreationData{}, fmt.Errorf("failed to perform request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, BoardCreationData{}, fmt.Errorf("failed to read response: %v", err)
+	}
+
+	res := new(Response)
+	err = json.Unmarshal(body, res)
+	if err != nil {
+		return nil, BoardCreationData{}, fmt.Errorf("failed to unmarshal response body: %v", err)
+	}
+
+	dataBytes, err := json.Marshal(res.Data)
+	if err != nil {
+		return nil, BoardCreationData{}, fmt.Errorf("failed to marshal data: %v", err)
+	}
+
+	data := BoardCreationData{}
+	if err := json.Unmarshal(dataBytes, &data); err != nil {
+		return nil, BoardCreationData{}, fmt.Errorf("failed to unmarshal board data: %v", err)
+	}
+
+	return resp, data, nil
 }
 
 func LoginAndGetToken(t *testing.T, user MockUserLogin) (string, error) {
@@ -149,4 +208,34 @@ func LoginAndGetToken(t *testing.T, user MockUserLogin) (string, error) {
 	}
 
 	return authToken, nil
+}
+func CreateUser(user MockUser) UserCreationResult {
+	url := fmt.Sprintf("%s%s", ServerURL, Register)
+
+	reqBody, err := json.Marshal(user)
+	if err != nil {
+		log.Fatalf("Failed to marshal request: %v", err)
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Fatalf("Failed to make POST request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Failed to read response: %v", err)
+	}
+
+	res := new(Response)
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		log.Fatalf("Failed to unmarshal response body: %v", err)
+	}
+
+	return UserCreationResult{
+		StatusCode: resp.StatusCode,
+		Message:    res.Message,
+	}
 }
