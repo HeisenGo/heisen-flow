@@ -6,7 +6,14 @@ import (
 )
 
 func NotificationEntityToDomain(entity *entities.Notification) *notification.Notification {
+	// ubr := &userboardrole.UserBoardRole{
+	// 	UserID:  entity.UserBoardRole.UserID,
+	// 	BoardID: entity.UserBoardRole.BoardID,
+	// 	ID:      entity.UserBoardRole.ID,
+	// 	Role:    entity.UserBoardRole.UserRole,
+	// }
 	return &notification.Notification{
+		CreatedAt:        entity.CreatedAt,
 		ID:               entity.ID,
 		IsSeen:           entity.IsSeen,
 		Description:      entity.Description,
@@ -25,3 +32,15 @@ func NotificationDomainToEntity(domainNotification *notification.Notification) *
 		UpdatedAt:        domainNotification.UpdatedAt,
 	}
 }
+
+// func NotificationWithBoardNameToNotification(nb storage.NotificationWithBoardName) notification.Notification{
+// 	return notification.Notification{
+// 		ID:               nb.Notification.ID,
+// 		IsSeen:           nb.IsSeen,
+// 		Description:      entity.Description,
+// 		NotificationType: notification.NotificationType(entity.NotificationType),
+// 		UserBoardRoleID:  entity.UserBoardRoleID,
+// 		UserBoardRole:    ubr,
+// 		BoardName:        entity.UserBoardRole.Board.Name,
+// 	}
+// }

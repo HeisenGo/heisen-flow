@@ -10,7 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
 type notificationRepo struct {
 	db *gorm.DB
 }
@@ -22,42 +21,65 @@ func NewNotificationRepo(db *gorm.DB) notification.Repo {
 }
 
 func (r *notificationRepo) CreateNotification(ctx context.Context, notif *notification.Notification) error {
-    var userBoardRole entities.UserBoardRole
-    if err := r.db.WithContext(ctx).First(&userBoardRole, "id = ?", notif.UserBoardRoleID).Error; err != nil {
-        return err
-    }
+	var userBoardRole entities.UserBoardRole
+	if err := r.db.WithContext(ctx).First(&userBoardRole, "id = ?", notif.UserBoardRoleID).Error; err != nil {
+		return err
+	}
 
-    newNotification := mappers.NotificationDomainToEntity(notif)
-    if err := r.db.WithContext(ctx).Save(&newNotification).Error; err != nil {
-        return err
-    }
+	newNotification := mappers.NotificationDomainToEntity(notif)
+	if err := r.db.WithContext(ctx).Save(&newNotification).Error; err != nil {
+		return err
+	}
 
-    notif.ID = newNotification.ID
-    return nil
+	notif.ID = newNotification.ID
+	return nil
 }
 
 func (r *notificationRepo) GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]notification.Notification, error) {
-    var notifications []entities.Notification
+	var notifications []entities.Notification
 
-    if err := r.db.WithContext(ctx).
-        Joins("JOIN user_board_roles ON user_board_roles.id = notifications.user_board_role_id").
-        Where("user_board_roles.user_id = ? AND notifications.is_seen = ?", userID, false).
-        Order("notifications.created_at ASC"). // Sort by CreatedAt in ascending order
-        Find(&notifications).Error; err != nil {
-        return nil, err
-    }
+	result := r.db.WithContext(ctx).
+		Model(&entities.Notification{}).
+		Joins("LEFT JOIN user_board_roles ON notifications.user_board_role_id = user_board_roles.id").
+		Where("user_board_roles.user_id = ?", userID).
+		Find(&notifications)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	var domainNotifications []notification.Notification
+	for _, notif := range notifications {
+		domainNotification := mappers.NotificationEntityToDomain(&notif)
+		domainNotifications = append(domainNotifications, *domainNotification)
+	}
 
-    var domainNotifications []notification.Notification
-    for _, notif := range notifications {
-        domainNotification := mappers.NotificationEntityToDomain(&notif)
-        domainNotifications = append(domainNotifications, *domainNotification)
-    }
-
-    return domainNotifications, nil
+	return domainNotifications, nil
 }
 
-func (r *notificationRepo) MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) error {
-    return r.db.WithContext(ctx).Model(&entities.Notification{}).
-        Where("id = ?", notificationID).
-        Update("is_seen", true).Error
+func (r *notificationRepo) MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) (*notification.Notification, error) {
+	notification := &entities.Notification{}
+
+	result := r.db.WithContext(ctx).Model(&entities.Notification{}).
+		Where("id = ?", notificationID).
+		Update("is_seen", true).
+		First(notification) // Retrieve the updated entity
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	notif := mappers.NotificationEntityToDomain(notification)
+	return notif, nil
+}
+
+func (r *notificationRepo) GetNotificationByID(ctx context.Context, notificationID uuid.UUID) (*notification.Notification, error) {
+	notification := &entities.Notification{}
+
+	result := r.db.WithContext(ctx).Preload("UserBoardRole").
+		Where("id = ?", notificationID).
+		First(notification)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	notif := mappers.NotificationEntityToDomain(notification)
+	return notif, nil
 }
