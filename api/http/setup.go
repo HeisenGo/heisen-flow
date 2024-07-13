@@ -98,6 +98,12 @@ func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret [
 		handlers.GetFullTaskByID(app.TaskService()),
 	)
 
+	router.Patch("/reorder",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		handlers.ReorderTasks(app.TaskServiceFromCtx),
+	)
+
 	router.Patch("/:taskID",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),

@@ -59,3 +59,7 @@ func (o *Ops) Create(ctx context.Context, task *Task) error {
 func (o *Ops) AddDependency(ctx context.Context, t *Task) error {
 	return o.repo.AddDependency(ctx, t)
 }
+
+func (o *Ops) ReorderTasks(ctx context.Context, colID uuid.UUID, newOrder map[uuid.UUID]uint) ([]Task, error) {
+	return o.repo.ReorderTasks(ctx, colID, newOrder)
+}
