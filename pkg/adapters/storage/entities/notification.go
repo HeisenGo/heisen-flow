@@ -16,4 +16,5 @@ type Notification struct {
 	Description      string
 	NotificationType string
 	UserBoardRoleID  uuid.UUID `gorm:"type:uuid"` //Assignee
+	UserBoardRole    *UserBoardRole `gorm:"foreignKey:UserBoardRoleID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
