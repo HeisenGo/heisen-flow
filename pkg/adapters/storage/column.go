@@ -131,7 +131,7 @@ func (r *columnRepo) ReorderColumns(ctx context.Context, boardID uuid.UUID, newO
 	if err := r.db.WithContext(ctx).Where("board_id = ?", boardID).Find(&columns).Error; err != nil {
 		return column.ErrFailedToFetchColumns
 	}
-	if len(newOrder) != len(columns){
+	if len(newOrder) != len(columns) {
 		return column.ErrLengthMismatch
 	}
 	for columnID := range newOrder {
@@ -165,7 +165,7 @@ func (r *columnRepo) ReorderColumns(ctx context.Context, boardID uuid.UUID, newO
 	for _, col := range columns {
 		newOrderNum, exists := newOrder[col.ID]
 		if !exists {
-			continue 
+			continue
 		}
 		if err := r.db.WithContext(ctx).Model(&col).Update("order_num", newOrderNum).Error; err != nil {
 			return column.ErrFailedToUpdateColumn
@@ -173,4 +173,16 @@ func (r *columnRepo) ReorderColumns(ctx context.Context, boardID uuid.UUID, newO
 	}
 
 	return nil
+}
+
+func (r *columnRepo) GetColumns(ctx context.Context, boardID uuid.UUID) ([]column.Column, error) {
+	var columns []entities.Column
+	err := r.db.WithContext(ctx).Where("board_id = ?", boardID).
+		Order("order_num ASC").
+		Find(&columns).Error
+	if err != nil {
+		return nil, column.ErrFailedToFetchColumns
+	}
+	cols := mappers.BatchColumnEntitiesToDomain(columns)
+	return cols, nil
 }
