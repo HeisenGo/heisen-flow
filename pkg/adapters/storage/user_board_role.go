@@ -50,3 +50,16 @@ func (r *userBoardRepo) SetUserBoardRole(ctx context.Context, ub *userboardrole.
 func (r *userBoardRepo) RemoveUserBoardRole(ctx context.Context, userID, boardID string) error {
 	return nil
 }
+
+func (r *userBoardRepo) GetUserBoardRoleObj(ctx context.Context, userID, boardID uuid.UUID) (*userboardrole.UserBoardRole, error) {
+	var userBoardRole entities.UserBoardRole
+	err := r.db.
+		Preload("User").
+		Where("user_id = ? AND board_id = ?", userID, boardID).
+		First(&userBoardRole).Error
+	if err != nil {
+		return nil, userboardrole.ErrUserRoleNotFound
+	}
+	ubrDomain := mappers.UserBoardRoleEntityToDomain(userBoardRole)
+	return &ubrDomain, nil
+}

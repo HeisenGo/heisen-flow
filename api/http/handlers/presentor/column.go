@@ -3,6 +3,7 @@ package presenter
 import (
 	"server/internal/column"
 	"server/pkg/adapters/storage/entities"
+	"server/pkg/fp"
 
 	"github.com/google/uuid"
 )
@@ -77,4 +78,33 @@ func EntitiesToGetColumnsResponse(columns []column.Column) GetColumnsResponse {
 		Columns: columnResponses,
 		Message: "Columns fetched successfully",
 	}
+}
+
+func ColumnToColumnResponseItem(c column.Column) ColumnResponseItem {
+	return ColumnResponseItem{
+		ID:    c.ID,
+		Name:  c.Name,
+		Order: c.OrderNum,
+	}
+}
+
+func BatchColumnToColumnResponseItem(cols []column.Column) []ColumnResponseItem {
+	return fp.Map(cols, ColumnToColumnResponseItem)
+}
+
+type ReorderColumnsRequest struct {
+	BoardID uuid.UUID           `json:"board_id"`
+	Columns []ReorderColumnItem `json:"columns"`
+}
+
+type ReorderColumnItem struct {
+	ID uuid.UUID `json:"id"`
+}
+
+func ReorderColumnsRequestToMap(req ReorderColumnsRequest) (uuid.UUID, map[uuid.UUID]uint) {
+	newOrder := make(map[uuid.UUID]uint)
+	for i, col := range req.Columns {
+		newOrder[col.ID] = uint(i + 1)
+	}
+	return req.BoardID, newOrder
 }

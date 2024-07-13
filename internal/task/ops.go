@@ -25,6 +25,17 @@ func (o *Ops) GetTaskByID(ctx context.Context, id uuid.UUID) (*Task, error) {
 	return task, nil
 }
 
+func (o *Ops) GetFullTaskByID(ctx context.Context, id uuid.UUID) (*Task, error) {
+	task, err := o.repo.GetFullByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if task == nil {
+		return nil, ErrTaskNotFound
+	}
+	return task, nil
+}
+
 func (o *Ops) Create(ctx context.Context, task *Task) error {
 
 	if err := validateTitleAndDescription(task.Title, task.Description); err != nil {

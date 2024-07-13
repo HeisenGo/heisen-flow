@@ -16,7 +16,7 @@ type Board struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 	// Relationships
 	Users          []User          `gorm:"many2many:user_board_roles;constraint:OnDelete:CASCADE;"`
-	Tasks          []Task          `gorm:"foreignKey:BoardID"`
-	UserBoardRoles []UserBoardRole `gorm:"foreignKey:BoardID"`
-	Columns        []Column        `gorm:"foreignKey:BoardID"`
+	Tasks          []Task          `gorm:"foreignKey:BoardID;constraint:OnDelete:CASCADE;"`
+	UserBoardRoles []UserBoardRole `gorm:"foreignKey:BoardID;constraint:OnDelete:CASCADE"`
+	Columns        []Column        `gorm:"foreignKey:BoardID;constraint:OnDelete:CASCADE"`
 }

@@ -149,3 +149,21 @@ func (r *taskRepo) GetBoardID(ctx context.Context, id uuid.UUID) (*uuid.UUID, er
 	}
 	return &t.BoardID, nil
 }
+
+func (r *taskRepo) GetFullByID(ctx context.Context, id uuid.UUID) (*task.Task, error) {
+	var t entities.Task
+
+	if err := r.db.
+		Preload("UserBoardRole").
+		Preload("UserBoardRole.User").
+		Preload("Parent").
+		Preload("Subtasks").
+		Preload("Column").
+		Preload("Board").
+		//Preload("TODO:Comments").
+		First(&t, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	domainTask := mappers.TaskEntityToDomain(t)
+	return &domainTask, nil
+}

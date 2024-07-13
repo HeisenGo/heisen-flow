@@ -11,9 +11,13 @@ import (
 )
 
 var (
-	ErrInvalidName    = errors.New("invalid column name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
-	ErrColumnNotEmpty = errors.New("you can't delete a column that has some tasks")
-	ErrColumnNotFound = errors.New("column doesn't exists")
+	ErrInvalidName          = errors.New("invalid column name: must be 1-100 characters long and can only contain alphanumeric characters, spaces, hyphens, underscores, and periods")
+	ErrColumnNotEmpty       = errors.New("you can't delete a column that has some tasks")
+	ErrColumnNotFound       = errors.New("column doesn't exists")
+	ErrFailedToFetchColumns = errors.New("failed to fetch columns")
+	ErrInvalidColumnID      = errors.New("errInvalidColumnID")
+	ErrFailedToUpdateColumn = errors.New("failed to update column")
+	ErrLengthMismatch       = errors.New("length mismatch")
 )
 
 const (
@@ -29,6 +33,8 @@ type Repo interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByBoardID(ctx context.Context, boardID uuid.UUID) ([]Column, error)
 	SetDoneAsDefault(ctx context.Context, column *Column) error
+	ReorderColumns(ctx context.Context, boardID uuid.UUID, newOrder map[uuid.UUID]uint) error
+	GetColumns(ctx context.Context, boardID uuid.UUID) ([]Column, error)
 }
 
 type Column struct {
