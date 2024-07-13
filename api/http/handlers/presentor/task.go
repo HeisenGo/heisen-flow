@@ -89,6 +89,10 @@ type TaskSubTaskResp struct {
 	ID    uuid.UUID `json:"id"`
 	Title string    `json:"title"`
 }
+type TaskDependsOnResp struct {
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+}
 
 type TaskDependTaskResp struct {
 	ID    uuid.UUID `json:"id"`
@@ -110,7 +114,7 @@ type FullTaskResp struct {
 	Subtasks []TaskSubTaskResp `json:"subtasks"`
 	//TODO:Comments []Comment  `gorm:"foreignKey:TaskID"`
 
-	DependsOn []TaskDependTaskResp `json:"depends_on"`
+	DependsOn []TaskDependTaskResp `json:"dependencies"`
 }
 
 func UserToTaskUserResp(u user.User) TaskUserResp {
