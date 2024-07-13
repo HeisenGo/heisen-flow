@@ -10,14 +10,14 @@ import (
 )
 
 type UserTask struct {
-	ID             uuid.UUID `json:"task_id"`
-	BoardID        uuid.UUID `json:"board_id" validate:"required"`
-	StartAt        Timestamp `json:"start_at"`
-	EndAt          Timestamp `json:"end_at"`
-	AssigneeUserID uuid.UUID `json:"assignee_user_id" validate:"required"`
-	Title          string    `json:"title" validate:"required"`
-	Description    string    `json:"desc"`
-	StoryPoint     uint      `json:"story_point"`
+	ID             uuid.UUID  `json:"task_id"`
+	BoardID        uuid.UUID  `json:"board_id" validate:"required"`
+	StartAt        *time.Time `json:"start_at"`
+	EndAt          *time.Time `json:"end_at"`
+	AssigneeUserID uuid.UUID  `json:"assignee_user_id" validate:"required"`
+	Title          string     `json:"title" validate:"required"`
+	Description    string     `json:"desc"`
+	StoryPoint     uint       `json:"story_point"`
 	// for tasks that this task depends on
 	DependsOnTaskIDs []uuid.UUID `json:"depends_on_task_ids"`
 	//for tasks that depend on this task
@@ -86,8 +86,8 @@ func UserTaskToTask(userTaskReq *UserTask, userID uuid.UUID) *task.Task {
 	return &task.Task{
 		Title:            userTaskReq.Title,
 		Description:      userTaskReq.Description,
-		StartAt:          time.Time(userTaskReq.StartAt),
-		EndAt:            time.Time(userTaskReq.EndAt),
+		StartAt:          userTaskReq.StartAt,
+		EndAt:            userTaskReq.EndAt,
 		StoryPoint:       userTaskReq.StoryPoint,
 		BoardID:          userTaskReq.BoardID,
 		CreatedByUserID:  userID,
@@ -130,13 +130,13 @@ type TaskDependTaskResp struct {
 }
 
 type FullTaskResp struct {
-	ID          uuid.UUID `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Order       uint      `json:"order"`
-	StartAt     time.Time `json:"start_at"`
-	EndAt       time.Time `json:"end_at"`
-	StoryPoint  uint      `json:"story_point"`
+	ID          uuid.UUID  `json:"id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Order       uint       `json:"order"`
+	StartAt     *time.Time `json:"start_at"`
+	EndAt       *time.Time `json:"end_at"`
+	StoryPoint  uint       `json:"story_point"`
 
 	// Relationships
 	User     *TaskUserResp     `json:"user"`
@@ -186,13 +186,13 @@ func BatchTaskToTaskDependTaskResp(tasks []task.Task) []TaskDependTaskResp {
 }
 
 type UpdatedTaskResp struct {
-	ID          uuid.UUID `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Order       uint      `json:"order"`
-	StartAt     time.Time `json:"start_at"`
-	EndAt       time.Time `json:"end_at"`
-	StoryPoint  uint      `json:"story_point"`
+	ID          uuid.UUID  `json:"id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Order       uint       `json:"order"`
+	StartAt     *time.Time `json:"start_at"`
+	EndAt       *time.Time `json:"end_at"`
+	StoryPoint  uint       `json:"story_point"`
 }
 
 func TaskToUpdatedTaskResp(t task.Task) UpdatedTaskResp {
@@ -276,8 +276,8 @@ func DomainTaskToCreateTaskResp(task *task.Task) *CreateTaskResp {
 		ID:             task.ID,
 		Title:          task.Title,
 		Description:    task.Description,
-		StartAt:        &task.StartAt,
-		EndAt:          &task.EndAt,
+		StartAt:        task.StartAt,
+		EndAt:          task.EndAt,
 		StoryPoint:     task.StoryPoint,
 		AssigneeUserID: task.AssigneeUserID,
 		ColumnID:       task.ColumnID,

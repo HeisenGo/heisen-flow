@@ -52,8 +52,8 @@ type Task struct {
 	Title           string
 	Description     string
 	Order           uint // in column which order is this
-	StartAt         time.Time
-	EndAt           time.Time
+	StartAt         *time.Time
+	EndAt           *time.Time
 	StoryPoint      uint
 	AssigneeUserID  *uuid.UUID
 	UserBoardRoleID *uuid.UUID //Assignee
