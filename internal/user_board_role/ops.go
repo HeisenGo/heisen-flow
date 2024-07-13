@@ -30,3 +30,7 @@ func (o *Ops) SetUserBoardRole(ctx context.Context, ub *UserBoardRole) error {
 func (o *Ops) RemoveUserBoardRole(ctx context.Context, userID, boardID string) error {
 	return o.repo.RemoveUserBoardRole(ctx, userID, boardID)
 }
+
+func (o *Ops) GetUserIDByUserBoardRoleID(ctx context.Context, userBoardRoleID uuid.UUID) (*uuid.UUID, error) {
+	return o.repo.GetUserIDByUserBoardRoleID(ctx, userBoardRoleID)
+}

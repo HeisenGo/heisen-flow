@@ -143,3 +143,24 @@ func (s *TaskService) GetFullTaskByID(ctx context.Context, userID uuid.UUID, tas
 
 	return task, err
 }
+
+func (s *TaskService) UpdateTaskColumnByID(ctx context.Context, userID uuid.UUID, taskID uuid.UUID, colID uuid.UUID) (*t.Task, error) {
+	task, err := s.taskOps.GetTaskByID(ctx, taskID)
+	if err != nil {
+		return nil, err
+	}
+	fetcherRole, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, task.BoardID)
+	if err != nil {
+		return nil, ErrPermissionDenied
+	}
+
+	if !rbac.HasPermission(fetcherRole, rbac.PermissionViewTask) {
+		return nil, ErrPermissionDenied
+	}
+
+	updatedTask, err := s.taskOps.UpdateTaskColumnByID(ctx, taskID, colID)
+	if err != nil {
+		return nil, err
+	}
+	return updatedTask, err
+}

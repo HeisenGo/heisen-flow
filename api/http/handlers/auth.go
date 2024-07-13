@@ -41,7 +41,7 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 		newUser, err := authService.CreateUser(c.Context(), u)
 		if err != nil {
 			if errors.Is(err, user.ErrInvalidEmail) || errors.Is(err, user.ErrInvalidPassword) || errors.Is(err, user.ErrEmailAlreadyExists) {
-				presenter.BadRequest(c, err)
+				return presenter.BadRequest(c, err)
 			}
 
 			return presenter.InternalServerError(c, err)
@@ -62,7 +62,7 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 // @Param login body object true "Login details"
 // @Success 200 {object} map[string]interface{} "auth_token: the authentication token for the user"
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid email or password"
-// @Router /api/v1/login [post]
+// @Router /login [post]
 func LoginUser(authService *service.AuthService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req presenter.UserLoginReq

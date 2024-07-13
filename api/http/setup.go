@@ -16,6 +16,7 @@ import (
 	"server/service"
 )
 
+
 func Run(cfg config.Server, app *service.AppContainer) {
 	fiberApp := fiber.New()
 	api := fiberApp.Group("/api/v1", middlewares.SetUserContext())
@@ -29,6 +30,7 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	registerBoardRoutes(api, app, secret, createGroupLogger("boards"))
 	registerTaskRoutes(api, app, secret, createGroupLogger("tasks"))
 	registerColumnRoutes(api, app, secret, createGroupLogger("columns"))
+	registerNotificationRoutes(api, app, secret, createGroupLogger("notifs"))
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
 }
 
@@ -90,6 +92,12 @@ func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret [
 		handlers.GetFullTaskByID(app.TaskService()),
 	)
 
+	router.Patch("/:taskID",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		handlers.UpdateTaskColumnByID(app.TaskServiceFromCtx),
+	)
+
 	router.Post("/dependency",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
@@ -102,7 +110,6 @@ func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret
 	router.Use(loggerMiddleWare)
 	router.Post("",
 		middlewares.Auth(secret),
-		userRoleChecker(),
 		handlers.CreateColumns(app.ColumnService()),
 	)
 	router.Delete("/:columnID",
@@ -149,4 +156,10 @@ func loggerSetup(app *fiber.App) func(groupName string) fiber.Handler {
 		})
 	}
 	return createGroupLogger
+}
+func registerNotificationRoutes(router fiber.Router, app *service.AppContainer, secret []byte, loggerMiddleWare fiber.Handler) {
+	router = router.Group("/notifications")
+	router.Use(loggerMiddleWare)
+	router.Get("", middlewares.Auth(secret), handlers.GetNotifications(app.NotificationService()))
+	router.Patch("/read/:notifID", middlewares.Auth(secret), handlers.UpdateNotifications(app.NotificationService()))
 }
