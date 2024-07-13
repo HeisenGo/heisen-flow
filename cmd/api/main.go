@@ -29,7 +29,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http_server.Run(cfg.Server, app)
+	http_server.Run(cfg, app)
 }
 
 func readConfig() config.Config {
