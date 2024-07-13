@@ -89,10 +89,6 @@ type TaskSubTaskResp struct {
 	ID    uuid.UUID `json:"id"`
 	Title string    `json:"title"`
 }
-type TaskDependsOnResp struct {
-	ID    uuid.UUID `json:"id"`
-	Title string    `json:"title"`
-}
 
 type TaskDependTaskResp struct {
 	ID    uuid.UUID `json:"id"`
