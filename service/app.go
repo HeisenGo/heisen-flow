@@ -6,6 +6,7 @@ import (
 	"server/config"
 	"server/internal/board"
 	"server/internal/column"
+	"server/internal/comment"
 	"server/internal/notification"
 	"server/internal/task"
 	"server/internal/user"
@@ -24,6 +25,7 @@ type AppContainer struct {
 	taskService         *TaskService
 	columnService       *ColumnService
 	notificationService *NotificationService
+	commentService      *CommentService
 }
 
 func NewAppContainer(cfg config.Config) (*AppContainer, error) {
@@ -38,6 +40,7 @@ func NewAppContainer(cfg config.Config) (*AppContainer, error) {
 	app.setTaskService()
 	app.setNotificationService()
 	app.setColumnService()
+	app.setCommentService()
 
 	return app, nil
 }
@@ -181,4 +184,40 @@ func (a *AppContainer) NotificationService() *NotificationService {
 
 func (a *AppContainer) setNotificationService() {
 	a.notificationService = NewNotificationService(notification.NewOps(storage.NewNotificationRepo(a.dbConn)), user.NewOps(storage.NewUserRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)))
+}
+
+func (a *AppContainer) CommentService() *CommentService {
+	return a.commentService
+}
+
+func (a *AppContainer) CommentServiceFromCtx(ctx context.Context) *CommentService {
+	tx, ok := valuecontext.TryGetTxFromContext(ctx)
+	if !ok {
+		return a.commentService
+	}
+
+	gc, ok := tx.Tx().(*gorm.DB)
+	if !ok {
+		return a.commentService
+	}
+	return NewCommentService(
+		comment.NewOps(storage.NewCommentRepo(gc)),
+		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
+		notification.NewOps(storage.NewNotificationRepo(gc)),
+		task.NewOps(storage.NewTaskRepo(gc)),
+		user.NewOps(storage.NewUserRepo(gc)),
+		board.NewOps(storage.NewBoardRepo(gc)),
+	)
+}
+
+func (a *AppContainer) setCommentService() {
+	if a.commentService != nil {
+		return
+	}
+	a.commentService = NewCommentService(comment.NewOps(storage.NewCommentRepo(a.dbConn)),
+		userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)),
+		notification.NewOps(storage.NewNotificationRepo(a.dbConn)),
+		task.NewOps(storage.NewTaskRepo(a.dbConn)), user.NewOps(storage.NewUserRepo(a.dbConn)),
+		board.NewOps(storage.NewBoardRepo(a.dbConn)),
+	)
 }

@@ -120,34 +120,6 @@ func (s *BoardService) CreateBoard(ctx context.Context, b *board.Board, ub *user
 	return nil
 }
 
-// MoveTask moves a task to a different column
-func (s *BoardService) MoveTask(ctx context.Context, userID, boardID uuid.UUID, taskID, newColumnID string) error {
-	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, boardID)
-	if err != nil {
-		return err
-	}
-	fmt.Print(role)
-	// to do
-	// task, err := s.taskOps.GetTask(taskID)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// if task.AssigneeID == userID {
-	// 	if !rbac.HasPermission(role, rbac.PermissionMoveOwnTask) {
-	// 		return errors.New("permission denied: cannot move own task")
-	// 	}
-	// } else {
-	// 	if !rbac.HasPermission(role, rbac.PermissionMoveAnyTask) {
-	// 		return errors.New("permission denied: cannot move other's task")
-	// 	}
-	// }
-
-	// Implement task moving
-
-	return nil
-}
-
 // InviteUser invites a user to the board
 func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, inviteeEmail string, userBoardRole *userboardrole.UserBoardRole) error {
 

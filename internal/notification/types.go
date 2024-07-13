@@ -12,8 +12,13 @@ import (
 type NotificationType string
 
 const (
-	UserInvited = NotificationType("Invite User")
-	TaskMoved   = NotificationType("Move Task")
+	UserInvited    = NotificationType("Invite User")
+	TaskMoved      = NotificationType("Move Task")
+	CommentedNotif = NotificationType("Comment")
+)
+
+var (
+	ErrFailedToCreateNotif = errors.New("Failed to create notif")
 )
 
 var (
@@ -26,6 +31,7 @@ type Repo interface {
 	GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]Notification, error)
 	MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) (*Notification, error)
 	GetNotificationByID(ctx context.Context, notificationID uuid.UUID) (*Notification, error)
+	NotifBroadCasting(ctx context.Context, notif *Notification, boardID, userID uuid.UUID) error
 }
 
 type Notification struct {

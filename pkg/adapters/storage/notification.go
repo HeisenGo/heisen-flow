@@ -20,15 +20,34 @@ func NewNotificationRepo(db *gorm.DB) notification.Repo {
 	}
 }
 
+func (r *notificationRepo) NotifBroadCasting(ctx context.Context, notif *notification.Notification, boardID, userID uuid.UUID) error {
+	var userBoardRoles []entities.UserBoardRole
+	err := r.db.Where("board_id = ? AND user_role IN ?", boardID, []string{"maintainer", "owner"}).
+		Find(&userBoardRoles).Error
+	if err != nil {
+		return notification.ErrFailedToCreateNotif
+	}
+
+	for i,_ := range userBoardRoles {
+		newNotification := mappers.NotificationDomainToEntity(notif)
+		notif.UserBoardRoleID = userBoardRoles[i].ID
+		if err := r.db.WithContext(ctx).Save(&newNotification).Error; err != nil {
+			return notification.ErrFailedToCreateNotif
+		}
+	}
+	return nil
+}
+
 func (r *notificationRepo) CreateNotification(ctx context.Context, notif *notification.Notification) error {
 	var userBoardRole entities.UserBoardRole
+	//	TODO REMOVE REPEATED ONES
 	if err := r.db.WithContext(ctx).First(&userBoardRole, "id = ?", notif.UserBoardRoleID).Error; err != nil {
-		return err
+		return notification.ErrFailedToCreateNotif
 	}
 
 	newNotification := mappers.NotificationDomainToEntity(notif)
 	if err := r.db.WithContext(ctx).Save(&newNotification).Error; err != nil {
-		return err
+		return notification.ErrFailedToCreateNotif
 	}
 
 	notif.ID = newNotification.ID
