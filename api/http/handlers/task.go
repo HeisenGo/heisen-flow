@@ -172,6 +172,6 @@ func UpdateTaskColumnByID(serviceFactory ServiceFactory[*service.TaskService]) f
 			return presenter.InternalServerError(c, err)
 		}
 		data := presenter.TaskToUpdatedTaskResp(*updatedTask)
-		return presenter.OK(c, "task successfully fetched.", data)
+		return presenter.OK(c, "task successfully updated.", data)
 	}
 }
