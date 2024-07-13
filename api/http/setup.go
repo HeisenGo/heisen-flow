@@ -16,8 +16,7 @@ import (
 	"server/service"
 )
 
-
-func Run(cfg config.Server, app *service.AppContainer) {
+func Run(cfg config.Config, app *service.AppContainer) {
 	fiberApp := fiber.New()
 	api := fiberApp.Group("/api/v1", middlewares.SetUserContext())
 
@@ -25,18 +24,22 @@ func Run(cfg config.Server, app *service.AppContainer) {
 
 	// register global routes
 	fiberApp.Get("/swagger/*", fiberSwagger.WrapHandler)
-	registerGlobalRoutes(api, app, createGroupLogger("global"))
-	secret := []byte(cfg.TokenSecret)
+
+	registerGlobalRoutes(api, app,
+		createGroupLogger("global"),
+		middlewares.SetupLimiterMiddleware(1, 1, cfg.Redis),
+	)
+	secret := []byte(cfg.Server.TokenSecret)
 	registerBoardRoutes(api, app, secret, createGroupLogger("boards"))
 	registerTaskRoutes(api, app, secret, createGroupLogger("tasks"))
 	registerColumnRoutes(api, app, secret, createGroupLogger("columns"))
 	registerNotificationRoutes(api, app, secret, createGroupLogger("notifs"))
-	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
+	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.HTTPPort)))
 }
 
-func registerGlobalRoutes(router fiber.Router, app *service.AppContainer, loggerMiddleWare fiber.Handler) {
+func registerGlobalRoutes(router fiber.Router, app *service.AppContainer, loggerMiddleWare fiber.Handler, limiterMiddleWare fiber.Handler) {
 	router.Use(loggerMiddleWare)
-	router.Post("/register", handlers.RegisterUser(app.AuthService()))
+	router.Post("/register", limiterMiddleWare, handlers.RegisterUser(app.AuthService()))
 	router.Post("/login", handlers.LoginUser(app.AuthService()))
 	router.Get("/refresh", handlers.RefreshToken(app.AuthService()))
 }
@@ -60,6 +63,7 @@ func registerBoardRoutes(router fiber.Router, app *service.AppContainer, secret 
 	)
 	router.Get("/publics",
 		middlewares.Auth(secret),
+		middlewares.SetupCacheMiddleware(5),
 		handlers.GetPublicBoards(app.BoardService()),
 	)
 	router.Get("/:boardID",

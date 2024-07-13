@@ -57,12 +57,27 @@ This file provides utility functions for checking permissions:
 - **HasPermission**: Checks if a given role has a specific permission.
 - **HasAllPermissions**: Checks if a given role has all of the specified permissions.
 - **HasAnyPermission**: Checks if a given role has any of the specified permissions.
+- **IsAPossibleRole**: Check if a given role string is one of the defined roles in RBAC system.
 
 These functions will be useful when implementing permission checks throughout application. They provide flexibility in how to check permissions - whether to check for a single permission, all of a set of permissions, or any of a set of permissions.
 
 ## User-Board Role Management
 - **File: `pkg/adapters/storage/entities/user_board_role.go`**:
  ***UserBoardRole struct***: Represents the relationship between a user, a board, and the user's role on that board.
+This UserBoardRole entity includes:
+
+- A unique ID using UUID.
+- UserID and BoardID to link users to boards.
+- A Role field to store the user's role for the specific board.
+- Timestamps for creation, update, and soft delete.
+- Relationships to the User and Board entities.
+
+This structure allows for:
+
+- Assigning different roles to users for different boards.
+- Easily querying user roles for specific boards.
+- Maintaining the relationship between users and boards with associated roles.
+
 - **File: `pkg/adapters/storage/user_board_role.go`**
 This file provides methods for managing user-board roles in the storage layer:
 
