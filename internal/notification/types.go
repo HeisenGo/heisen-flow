@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"errors"
 	userboardrole "server/internal/user_board_role"
 	"time"
 
@@ -15,11 +16,16 @@ const (
 	TaskMoved   = NotificationType("Move Task")
 )
 
+var (
+	ErrNotifNotFound  = errors.New("notif not found")
+	ErrNotifsNotFound = errors.New("notifications not found")
+)
+
 type Repo interface {
 	CreateNotification(ctx context.Context, notif *Notification) error
 	GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]Notification, error)
 	MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) (*Notification, error)
-	GetNotificationByID(ctx context.Context, notificationID uuid.UUID)(*Notification, error)
+	GetNotificationByID(ctx context.Context, notificationID uuid.UUID) (*Notification, error)
 }
 
 type Notification struct {
