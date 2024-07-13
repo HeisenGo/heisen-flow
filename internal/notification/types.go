@@ -18,7 +18,8 @@ const (
 type Repo interface {
 	CreateNotification(ctx context.Context, notif *Notification) error
 	GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]Notification, error)
-	MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) error
+	MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) (*Notification, error)
+	GetNotificationByID(ctx context.Context, notificationID uuid.UUID)(*Notification, error)
 }
 
 type Notification struct {
@@ -29,14 +30,15 @@ type Notification struct {
 	Description      string
 	NotificationType NotificationType
 	UserBoardRoleID  uuid.UUID `gorm:"type:uuid;not null"`
-	UserBoardRole    userboardrole.UserBoardRole
+	UserBoardRole    *userboardrole.UserBoardRole
+	BoardName        string
 }
 
 func NewNotification(description string, notificationType NotificationType, userBoardRoleID uuid.UUID) *Notification {
 	return &Notification{
-		IsSeen: false,
-		Description: description,
+		IsSeen:           false,
+		Description:      description,
 		NotificationType: notificationType,
-		UserBoardRoleID: userBoardRoleID,
+		UserBoardRoleID:  userBoardRoleID,
 	}
 }

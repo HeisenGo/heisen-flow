@@ -3,11 +3,12 @@ package storage
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"server/internal/board"
 	"server/pkg/adapters/storage/entities"
 	"server/pkg/adapters/storage/mappers"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type boardRepo struct {
