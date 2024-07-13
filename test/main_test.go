@@ -30,6 +30,7 @@ const (
 	BoardPost  = "/boards"
 	configPath = "test_config.yaml"
 	TaskPost   = "/tasks"
+	ColumnPost = "/columns"
 )
 
 func TestMain(m *testing.M) {
