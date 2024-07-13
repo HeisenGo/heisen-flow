@@ -149,3 +149,70 @@ func (r *taskRepo) GetBoardID(ctx context.Context, id uuid.UUID) (*uuid.UUID, er
 	}
 	return &t.BoardID, nil
 }
+
+func (r *taskRepo) GetFullByID(ctx context.Context, id uuid.UUID) (*task.Task, error) {
+	var t entities.Task
+
+	if err := r.db.
+		Preload("UserBoardRole").
+		Preload("UserBoardRole.User").
+		Preload("Parent").
+		Preload("Subtasks").
+		Preload("Column").
+		Preload("Board").
+		Preload("DependsOn").
+		//Preload("TODO:Comments").
+		First(&t, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	domainTask := mappers.TaskEntityToDomain(t)
+	return &domainTask, nil
+}
+
+func (r *taskRepo) UpdateTaskColumnByID(ctx context.Context, taskID uuid.UUID, colID uuid.UUID) (*task.Task, error) {
+	var t entities.Task
+
+	// Find the task by ID
+	if err := r.db.WithContext(ctx).First(&t, "id = ?", taskID).Error; err != nil {
+		return nil, task.ErrTaskNotFound
+	}
+
+	// Load the new column to check its name
+	var newColumn entities.Column
+	if err := r.db.WithContext(ctx).First(&newColumn, "id = ?", colID).Error; err != nil {
+		return nil, task.ErrColumnNotFound
+	}
+	// If the new column name is "done", delete relevant TaskDependency records
+	if newColumn.Name == "done" {
+		// Check if there are any dependencies where this task is a dependent
+		var dependencyCount int64
+		if err := r.db.WithContext(ctx).Model(&entities.TaskDependency{}).Where("dependent_task_id = ?", t.ID).Count(&dependencyCount).Error; err != nil {
+			return nil, err
+		}
+
+		// If there are dependencies, abort the update
+		if dependencyCount > 0 {
+			return nil, task.ErrCantDoneDependentTask
+		}
+		// Update the task's ColumnID
+		t.ColumnID = colID
+		if err := r.db.WithContext(ctx).Where("dependency_task_id = ?", t.ID).Delete(&entities.TaskDependency{}).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	// Save all subtasks using Association
+	if err := r.db.Model(&entities.Task{}).Where("parent_id = ?", t.ID).Update("column_id", colID).Error; err != nil {
+		return nil, err
+	}
+
+	t.ColumnID = colID
+	// Save the updated task and its subtasks
+	if err := r.db.WithContext(ctx).Save(&t).Error; err != nil {
+		return nil, err
+	}
+
+	// Convert to domain entity if needed
+	domainTask := mappers.TaskEntityToDomain(t)
+	return &domainTask, nil
+}

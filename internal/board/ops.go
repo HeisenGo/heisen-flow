@@ -65,3 +65,7 @@ func (o *Ops) Create(ctx context.Context, board *Board) error {
 
 	return o.repo.Insert(ctx, board)
 }
+
+func (o *Ops) Delete(ctx context.Context, boardID uuid.UUID) error {
+	return o.repo.DeleteByID(ctx, boardID)
+}

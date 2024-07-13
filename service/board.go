@@ -22,6 +22,7 @@ var (
 	ErrUndefinedRole            = errors.New("undefined role, role should be one of the following values:viewer, editor, maintainer")
 	ErrPermissionDeniedToInvite = errors.New("permission denied: cannot invite users")
 	ErrAMember                  = errors.New("user already is a member")
+	ErrPermissionDeniedToDelete = errors.New("permission denied: can not delete the board")
 )
 
 // BoardService handles board-related operations
@@ -197,5 +198,44 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *BoardService) DeleteBoardByID(ctx context.Context, ub *userboardrole.UserBoardRole) error {
+	// check board exists
+	b, err := s.boardOps.GetBoardByID(ctx, ub.BoardID)
+
+	if err != nil {
+		return err
+	}
+	if b == nil {
+		return board.ErrBoardNotFound
+	}
+
+	// check user exists
+	user, err := s.userOps.GetUserByID(ctx, ub.UserID)
+	if err != nil {
+		return err
+	}
+
+	if user == nil {
+		return u.ErrUserNotFound
+	}
+
+	// check user has permission of removing
+	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, ub.UserID, ub.BoardID)
+	if err != nil {
+		return ErrPermissionDeniedToInvite
+	}
+
+	if !rbac.HasPermission(role, rbac.PermissionRemoveBoard) {
+		return ErrPermissionDeniedToDelete
+	}
+
+	err = s.boardOps.Delete(ctx, ub.BoardID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

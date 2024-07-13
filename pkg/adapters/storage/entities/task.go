@@ -24,33 +24,25 @@ type Task struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 	StartAt     time.Time
 	EndAt       time.Time
-	StoryPoint  uint //(should be less than 1 2 3 5 8 13 21 ???)
+	StoryPoint  uint 
 
 	// Relationships
-	UserBoardRoleID *uuid.UUID     `gorm:"type:uuid"` //Assignee
-	UserBoardRole   *UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
+	UserBoardRoleID *uuid.UUID    `gorm:"type:uuid"` //Assignee
+	UserBoardRole   UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
 
 	ColumnID uuid.UUID `gorm:"type:uuid"`
-	Column   *Column   `gorm:"foreignKey:ColumnID"`
+	Column   *Column   `gorm:"foreignKey:ColumnID;constraint:OnDelete:CASCADE"`
 
 	BoardID uuid.UUID `gorm:"type:uuid;not null"`
-	Board   *Board    `gorm:"foreignKey:BoardID"`
+	Board   *Board    `gorm:"foreignKey:BoardID;constraint:OnDelete:CASCADE"`
 
 	ParentID *uuid.UUID `gorm:"type:uuid"` //can be null for tasks not sub tasks
-	Parent   *Task      `gorm:"foreignKey:ParentID"`
-	Subtasks []Task     `gorm:"foreignKey:ParentID"`
+	Parent   *Task      `gorm:"foreignKey:ParentID;constraint:OnDelete:CASCADE"`
+	Subtasks []Task     `gorm:"foreignKey:ParentID;constraint:OnDelete:CASCADE"`
 
-	DependsOn   []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
-	DependentBy []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id"`
+	DependsOn   []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id;constraint:OnDelete:CASCADE"`
+	DependentBy []Task `gorm:"many2many:task_dependencies;joinForeignKey:dependent_task_id;joinReferences:dependency_task_id;constraint:OnDelete:CASCADE"`
 }
-
-// type TaskStatus string
-
-// const (
-// 	TaskStatusToDo       TaskStatus = "todo"
-// 	TaskStatusInProgress TaskStatus = "in_progress"
-// 	TaskStatusDone       TaskStatus = "done"
-// )
 
 type TaskDependency struct {
 	DependentTaskID  uuid.UUID `gorm:"type:uuid;primaryKey"`

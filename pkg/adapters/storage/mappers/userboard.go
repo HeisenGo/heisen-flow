@@ -12,3 +12,12 @@ func UserBoardRoleDomainToEntity(b *userboardrole.UserBoardRole) *entities.UserB
 		UserRole: string(b.Role),
 	}
 }
+func UserBoardRoleEntityToDomain(b entities.UserBoardRole) userboardrole.UserBoardRole {
+	u := UserEntityToDomain(&b.User)
+	return userboardrole.UserBoardRole{
+		ID:      b.ID,
+		User:    u,
+		BoardID: b.BoardID,
+		Role:    b.UserRole,
+	}
+}
