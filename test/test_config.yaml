@@ -10,3 +10,7 @@ db:
   host : "localhost"
   port: 5432
   db_name: "heisenflow_test"
+redis:
+  host: "0.0.0.0"
+  port: "6379"
+  pass: "123456"
