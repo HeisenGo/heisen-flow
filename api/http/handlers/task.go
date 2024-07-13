@@ -14,6 +14,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// CreateTask creates a new task.
+// @Summary Create task
+// @Description Create a new task for the authenticated user.
+// @Tags Tasks
+// @Accept  json
+// @Produce  json
+// @Param task body presenter.UserTask true "Task details"
+// @Success 201 {object} map[string]interface{} "response: details of created task"
+// @Failure 400 {object} map[string]interface{} "error: bad request, invalid task details"
+// @Failure 403 {object} map[string]interface{} "error: forbidden, permission denied"
+// @Failure 502 {object} map[string]interface{} "error: bad gateway, not a member, user not found, board not found, or other error"
+// @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Router /tasks [post]
 func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		taskService := serviceFactory(c.UserContext())
@@ -52,6 +65,19 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 	}
 }
 
+// AddDependency adds a dependency between tasks.
+// @Summary Add task dependency
+// @Description Add a dependency between tasks for the authenticated user.
+// @Tags Tasks
+// @Accept  json
+// @Produce  json
+// @Param dependency body presenter.DependentTasks true "Dependency details"
+// @Success 201 {object} map[string]interface{} "response: details of added task dependency"
+// @Failure 400 {object} map[string]interface{} "error: bad request, invalid dependency details"
+// @Failure 403 {object} map[string]interface{} "error: forbidden, permission denied"
+// @Failure 502 {object} map[string]interface{} "error: bad gateway, circular dependency, task not found, or other error"
+// @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Router /tasks/dependency [post]
 func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		taskService := serviceFactory(c.UserContext())

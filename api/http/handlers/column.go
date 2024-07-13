@@ -12,6 +12,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateColumns creates multiple columns for a board.
+// @Summary Create columns
+// @Description Create multiple columns for a specified board.
+// @Tags Columns
+// @Accept  json
+// @Produce  json
+// @Param board_id body string true "Board ID"
+// @Param columns body presenter.CreateColumnsRequest true "Columns creation details"
+// @Success 201 {object} presenter.CreateColumnsResponse "response: details of created columns"
+// @Failure 400 {object} map[string]interface{} "error: bad request, invalid board ID format or missing columns details"
+// @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Router /columns [post]
 func CreateColumns(columnService *service.ColumnService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
@@ -47,6 +59,18 @@ func CreateColumns(columnService *service.ColumnService) fiber.Handler {
 	}
 }
 
+// DeleteColumn deletes a column by its ID.
+// @Summary Delete column
+// @Description Delete a column by its ID.
+// @Tags Columns
+// @Accept  json
+// @Produce  json
+// @Param columnID path string true "Column ID"
+// @Success 204 "No Content"
+// @Failure 400 {object} map[string]interface{} "error: bad request, invalid column ID format"
+// @Failure 404 {object} map[string]interface{} "error: not found, column not found"
+// @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Router /columns/{columnID} [delete]
 func DeleteColumn(columnService *service.ColumnService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
