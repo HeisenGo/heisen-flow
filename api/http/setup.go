@@ -2,18 +2,18 @@ package http
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/swaggo/fiber-swagger"
 	"log"
 	"os"
 	"path/filepath"
 	"server/api/http/handlers"
 	"server/api/http/middlewares"
 	"server/config"
-	_ "server/docs"
 	"server/pkg/adapters"
 	"server/service"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 func Run(cfg config.Server, app *service.AppContainer) {
@@ -26,11 +26,10 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	fiberApp.Get("/swagger/*", fiberSwagger.WrapHandler)
 	registerGlobalRoutes(api, app, createGroupLogger("global"))
 	secret := []byte(cfg.TokenSecret)
-	registerBoardRoutes(api, app, secret)
-	registerTaskRoutes(api, app, secret)
-	registerColumnRoutes(api, app, secret)
-	registerNotificationRoutes(api, app, secret)
-
+	registerBoardRoutes(api, app, secret, createGroupLogger("boards"))
+	registerTaskRoutes(api, app, secret, createGroupLogger("tasks"))
+	registerColumnRoutes(api, app, secret, createGroupLogger("columns"))
+	registerNotificationRoutes(api, app, secret, createGroupLogger("notifs"))
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
 }
 
@@ -124,10 +123,6 @@ func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret
 		handlers.ReorderColumns(app.ColumnServiceFromCtx),
 	)
 }
-func registerNotificationRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
-	router.Get("/notifications", middlewares.Auth(secret), handlers.GetNotifications(app.NotificationService()))
-	router.Patch("/notifications/:notifID", middlewares.Auth(secret), handlers.UpdateNotifications(app.NotificationService()))
-}
 
 func loggerSetup(app *fiber.App) func(groupName string) fiber.Handler {
 
@@ -161,4 +156,8 @@ func loggerSetup(app *fiber.App) func(groupName string) fiber.Handler {
 		})
 	}
 	return createGroupLogger
+}
+func registerNotificationRoutes(router fiber.Router, app *service.AppContainer, secret []byte, loggerMiddleWare fiber.Handler) {
+	router.Get("/notifications", middlewares.Auth(secret), handlers.GetNotifications(app.NotificationService()))
+	router.Patch("/notifications/:notifID", middlewares.Auth(secret), handlers.UpdateNotifications(app.NotificationService()))
 }
