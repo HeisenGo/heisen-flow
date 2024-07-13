@@ -25,29 +25,29 @@ func SetTransaction(committer valuecontext.Committer) fiber.Handler {
 		cm := committer.Begin()
 		valuecontext.SetTx(c.UserContext(), cm)
 
-		logger := valuecontext.GetLogger(c.UserContext())
+		// logger := valuecontext.GetLogger(c.UserContext())
 
-		logger.Info("starting transaction")
-		if err := c.Next(); err != nil {
-			logger.Info("rollback on error", "error", err.Error())
-			cm.Rollback()
-			return err
-		}
+		// logger.Info("starting transaction")
+		// if err := c.Next(); err != nil {
+		// 	logger.Info("rollback on error", "error", err.Error())
+		// 	cm.Rollback()
+		// 	return err
+		// }
 
-		err, ok := c.Locals(valuecontext.IsTxError).(error)
-		if ok && err != nil {
-			logger.Info("rollback on not ok response", "error", err.Error())
-			cm.Rollback()
-			return nil
-		}
+		// err, ok := c.Locals(valuecontext.IsTxError).(error)
+		// if ok && err != nil {
+		// 	logger.Info("rollback on not ok response", "error", err.Error())
+		// 	cm.Rollback()
+		// 	return nil
+		// }
 
-		if err := cm.Commit(); err != nil {
-			logger.Info("commit error", "err", err.Error())
-			cm.Rollback()
-			return err
-		}
+		// if err := cm.Commit(); err != nil {
+		// 	logger.Info("commit error", "err", err.Error())
+		// 	cm.Rollback()
+		// 	return err
+		// }
 
-		logger.Info("ending transaction")
+		// logger.Info("ending transaction")
 		return nil
 	}
 }
