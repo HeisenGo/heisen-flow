@@ -71,13 +71,7 @@ func (s *CommentService) CreateComment(ctx context.Context, c *comment.Comment, 
 	}
 	description := fmt.Sprintf("%s commented on task '%s' of board '%s'", commenter.FirstName, task.Title, board.Name)
 	notif := notification.NewNotification(description, notification.CommentedNotif, userBoardRoleObj.ID)
-
-	if userID != userBoardRoleObj.ID {
-		err = s.notifOps.CreateNotification(ctx, notif)
-		if err != nil {
-			return err
-		}
-	}
+	// TODO : editor comment notif
 	err = s.notifOps.NotifBroadCasting(ctx, notif, board.ID, userID)
 	if err != nil {
 		return err
