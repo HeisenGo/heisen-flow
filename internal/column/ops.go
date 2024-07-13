@@ -64,3 +64,7 @@ func (o *Ops) SetDoneAsDefault(ctx context.Context, boardID uuid.UUID) (*Column,
 func (o *Ops) ReorderColumns(ctx context.Context, boardID uuid.UUID, newOrder map[uuid.UUID]uint) error {
 	return o.repo.ReorderColumns(ctx, boardID, newOrder)
 }
+
+func (o *Ops) GetColumns(ctx context.Context, boardID uuid.UUID) ([]Column, error) {
+	return o.repo.GetColumns(ctx, boardID)
+}

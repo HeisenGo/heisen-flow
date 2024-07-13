@@ -91,7 +91,7 @@ func ReorderColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber
 		}
 
 		boardID, newOrder := presenter.ReorderColumnsRequestToMap(req)
-		err := columnService.ReorderColumns(c.UserContext(), userClaims.UserID, boardID, newOrder)
+		cols, err := columnService.ReorderColumns(c.UserContext(), userClaims.UserID, boardID, newOrder)
 		if err != nil {
 			if errors.Is(err, service.ErrPermissionDeniedToDeleteColumn) {
 				presenter.Forbidden(c, err)
@@ -101,6 +101,7 @@ func ReorderColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber
 			}
 			return presenter.InternalServerError(c, err)
 		}
-		return presenter.OK(c, "Columns ReOrdered Successfully", req)
+		res := presenter.BatchColumnToColumnResponseItem(cols)
+		return presenter.OK(c, "Columns ReOrdered Successfully", res)
 	}
 }

@@ -34,6 +34,7 @@ type Repo interface {
 	GetByBoardID(ctx context.Context, boardID uuid.UUID) ([]Column, error)
 	SetDoneAsDefault(ctx context.Context, column *Column) error
 	ReorderColumns(ctx context.Context, boardID uuid.UUID, newOrder map[uuid.UUID]uint) error
+	GetColumns(ctx context.Context, boardID uuid.UUID) ([]Column, error)
 }
 
 type Column struct {
