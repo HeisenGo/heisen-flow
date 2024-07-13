@@ -23,6 +23,7 @@ import (
 // @Success 201 {object} presenter.CreateColumnsResponse "response: details of created columns"
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid board ID format or missing columns details"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /columns [post]
 func CreateColumns(columnService *service.ColumnService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -70,6 +71,7 @@ func CreateColumns(columnService *service.ColumnService) fiber.Handler {
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid column ID format"
 // @Failure 404 {object} map[string]interface{} "error: not found, column not found"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /columns/{columnID} [delete]
 func DeleteColumn(columnService *service.ColumnService) fiber.Handler {
 	return func(c *fiber.Ctx) error {

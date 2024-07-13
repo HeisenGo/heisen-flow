@@ -11,7 +11,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 )
-
 // RegisterUser registers a new user.
 // @Summary Register a new user
 // @Description Create a new user account with the provided details.
@@ -98,10 +97,10 @@ func LoginUser(authService *service.AuthService) fiber.Handler {
 // @Tags Auth
 // @Accept  json
 // @Produce  json
-// @Param Authorization header string true "Bearer {refresh_token}"
 // @Success 200 {object} map[string]interface{} "auth_token: the new authentication token"
 // @Failure 400 {object} map[string]interface{} "error: bad request, token should be provided"
 // @Failure 401 {object} map[string]interface{} "error: unauthorized, invalid or expired token"
+// @Security BearerAuth
 // @Router /refresh-token [post]
 func RefreshToken(authService *service.AuthService) fiber.Handler {
 	return func(c *fiber.Ctx) error {

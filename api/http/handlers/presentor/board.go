@@ -179,3 +179,8 @@ func InviteMemberToInviteMemberResponse(ubr *userboardrole.UserBoardRole, email 
 		BoardID:     ubr.BoardID,
 	}
 }
+
+type CreateBoardReq struct {
+	Name      string    `json:"name" example:"myboard123"`
+	Type      string    `json:"type" example:"private(public)"`
+}

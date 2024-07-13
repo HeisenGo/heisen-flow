@@ -26,6 +26,7 @@ import (
 // @Failure 403 {object} map[string]interface{} "error: forbidden, permission denied"
 // @Failure 502 {object} map[string]interface{} "error: bad gateway, not a member, user not found, board not found, or other error"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /tasks [post]
 func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -77,6 +78,7 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 // @Failure 403 {object} map[string]interface{} "error: forbidden, permission denied"
 // @Failure 502 {object} map[string]interface{} "error: bad gateway, circular dependency, task not found, or other error"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /tasks/dependency [post]
 func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
