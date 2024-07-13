@@ -21,6 +21,10 @@ var configPath = flag.String("config", "", "configuration path")
 
 // @host			127.0.0.1:8080
 // @BasePath		/api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description "Type 'Bearer' followed by a space and your JWT token."
 func main() {
 	cfg := readConfig()
 
@@ -29,7 +33,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http_server.Run(cfg.Server, app)
+	http_server.Run(cfg, app)
 }
 
 func readConfig() config.Config {

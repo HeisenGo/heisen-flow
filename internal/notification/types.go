@@ -21,6 +21,11 @@ var (
 	ErrFailedToCreateNotif = errors.New("Failed to create notif")
 )
 
+var (
+	ErrNotifNotFound  = errors.New("notif not found")
+	ErrNotifsNotFound = errors.New("notifications not found")
+)
+
 type Repo interface {
 	CreateNotification(ctx context.Context, notif *Notification) error
 	GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]Notification, error)

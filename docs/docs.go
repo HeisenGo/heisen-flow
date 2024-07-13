@@ -18,8 +18,66 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/boards": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new board for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Boards"
+                ],
+                "summary": "Create user board",
+                "parameters": [
+                    {
+                        "description": "Board details",
+                        "name": "board",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CreateBoardReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "board: the created board details",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CreateBoardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "error: bad request, invalid board details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error: internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/boards/invite": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Invite a user to a board with a specified role.",
                 "consumes": [
                     "application/json"
@@ -46,8 +104,7 @@ const docTemplate = `{
                     "200": {
                         "description": "invite: the details of the invitation",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/presenter.InviteMemberResponse"
                         }
                     },
                     "400": {
@@ -76,6 +133,11 @@ const docTemplate = `{
         },
         "/boards/{boardID}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a full board by its ID for the authenticated user.",
                 "consumes": [
                     "application/json"
@@ -118,10 +180,68 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a specific board by its ID for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Boards"
+                ],
+                "summary": "Delete board",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Board ID",
+                        "name": "boardID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad request, invalid user claims, or board ID format",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden, user does not have permission to delete the board",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/columns": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create multiple columns for a specified board.",
                 "consumes": [
                     "application/json"
@@ -177,8 +297,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/columns/reorder": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Reorder the columns of a board for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Columns"
+                ],
+                "summary": "Reorder columns",
+                "parameters": [
+                    {
+                        "description": "Reorder Columns Request",
+                        "name": "ReorderColumnsRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/presenter.ReorderColumnsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Columns reordered successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/presenter.ColumnResponseItem"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid reorder details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden, permission denied",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/columns/{columnID}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete a column by its ID.",
                 "consumes": [
                     "application/json"
@@ -242,12 +430,12 @@ const docTemplate = `{
                 "summary": "Login an existing user",
                 "parameters": [
                     {
-                        "description": "Login details",
-                        "name": "login",
+                        "description": "User Login details",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/presenter.UserLoginReq"
                         }
                     }
                 ],
@@ -269,8 +457,106 @@ const docTemplate = `{
                 }
             }
         },
+        "/notifications": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of notifications for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get user notifications",
+                "responses": {
+                    "200": {
+                        "description": "Notifications successfully fetched",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.NotifResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid user claims or user not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications/{notifID}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Marks a specific notification as seen for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark notification as seen",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notification ID",
+                        "name": "notifID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notification marked as seen",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.NotifResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid user claims, or notification ID format",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/public/boards": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve the public boards.",
                 "consumes": [
                     "application/json"
@@ -323,6 +609,11 @@ const docTemplate = `{
         },
         "/refresh-token": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Refresh the user's authentication token using a valid refresh token.",
                 "consumes": [
                     "application/json"
@@ -334,15 +625,6 @@ const docTemplate = `{
                     "Auth"
                 ],
                 "summary": "Refresh authentication token",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer {refresh_token}",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "auth_token: the new authentication token",
@@ -419,6 +701,11 @@ const docTemplate = `{
         },
         "/tasks": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new task for the authenticated user.",
                 "consumes": [
                     "application/json"
@@ -445,8 +732,7 @@ const docTemplate = `{
                     "201": {
                         "description": "response: details of created task",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/presenter.CreateTaskResp"
                         }
                     },
                     "400": {
@@ -482,6 +768,11 @@ const docTemplate = `{
         },
         "/tasks/dependency": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Add a dependency between tasks for the authenticated user.",
                 "consumes": [
                     "application/json"
@@ -543,8 +834,124 @@ const docTemplate = `{
                 }
             }
         },
+        "/tasks/{taskID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve the full details of a task by its ID for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Get full task by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "taskID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task successfully fetched",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.FullTaskResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid task ID or user not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/{taskID}/column": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update the column of a task by its ID for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Update task column by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "taskID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Task Column Request",
+                        "name": "UpdateTaskColReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/presenter.UpdateTaskColReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task successfully updated",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.UpdatedTaskResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid task ID or column ID, or dependent task issues",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/user/boards": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve the boards associated with the authenticated user.",
                 "consumes": [
                     "application/json"
@@ -574,8 +981,7 @@ const docTemplate = `{
                     "200": {
                         "description": "boards: paginated list of user's boards",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/presenter.BoardUserResp"
                         }
                     },
                     "400": {
@@ -593,57 +999,21 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Create a new board for the authenticated user.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Boards"
-                ],
-                "summary": "Create user board",
-                "parameters": [
-                    {
-                        "description": "Board details",
-                        "name": "board",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/presenter.UserBoard"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "board: the created board details",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "error: bad request, invalid board details",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "error: internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
             }
         }
     },
     "definitions": {
+        "notification.NotificationType": {
+            "type": "string",
+            "enum": [
+                "Invite User",
+                "Move Task"
+            ],
+            "x-enum-varnames": [
+                "UserInvited",
+                "TaskMoved"
+            ]
+        },
         "presenter.BoardColumnResp": {
             "type": "object",
             "properties": {
@@ -718,6 +1088,42 @@ const docTemplate = `{
                 }
             }
         },
+        "presenter.CreateBoardReq": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "myboard123"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "private(public)"
+                }
+            }
+        },
+        "presenter.CreateBoardResponse": {
+            "type": "object",
+            "properties": {
+                "board_id": {
+                    "type": "string"
+                },
+                "columns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.ColumnResponseItem"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "presenter.CreateColumnItem": {
             "type": "object",
             "properties": {
@@ -750,6 +1156,56 @@ const docTemplate = `{
                     }
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.CreateTaskResp": {
+            "type": "object",
+            "properties": {
+                "assignee_user_id": {
+                    "type": "string"
+                },
+                "board_id": {
+                    "type": "string"
+                },
+                "column_id": {
+                    "type": "string"
+                },
+                "dependsOn": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.DependTaskResp"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "description": "can be null for tasks not sub tasks",
+                    "type": "string"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "story_at": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.DependTaskResp": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 }
             }
@@ -801,7 +1257,56 @@ const docTemplate = `{
                 }
             }
         },
-        "presenter.InviteUserToBoard": {
+        "presenter.FullTaskResp": {
+            "type": "object",
+            "properties": {
+                "dependencies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.TaskDependTaskResp"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "parent": {
+                    "$ref": "#/definitions/presenter.TaskParentResp"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "story_point": {
+                    "type": "integer"
+                },
+                "subtasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.TaskSubTaskResp"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user": {
+                    "description": "Relationships",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/presenter.TaskUserResp"
+                        }
+                    ]
+                }
+            }
+        },
+        "presenter.InviteMemberResponse": {
             "type": "object",
             "properties": {
                 "board_id": {
@@ -818,20 +1323,170 @@ const docTemplate = `{
                 }
             }
         },
-        "presenter.UserBoard": {
+        "presenter.InviteUserToBoard": {
+            "type": "object",
+            "properties": {
+                "board_id": {
+                    "type": "string",
+                    "example": "aeec51f9-dde3-409d-9415-df771f5b8a62"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "inviatee_email.com"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "editor"
+                },
+                "user_board_role_id": {
+                    "type": "string",
+                    "example": "31e8d41b-a84e-41c6-9564-4e932fccf213"
+                }
+            }
+        },
+        "presenter.NotifResp": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_seen": {
+                    "type": "boolean"
+                },
+                "notif_type": {
+                    "$ref": "#/definitions/notification.NotificationType"
+                }
+            }
+        },
+        "presenter.ReorderColumnItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.ReorderColumnsRequest": {
             "type": "object",
             "properties": {
                 "board_id": {
                     "type": "string"
                 },
-                "created_at": {
+                "columns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.ReorderColumnItem"
+                    }
+                }
+            }
+        },
+        "presenter.TaskDependTaskResp": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 },
-                "name": {
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.TaskParentResp": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 },
-                "type": {
+                "title": {
                     "type": "string"
+                }
+            }
+        },
+        "presenter.TaskSubTaskResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.TaskUserResp": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.UpdateTaskColReq": {
+            "type": "object",
+            "required": [
+                "column_id"
+            ],
+            "properties": {
+                "column_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.UpdatedTaskResp": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "story_point": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.UserLoginReq": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "valid_email@folan.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "Abc@123"
                 }
             }
         },
@@ -845,16 +1500,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "abc@gmail.com"
                 },
                 "first_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "yourname"
                 },
                 "last_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "yourlastname"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Abc@123"
                 }
             }
         },
@@ -902,6 +1561,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "\"Type 'Bearer' followed by a space and your JWT token.\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

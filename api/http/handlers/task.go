@@ -21,11 +21,12 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param task body presenter.UserTask true "Task details"
-// @Success 201 {object} map[string]interface{} "response: details of created task"
+// @Success 201 {object} presenter.CreateTaskResp "response: details of created task"
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid task details"
 // @Failure 403 {object} map[string]interface{} "error: forbidden, permission denied"
 // @Failure 502 {object} map[string]interface{} "error: bad gateway, not a member, user not found, board not found, or other error"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /tasks [post]
 func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -77,6 +78,7 @@ func CreateTask(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handl
 // @Failure 403 {object} map[string]interface{} "error: forbidden, permission denied"
 // @Failure 502 {object} map[string]interface{} "error: bad gateway, circular dependency, task not found, or other error"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Security BearerAuth
 // @Router /tasks/dependency [post]
 func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -118,7 +120,18 @@ func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Ha
 		})
 	}
 }
-
+// GetFullTaskByID retrieves the full details of a task by its ID.
+// @Summary Get full task by ID
+// @Description Retrieve the full details of a task by its ID for the authenticated user.
+// @Tags Tasks
+// @Accept  json
+// @Produce  json
+// @Param taskID path string true "Task ID"
+// @Success 200 {object} presenter.FullTaskResp "Task successfully fetched"
+// @Failure 400 {object} map[string]interface{} "Bad request, invalid task ID or user not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security BearerAuth
+// @Router /tasks/{taskID} [get]
 func GetFullTaskByID(taskService *service.TaskService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
@@ -141,7 +154,19 @@ func GetFullTaskByID(taskService *service.TaskService) fiber.Handler {
 		return presenter.OK(c, "task successfully fetched.", data)
 	}
 }
-
+// UpdateTaskColumnByID updates the column of a task by its ID.
+// @Summary Update task column by ID
+// @Description Update the column of a task by its ID for the authenticated user.
+// @Tags Tasks
+// @Accept  json
+// @Produce  json
+// @Param taskID path string true "Task ID"
+// @Param UpdateTaskColReq body presenter.UpdateTaskColReq true "Update Task Column Request"
+// @Success 200 {object} presenter.UpdatedTaskResp "Task successfully updated"
+// @Failure 400 {object} map[string]interface{} "Bad request, invalid task ID or column ID, or dependent task issues"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security BearerAuth
+// @Router /tasks/{taskID}/column [put]
 func UpdateTaskColumnByID(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		taskService := serviceFactory(c.UserContext())
