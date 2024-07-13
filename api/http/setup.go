@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/swaggo/fiber-swagger"
 	"log"
 	"os"
@@ -24,6 +25,7 @@ func Run(cfg config.Config, app *service.AppContainer) {
 
 	// register global routes
 	fiberApp.Get("/swagger/*", fiberSwagger.WrapHandler)
+	fiberApp.Get("/metrics", monitor.New(monitor.Config{Title: "HeisenFlow Metrics Page"}))
 
 	registerGlobalRoutes(api, app,
 		createGroupLogger("global"),
@@ -34,7 +36,7 @@ func Run(cfg config.Config, app *service.AppContainer) {
 	registerTaskRoutes(api, app, secret, createGroupLogger("tasks"))
 	registerColumnRoutes(api, app, secret, createGroupLogger("columns"))
 	registerNotificationRoutes(api, app, secret, createGroupLogger("notifs"))
-	registerCommentRoutes(api,  app, secret, createGroupLogger("comments"))
+	registerCommentRoutes(api, app, secret, createGroupLogger("comments"))
 
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.HTTPPort)))
 }
@@ -176,11 +178,10 @@ func registerNotificationRoutes(router fiber.Router, app *service.AppContainer, 
 	router.Patch("/read/:notifID", middlewares.Auth(secret), handlers.UpdateNotifications(app.NotificationService()))
 }
 
-
 func registerCommentRoutes(router fiber.Router, app *service.AppContainer, secret []byte, loggerMiddleWare fiber.Handler) {
 	router = router.Group("/comments")
 	router.Use(loggerMiddleWare)
-	
+
 	router.Post("",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
