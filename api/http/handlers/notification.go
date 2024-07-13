@@ -16,7 +16,7 @@ func GetNotifications(notificationService *service.NotificationService) fiber.Ha
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
 		if !ok {
-			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+			return presenter.BadRequest(c, errWrongClaimType)
 		}
 		notifList, err := notificationService.GetUserNotifications(c.UserContext(), userClaims.UserID)
 		if err != nil {
@@ -34,17 +34,17 @@ func UpdateNotifications(notificationService *service.NotificationService) fiber
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
 		if !ok {
-			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+			return presenter.BadRequest(c, errWrongClaimType)
 		}
 
 		notificationIDParam := c.Params("notifID")
 		notificationID, err := uuid.Parse(notificationIDParam)
 		if err != nil {
-			return SendError(c, err, fiber.StatusBadRequest)
+			return presenter.BadRequest(c, err)
 		}
 		n, err := notificationService.MarkNotificationAsSeen(c.UserContext(), notificationID, userClaims.UserID)
 		if err != nil {
-			if errors.Is(err, user.ErrUserNotFound) || errors.Is(err, notification.ErrNotifNotFound) {
+			if errors.Is(err, user.ErrUserNotFound) || errors.Is(err, notification.ErrNotifNotFound) || errors.Is(err, service.ErrPermissionDenied) {
 				return presenter.BadRequest(c, err)
 			}
 			return presenter.InternalServerError(c, err)
