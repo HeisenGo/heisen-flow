@@ -205,6 +205,8 @@ func (a *AppContainer) CommentServiceFromCtx(ctx context.Context) *CommentServic
 		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
 		notification.NewOps(storage.NewNotificationRepo(gc)),
 		task.NewOps(storage.NewTaskRepo(gc)),
+		user.NewOps(storage.NewUserRepo(gc)),
+		board.NewOps(storage.NewBoardRepo(gc)),
 	)
 }
 
@@ -215,5 +217,7 @@ func (a *AppContainer) setCommentService() {
 	a.commentService = NewCommentService(comment.NewOps(storage.NewCommentRepo(a.dbConn)),
 		userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)),
 		notification.NewOps(storage.NewNotificationRepo(a.dbConn)),
-		task.NewOps(storage.NewTaskRepo(a.dbConn)))
+		task.NewOps(storage.NewTaskRepo(a.dbConn)), user.NewOps(storage.NewUserRepo(a.dbConn)),
+		board.NewOps(storage.NewBoardRepo(a.dbConn)),
+	)
 }

@@ -35,7 +35,10 @@ func (o *Ops) MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UU
 	return notif, nil
 }
 
-
-func (o *Ops)GetNotificationByID(ctx context.Context, notificationID uuid.UUID)(*Notification, error){
+func (o *Ops) GetNotificationByID(ctx context.Context, notificationID uuid.UUID) (*Notification, error) {
 	return o.repo.GetNotificationByID(ctx, notificationID)
+}
+
+func (o *Ops) NotifBroadCasting(ctx context.Context, notif *Notification, boardID, userID uuid.UUID) error {
+	return o.repo.NotifBroadCasting(ctx, notif, boardID, userID)
 }
