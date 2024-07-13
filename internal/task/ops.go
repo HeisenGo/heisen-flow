@@ -35,6 +35,13 @@ func (o *Ops) GetFullTaskByID(ctx context.Context, id uuid.UUID) (*Task, error) 
 	}
 	return task, nil
 }
+func (o *Ops) UpdateTaskColumnByID(ctx context.Context, taskID uuid.UUID, colID uuid.UUID) (*Task, error) {
+	updatedTask, err := o.repo.UpdateTaskColumnByID(ctx, taskID, colID)
+	if err != nil {
+		return nil, err
+	}
+	return updatedTask, nil
+}
 
 func (o *Ops) Create(ctx context.Context, task *Task) error {
 

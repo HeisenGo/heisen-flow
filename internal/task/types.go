@@ -30,12 +30,15 @@ var (
 	ErrTaskNotFound                   = errors.New("task not found")
 	ErrBoardNotFound                  = errors.New("board not found")
 	ErrInvalidStoryPoint              = errors.New("invalid story point: must be one of 1, 2, 3, 5, 8, 13, 21")
+	ErrColumnNotFound                 = errors.New("column with given id doesn't exists")
+	ErrCantDoneDependentTask          = errors.New("task has some dependencies. you can't done it")
 )
 
 type Repo interface {
 	Insert(ctx context.Context, task *Task) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Task, error)
 	GetFullByID(ctx context.Context, id uuid.UUID) (*Task, error)
+	UpdateTaskColumnByID(ctx context.Context, taskID uuid.UUID, colID uuid.UUID) (*Task, error)
 	AddDependency(ctx context.Context, t *Task) error
 }
 

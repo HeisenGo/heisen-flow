@@ -41,7 +41,7 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 		newUser, err := authService.CreateUser(c.Context(), u)
 		if err != nil {
 			if errors.Is(err, user.ErrInvalidEmail) || errors.Is(err, user.ErrInvalidPassword) || errors.Is(err, user.ErrEmailAlreadyExists) {
-				presenter.BadRequest(c, err)
+				return presenter.BadRequest(c, err)
 			}
 
 			return presenter.InternalServerError(c, err)

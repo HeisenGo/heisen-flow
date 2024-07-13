@@ -90,6 +90,12 @@ func registerTaskRoutes(router fiber.Router, app *service.AppContainer, secret [
 		handlers.GetFullTaskByID(app.TaskService()),
 	)
 
+	router.Patch("/:taskID",
+		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
+		middlewares.Auth(secret),
+		handlers.UpdateTaskColumnByID(app.TaskServiceFromCtx),
+	)
+
 	router.Post("/dependency",
 		middlewares.SetTransaction(adapters.NewGormCommitter(app.RawDBConnection())),
 		middlewares.Auth(secret),
