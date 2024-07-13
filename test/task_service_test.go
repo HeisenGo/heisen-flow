@@ -64,48 +64,107 @@ func TestTaskCreation(t *testing.T) {
 		t.Fatalf("Failed to parse board ID: %v", err)
 	}
 
-	// Create mock task without start_at and end_at
-	newMockTask := MockTask{
-		Title:          "Complete Documentation",
-		Description:    "Finish writing the project documentation.",
-		AssigneeUserID: assigneeUUID,
-		StoryPoint:     5,
-		BoardID:        boardUUID,
+	// Define mock task scenarios
+	mockScenarios := []struct {
+		name               string
+		task               MockTask
+		expectedStatusCode int
+	}{
+		{
+			name: "ValidTaskCreation",
+			task: MockTask{
+				Title:          "Complete Documentation",
+				Description:    "Finish writing the project documentation.",
+				AssigneeUserID: assigneeUUID,
+				StoryPoint:     5,
+				BoardID:        boardUUID,
+			},
+			expectedStatusCode: http.StatusCreated,
+		},
+		{
+			name: "MissingTitle",
+			task: MockTask{
+				Description:    "Finish writing the project documentation.",
+				AssigneeUserID: assigneeUUID,
+				StoryPoint:     5,
+				BoardID:        boardUUID,
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "MissingAssignee",
+			task: MockTask{
+				Title:       "Complete Documentation",
+				Description: "Finish writing the project documentation.",
+				StoryPoint:  5,
+				BoardID:     boardUUID,
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "UnauthorizedRequest",
+			task: MockTask{
+				Title:          "Complete Documentation",
+				Description:    "Finish writing the project documentation.",
+				AssigneeUserID: assigneeUUID,
+				StoryPoint:     5,
+				BoardID:        boardUUID,
+			},
+			expectedStatusCode: http.StatusUnauthorized,
+		},
+		{
+			name: "InvalidBoardID",
+			task: MockTask{
+				Title:          "Complete Documentation",
+				Description:    "Finish writing the project documentation.",
+				AssigneeUserID: assigneeUUID,
+				StoryPoint:     5,
+				BoardID:        uuid.Nil, // Invalid UUID
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
 	}
 
-	taskJSON, err := json.Marshal(newMockTask)
-	if err != nil {
-		t.Fatalf("Failed to marshal new task: %v", err)
-	}
+	for _, scenario := range mockScenarios {
+		t.Run(scenario.name, func(t *testing.T) {
+			// Marshal task to JSON
+			taskJSON, err := json.Marshal(scenario.task)
+			if err != nil {
+				t.Fatalf("Failed to marshal task to JSON: %v", err)
+			}
 
-	// Create HTTP request to create a task
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(taskJSON))
-	if err != nil {
-		t.Fatalf("Failed to create request: %v", err)
-	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Set("Content-Type", "application/json")
+			// Create HTTP request to create a task
+			req, err := http.NewRequest("POST", url, bytes.NewBuffer(taskJSON))
+			if err != nil {
+				t.Fatalf("Failed to create request: %v", err)
+			}
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+			req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	taskResp, err := client.Do(req)
-	if err != nil {
-		t.Fatalf("Failed to execute request: %v", err)
-	}
-	defer taskResp.Body.Close()
+			client := &http.Client{}
+			taskResp, err := client.Do(req)
+			if err != nil {
+				t.Fatalf("Failed to execute request: %v", err)
+			}
+			defer taskResp.Body.Close()
 
-	// Read response body
-	body, err := io.ReadAll(taskResp.Body)
-	if err != nil {
-		t.Fatalf("Failed to read response: %v", err)
-	}
+			// Read response body
+			body, err := io.ReadAll(taskResp.Body)
+			if err != nil {
+				t.Fatalf("Failed to read response: %v", err)
+			}
 
-	// Unmarshal response body into Response struct
-	res := new(Response)
-	err = json.Unmarshal(body, res)
-	if err != nil {
-		t.Fatalf("Failed to unmarshal response body: %v", err)
+			// Verify if task creation was successful
+			assert.Equal(t, scenario.expectedStatusCode, taskResp.StatusCode, "Expected status code")
+			if taskResp.StatusCode == http.StatusCreated {
+				// Optionally, you can validate the response body further if needed
+				var res Response
+				err = json.Unmarshal(body, &res)
+				if err != nil {
+					t.Fatalf("Failed to unmarshal response body: %v", err)
+				}
+				// Add more assertions if needed for successful creation scenario
+			}
+		})
 	}
-
-	// Verify if task creation was successful
-	assert.Equal(t, http.StatusCreated, taskResp.StatusCode, "Expected status code 201")
 }
