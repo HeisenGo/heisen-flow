@@ -195,7 +195,7 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 	if err!=nil{
 		return err
 	}
-	description := fmt.Sprintf("Welcome to the Board '%s' By '%s'", b.Name, invitedByuser.FirstName)
+	description := fmt.Sprintf("Welcome to the Board '%s' you were invited By '%s'", b.Name, invitedByuser.FirstName)
 	notif := notification.NewNotification(description, notification.UserInvited, userBoardRole.ID)
 	err = s.notificatinOps.CreateNotification(ctx, notif)
 	if err != nil {
