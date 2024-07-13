@@ -24,6 +24,40 @@ type UserTask struct {
 	ParentID *uuid.UUID `json:"parent_id"`
 }
 
+type ReorderTasksReq struct {
+	ColumnID uuid.UUID         `json:"column_id"`
+	Tasks    []ReorderTaskItem `json:"tasks"`
+}
+
+type ReorderTaskItem struct {
+	ID uuid.UUID `json:"id"`
+}
+
+func ReorderTasksReqToMap(req ReorderTasksReq) (uuid.UUID, map[uuid.UUID]uint) {
+	newOrder := make(map[uuid.UUID]uint)
+	for i, t := range req.Tasks {
+		newOrder[t.ID] = uint(i + 1)
+	}
+	return req.ColumnID, newOrder
+}
+
+type TaskReorderRespItem struct {
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+	Order uint      `json:"order"`
+}
+
+func TaskToTaskReorderResp(t task.Task) TaskReorderRespItem {
+	return TaskReorderRespItem{
+		ID:    t.ID,
+		Title: t.Title,
+		Order: t.Order,
+	}
+}
+func BatchTaskToTaskReorderRespItem(cols []task.Task) []TaskReorderRespItem {
+	return fp.Map(cols, TaskToTaskReorderResp)
+}
+
 type DependentTasks struct {
 	ID               uuid.UUID   `json:"task_id" validate:"required"`
 	DependsOnTaskIDs []uuid.UUID `json:"depends_on_task_ids" validate:"required"`

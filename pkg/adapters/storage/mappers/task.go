@@ -25,6 +25,7 @@ func TaskEntityToDomain(taskEntity entities.Task) task.Task {
 		Subtasks:        subTasks,
 		DependsOn:       dependencies,
 		UserBoardRole:   &ubr,
+		Order:           taskEntity.Order,
 	}
 }
 

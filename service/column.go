@@ -166,7 +166,7 @@ func (s *ColumnService) ReorderColumns(ctx context.Context, userID, boardID uuid
 	}
 
 	if !rbac.HasPermission(role, rbac.PermissionManageColumns) {
-		return nil, ErrPermissionDeniedToDelete
+		return nil, ErrPermissionDenied
 	}
 	err = s.colOps.ReorderColumns(ctx, boardID, newOrder)
 	if err != nil {

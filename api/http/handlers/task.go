@@ -4,6 +4,7 @@ import (
 	"errors"
 	presenter "server/api/http/handlers/presentor"
 	"server/internal/board"
+	"server/internal/column"
 	"server/internal/task"
 	"server/internal/user"
 	"server/pkg/jwt"
@@ -120,6 +121,7 @@ func AddDependency(serviceFactory ServiceFactory[*service.TaskService]) fiber.Ha
 		})
 	}
 }
+
 // GetFullTaskByID retrieves the full details of a task by its ID.
 // @Summary Get full task by ID
 // @Description Retrieve the full details of a task by its ID for the authenticated user.
@@ -154,6 +156,7 @@ func GetFullTaskByID(taskService *service.TaskService) fiber.Handler {
 		return presenter.OK(c, "task successfully fetched.", data)
 	}
 }
+
 // UpdateTaskColumnByID updates the column of a task by its ID.
 // @Summary Update task column by ID
 // @Description Update the column of a task by its ID for the authenticated user.
@@ -198,5 +201,47 @@ func UpdateTaskColumnByID(serviceFactory ServiceFactory[*service.TaskService]) f
 		}
 		data := presenter.TaskToUpdatedTaskResp(*updatedTask)
 		return presenter.OK(c, "task successfully updated.", data)
+	}
+}
+
+// ReorderTasks ReorderColumns reorders the columns of a board.
+// @Summary Reorder columns
+// @Description Reorder the columns of a board for the authenticated user.
+// @Tags Columns
+// @Accept  json
+// @Produce  json
+// @Param ReorderColumnsRequest body presenter.ReorderColumnsRequest true "Reorder Columns Request"
+// @Success 200 {object} []presenter.ColumnResponseItem "Columns reordered successfully"
+// @Failure 400 {object} map[string]interface{} "Bad request, invalid reorder details"
+// @Failure 403 {object} map[string]interface{} "Forbidden, permission denied"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security BearerAuth
+// @Router /tasks/reorder [put]
+func ReorderTasks(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		taskService := serviceFactory(c.UserContext())
+
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
+		var req presenter.ReorderTasksReq
+		if err := c.BodyParser(&req); err != nil {
+			return SendError(c, err, fiber.StatusBadRequest)
+		}
+
+		colID, newOrder := presenter.ReorderTasksReqToMap(req)
+		tasks, err := taskService.ReorderTasks(c.UserContext(), userClaims.UserID, colID, newOrder)
+		if err != nil {
+			if errors.Is(err, service.ErrPermissionDeniedToDeleteColumn) {
+				return presenter.Forbidden(c, err)
+			}
+			if errors.Is(err, column.ErrColumnNotFound) || errors.Is(err, column.ErrFailedToFetchColumns) || errors.Is(err, column.ErrFailedToUpdateColumn) || errors.Is(err, column.ErrInvalidColumnID) || errors.Is(err, column.ErrLengthMismatch) {
+				return presenter.BadRequest(c, err)
+			}
+			return presenter.InternalServerError(c, err)
+		}
+		res := presenter.BatchTaskToTaskReorderRespItem(tasks)
+		return presenter.OK(c, "Tasks ReOrdered Successfully", res)
 	}
 }

@@ -32,6 +32,10 @@ var (
 	ErrInvalidStoryPoint              = errors.New("invalid story point: must be one of 1, 2, 3, 5, 8, 13, 21")
 	ErrColumnNotFound                 = errors.New("column with given id doesn't exists")
 	ErrCantDoneDependentTask          = errors.New("task has some dependencies. you can't done it")
+	ErrFailedToFetchTasks             = errors.New("failed to fetch columns")
+	ErrInvalidTaskID                  = errors.New("errInvalidColumnID")
+	ErrFailedToUpdateTask             = errors.New("failed to update column")
+	ErrLengthMismatch                 = errors.New("length mismatch")
 )
 
 type Repo interface {
@@ -40,6 +44,7 @@ type Repo interface {
 	GetFullByID(ctx context.Context, id uuid.UUID) (*Task, error)
 	UpdateTaskColumnByID(ctx context.Context, taskID uuid.UUID, colID uuid.UUID) (*Task, error)
 	AddDependency(ctx context.Context, t *Task) error
+	ReorderTasks(ctx context.Context, colID uuid.UUID, newOrder map[uuid.UUID]uint) ([]Task, error)
 }
 
 type Task struct {

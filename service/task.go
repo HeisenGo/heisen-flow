@@ -154,7 +154,7 @@ func (s *TaskService) UpdateTaskColumnByID(ctx context.Context, userID uuid.UUID
 		return nil, ErrPermissionDenied
 	}
 
-	if !rbac.HasPermission(fetcherRole, rbac.PermissionViewTask) {
+	if !rbac.HasPermission(fetcherRole, rbac.PermissionMoveOwnTask) {
 		return nil, ErrPermissionDenied
 	}
 
@@ -163,4 +163,25 @@ func (s *TaskService) UpdateTaskColumnByID(ctx context.Context, userID uuid.UUID
 		return nil, err
 	}
 	return updatedTask, err
+}
+
+func (s *TaskService) ReorderTasks(ctx context.Context, userID, colID uuid.UUID, newOrder map[uuid.UUID]uint) ([]t.Task, error) {
+	col, err := s.columnOps.GetColumnByID(ctx, colID)
+	if err != nil {
+		return nil, column.ErrColumnNotFound
+	}
+	role, err := s.userBoardRoleOps.GetUserBoardRole(ctx, userID, col.BoardID)
+	if err != nil {
+		return nil, ErrPermissionDenied
+	}
+
+	if !rbac.HasPermission(role, rbac.PermissionViewTask) {
+		return nil, ErrPermissionDenied
+	}
+	tasks, err := s.taskOps.ReorderTasks(ctx, colID, newOrder)
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
 }

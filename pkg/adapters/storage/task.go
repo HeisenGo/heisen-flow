@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gorm.io/gorm/clause"
 	"server/internal/task"
 	"server/pkg/adapters/storage/entities"
 	"server/pkg/adapters/storage/mappers"
@@ -39,6 +40,12 @@ func (r *taskRepo) GetByID(ctx context.Context, id uuid.UUID) (*task.Task, error
 func (r *taskRepo) Insert(ctx context.Context, t *task.Task) error {
 	taskEntity := mappers.TaskDomainToEntity(t)
 
+	var maxTaskColumnOrder uint
+	err := r.db.WithContext(ctx).Model(&entities.Task{}).Where("column_id = ?", t.ColumnID).Select("COALESCE(MAX(\"order\"), 0)").Scan(&maxTaskColumnOrder).Error
+	if err != nil {
+		return err
+	}
+	taskEntity.Order = maxTaskColumnOrder
 	if err := r.db.WithContext(ctx).Save(&taskEntity).Error; err != nil {
 		return err
 	}
@@ -109,7 +116,7 @@ func (r *taskRepo) AddDependency(ctx context.Context, t *task.Task) error {
 	return nil
 }
 
-// using Depth First Search
+// CheckCircularDependency using Depth First Search
 func (r *taskRepo) CheckCircularDependency(taskID, dependencyID uuid.UUID) bool {
 	visited := make(map[uuid.UUID]bool)
 	var dfs func(current uuid.UUID) bool
@@ -215,4 +222,56 @@ func (r *taskRepo) UpdateTaskColumnByID(ctx context.Context, taskID uuid.UUID, c
 	// Convert to domain entity if needed
 	domainTask := mappers.TaskEntityToDomain(t)
 	return &domainTask, nil
+}
+
+func (r *taskRepo) ReorderTasks(ctx context.Context, colID uuid.UUID, newOrder map[uuid.UUID]uint) ([]task.Task, error) {
+	var tasks []entities.Task
+	if err := r.db.WithContext(ctx).Where("column_id = ?", colID).Find(&tasks).Error; err != nil {
+		return nil, task.ErrFailedToFetchTasks
+	}
+	if len(newOrder) != len(tasks) {
+		return nil, task.ErrLengthMismatch
+	}
+	for taskID := range newOrder {
+		found := false
+		for _, t := range tasks {
+			if t.ID == taskID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, task.ErrInvalidTaskID
+		}
+	}
+
+	var maxOrder uint
+	for _, t := range tasks {
+		if t.Order > maxOrder {
+			maxOrder = t.Order
+		}
+	}
+	tempOrder := maxOrder + 1
+
+	for _, t := range tasks {
+		if err := r.db.WithContext(ctx).Model(&t).Update("order", tempOrder).Error; err != nil {
+			return nil, task.ErrFailedToUpdateTask
+		}
+		tempOrder++
+	}
+
+	for _, t := range tasks {
+		newOrderNum, exists := newOrder[t.ID]
+		if !exists {
+			continue
+		}
+		if err := r.db.WithContext(ctx).Model(&t).Clauses(clause.Returning{Columns: []clause.Column{{Name: "id"}, {Name: "title"}, {Name: "order"}}}).Update("order", newOrderNum).Error; err != nil {
+			return nil, task.ErrFailedToUpdateTask
+		}
+		t.Order = newOrderNum
+	}
+
+	domainTasks := mappers.BatchTaskEntitiesToDomain(tasks)
+	return domainTasks, nil
+
 }
