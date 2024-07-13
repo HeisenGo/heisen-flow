@@ -22,6 +22,7 @@ func Run(cfg config.Server, app *service.AppContainer) {
 	registerBoardRoutes(api, app, secret)
 	registerTaskRoutes(api, app, secret)
 	registerColumnRoutes(api, app, secret)
+	registerNotificationRoutes(api, app, secret)
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.HTTPPort)))
 }
 
@@ -29,8 +30,6 @@ func registerGlobalRoutes(router fiber.Router, app *service.AppContainer) {
 	router.Post("/register", handlers.RegisterUser(app.AuthService()))
 	router.Post("/login", handlers.LoginUser(app.AuthService()))
 	router.Get("/refresh", handlers.RefreshToken(app.AuthService()))
-	router.Get("/notifications",handlers.GetNotifications(app.NotificationService()))
-	router.Post("/notifications/Update",handlers.UpdateNotifications(app.NotificationService()))
 }
 
 func userRoleChecker() fiber.Handler {
@@ -93,4 +92,8 @@ func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret
 		userRoleChecker(),
 		handlers.DeleteColumn(app.ColumnServiceFromCtx),
 	)
+}
+func registerNotificationRoutes(router fiber.Router, app *service.AppContainer, secret []byte) {
+	router.Get("/notifications", middlewares.Auth(secret), handlers.GetNotifications(app.NotificationService()))
+	router.Patch("/notifications/:notifID", middlewares.Auth(secret), handlers.UpdateNotifications(app.NotificationService()))
 }
