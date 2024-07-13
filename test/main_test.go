@@ -4,18 +4,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
 	http_server "server/api/http"
 	"server/config"
+	"server/internal/board"
 	"server/internal/user"
+
 	"server/service"
 )
 
@@ -47,9 +49,8 @@ func TestMain(m *testing.M) {
 	// wait for server to start
 	time.Sleep(2 * time.Second)
 
-	// clear the database
+	// Clear database tables
 	ClearDatabaseTables(app.RawDBConnection())
-
 	// Run tests
 	code := m.Run()
 
@@ -59,6 +60,7 @@ func TestMain(m *testing.M) {
 func ClearDatabaseTables(db *gorm.DB) error {
 	tables := []interface{}{
 		&user.User{},
+		&board.Board{},
 	}
 
 	for _, model := range tables {
@@ -80,34 +82,74 @@ func readConfig() config.Config {
 	return cfg
 }
 
-func LoginAndGetToken(t *testing.T, user MockUserLogin) string {
+func CreateUser(user MockUser) UserCreationResult {
+	url := fmt.Sprintf("%s%s", ServerURL, Register)
+
 	reqBody, err := json.Marshal(user)
 	if err != nil {
-		t.Fatal("failed to marshal reqBody")
+		log.Fatalf("Failed to marshal request: %v", err)
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Fatalf("Failed to make POST request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Failed to read response: %v", err)
+	}
+
+	res := new(Response)
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		log.Fatalf("Failed to unmarshal response body: %v", err)
+	}
+
+	return UserCreationResult{
+		StatusCode: resp.StatusCode,
+		Message:    res.Message,
+	}
+}
+
+func LoginAndGetToken(t *testing.T, user MockUserLogin) (string, error) {
+	reqBody, err := json.Marshal(user)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal reqBody: %v", err)
 	}
 
 	url := fmt.Sprintf("%s%s", ServerURL, Login)
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
-		t.Fatalf("Failed to make POST request: %v", err)
+		return "", fmt.Errorf("failed to make POST request: %v", err)
 	}
 	defer resp.Body.Close()
 
-	assert.Equal(t, http.StatusOK, resp.Status, "Expected status code to be 200 OK")
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("expected status code 200 OK, got %s", resp.Status)
+	}
 
 	var res Response
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		t.Fatalf("Failed to decode token response: %v", err)
+		return "", fmt.Errorf("failed to decode token response: %v", err)
 	}
 
-	type Token struct {
-		AuthToken    string `json:"auth_token"`
-		RefreshToken string `json:"refresh_token"`
+	if res.Data == nil {
+		return "", fmt.Errorf("response data is nil")
 	}
 
-	token := res.Data.(Token).AuthToken
+	tokenData, ok := res.Data.(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("failed to convert response data to map[string]interface{}")
+	}
 
-	return token
+	authToken, ok := tokenData["auth_token"].(string)
+	if !ok {
+		return "", fmt.Errorf("auth_token not found or not a string")
+	}
+
+	return authToken, nil
 }
