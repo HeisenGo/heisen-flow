@@ -76,3 +76,31 @@ func DeleteColumn(columnService *service.ColumnService) fiber.Handler {
 		return presenter.NoContent(c)
 	}
 }
+
+func ReorderColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		columnService := serviceFactory(c.UserContext())
+
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
+		var req presenter.ReorderColumnsRequest
+		if err := c.BodyParser(&req); err != nil {
+			return SendError(c, err, fiber.StatusBadRequest)
+		}
+
+		boardID, newOrder := presenter.ReorderColumnsRequestToMap(req)
+		err := columnService.ReorderColumns(c.UserContext(), userClaims.UserID, boardID, newOrder)
+		if err != nil {
+			if errors.Is(err, service.ErrPermissionDeniedToDeleteColumn) {
+				presenter.Forbidden(c, err)
+			}
+			if errors.Is(err, column.ErrColumnNotFound) || errors.Is(err, column.ErrFailedToFetchColumns) || errors.Is(err, column.ErrFailedToUpdateColumn) || errors.Is(err, column.ErrInvalidColumnID) || errors.Is(err, column.ErrLengthMismatch) {
+				presenter.BadRequest(c, err)
+			}
+			return presenter.InternalServerError(c, err)
+		}
+		return presenter.OK(c, "Columns ReOrdered Successfully", req)
+	}
+}
