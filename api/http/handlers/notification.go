@@ -6,8 +6,9 @@ import (
 	"server/internal/user"
 	"server/pkg/jwt"
 	"server/service"
-	"github.com/google/uuid"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 func GetNotifications(notificationService *service.NotificationService) fiber.Handler {
@@ -16,7 +17,7 @@ func GetNotifications(notificationService *service.NotificationService) fiber.Ha
 		if !ok {
 			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
 		}
-		notifList , err := notificationService.GetUserUnseenNotifications(c.UserContext(),userClaims.UserID )
+		notifList, err := notificationService.GetUserNotifications(c.UserContext(), userClaims.UserID)
 		if err != nil {
 			status := fiber.StatusInternalServerError
 			if errors.Is(err, user.ErrUserNotFound) {
@@ -24,22 +25,24 @@ func GetNotifications(notificationService *service.NotificationService) fiber.Ha
 			}
 			return SendError(c, err, status)
 		}
-		return c.JSON(fiber.Map{"notifications": notifList})
+		res := presenter.BatchNotifToNotifResp(notifList)
+		return presenter.OK(c, "notifications successfully fetched", res)
 	}
 }
 
 func UpdateNotifications(notificationService *service.NotificationService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var req presenter.NotificationReq
-		if err := c.BodyParser(&req); err != nil {
-			return SendError(c, err, fiber.StatusBadRequest)
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
 		}
-		notificationIDParam := c.Params("notificationID")
+		
+		notificationIDParam := c.Params("notifID")
 		notificationID, err := uuid.Parse(notificationIDParam)
 		if err != nil {
 			return SendError(c, err, fiber.StatusBadRequest)
 		}
-		err = notificationService.MarkNotificationAsSeen(c.UserContext(),notificationID)
+		n, err := notificationService.MarkNotificationAsSeen(c.UserContext(), notificationID, userClaims.UserID)
 		if err != nil {
 			status := fiber.StatusInternalServerError
 			if errors.Is(err, user.ErrUserNotFound) {
@@ -47,6 +50,7 @@ func UpdateNotifications(notificationService *service.NotificationService) fiber
 			}
 			return SendError(c, err, status)
 		}
-		return presenter.OK(c,"Marked As Seen",err)
+		res := presenter.DomainNotifToNotifResp(*n)
+		return presenter.OK(c, "Marked As Seen", res)
 	}
 }
