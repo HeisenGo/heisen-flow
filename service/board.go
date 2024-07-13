@@ -10,7 +10,6 @@ import (
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/rbac"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -37,12 +36,12 @@ type BoardService struct {
 // NewBoardService creates a new BoardService
 func NewBoardService(userOps *u.Ops, boardOps *board.Ops,
 	userBoardOps *userboardrole.Ops,
-	columnOps *column.Ops,notificatinOps *notification.Ops) *BoardService {
+	columnOps *column.Ops, notificatinOps *notification.Ops) *BoardService {
 	return &BoardService{userOps: userOps,
 		boardOps:         boardOps,
 		userBoardRoleOps: userBoardOps,
 		columnOps:        columnOps,
-		notificatinOps:   notificatinOps,}
+		notificatinOps:   notificatinOps}
 }
 
 func (s *BoardService) GetFullBoardByID(ctx context.Context, userID uuid.UUID, boardID uuid.UUID) (*board.Board, error) {
@@ -191,16 +190,10 @@ func (s *BoardService) InviteUser(ctx context.Context, inviterID uuid.UUID, invi
 	if err != nil {
 		return err
 	}
-	// apply your notification record create here
-	notif := notification.Notification{
-        IsSeen:           false,
-        Description:      "Invited To New Board",
-        NotificationType: "Invite",
-        UserBoardRoleID:  userBoardRole.ID,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-    }
-	err = s.notificatinOps.CreateNotification(ctx,&notif)
+	invitedByuser, err := s.userOps.GetUserByID(ctx, inviterID)
+	description := fmt.Sprintf("Invited to Board %s type:%s By %s", b.Name, b.Type, invitedByuser.FirstName)
+	notif := notification.NewNotification(description, notification.UserInvited, userBoardRole.ID)
+	err = s.notificatinOps.CreateNotification(ctx, notif)
 	if err != nil {
 		return err
 	}
