@@ -125,3 +125,52 @@ func (r *columnRepo) UpdateColumns(ctx context.Context, columns []column.Column)
 
 	return columns, nil
 }
+
+func (r *columnRepo) ReorderColumns(ctx context.Context, boardID uuid.UUID, newOrder map[uuid.UUID]uint) error {
+	var columns []entities.Column
+	if err := r.db.WithContext(ctx).Where("board_id = ?", boardID).Find(&columns).Error; err != nil {
+		return column.ErrFailedToFetchColumns
+	}
+	if len(newOrder) != len(columns){
+		return column.ErrLengthMismatch
+	}
+	for columnID := range newOrder {
+		found := false
+		for _, col := range columns {
+			if col.ID == columnID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return column.ErrInvalidColumnID
+		}
+	}
+
+	var maxOrder uint
+	for _, col := range columns {
+		if col.OrderNum > maxOrder {
+			maxOrder = col.OrderNum
+		}
+	}
+	tempOrder := maxOrder + 1
+
+	for _, col := range columns {
+		if err := r.db.WithContext(ctx).Model(&col).Update("order_num", tempOrder).Error; err != nil {
+			return column.ErrFailedToUpdateColumn
+		}
+		tempOrder++
+	}
+
+	for _, col := range columns {
+		newOrderNum, exists := newOrder[col.ID]
+		if !exists {
+			continue 
+		}
+		if err := r.db.WithContext(ctx).Model(&col).Update("order_num", newOrderNum).Error; err != nil {
+			return column.ErrFailedToUpdateColumn
+		}
+	}
+
+	return nil
+}
