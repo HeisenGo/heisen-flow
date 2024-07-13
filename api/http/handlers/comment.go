@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	presenter "server/api/http/handlers/presentor"
+	"server/internal/task"
 	"server/pkg/jwt"
 	"server/service"
 
@@ -30,6 +31,9 @@ func CreateUserComment(serviceFactory ServiceFactory[*service.CommentService]) f
 		if err != nil {
 			if errors.Is(err, service.ErrPermissionDenied) {
 				return presenter.Forbidden(c, err)
+			}
+			if errors.Is(err, task.ErrTaskNotFound) {
+				return presenter.BadRequest(c, err)
 			}
 			return presenter.InternalServerError(c, err)
 		}
