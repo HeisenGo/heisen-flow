@@ -2,8 +2,17 @@ package notification
 
 import (
 	"context"
-	"github.com/google/uuid"
+	userboardrole "server/internal/user_board_role"
 	"time"
+
+	"github.com/google/uuid"
+)
+
+type NotificationType string
+
+const (
+	UserInvited = NotificationType("Invite User")
+	TaskMoved   = NotificationType("Move Task")
 )
 
 type Repo interface {
@@ -13,11 +22,21 @@ type Repo interface {
 }
 
 type Notification struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ID                uuid.UUID
-    IsSeen            bool
-    Description       string
-    NotificationType  string
-    UserBoardRoleID   uuid.UUID `gorm:"type:uuid;not null"`
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	ID               uuid.UUID
+	IsSeen           bool
+	Description      string
+	NotificationType NotificationType
+	UserBoardRoleID  uuid.UUID `gorm:"type:uuid;not null"`
+	UserBoardRole    userboardrole.UserBoardRole
+}
+
+func NewNotification(description string, notificationType NotificationType, userBoardRoleID uuid.UUID) *Notification {
+	return &Notification{
+		IsSeen: false,
+		Description: description,
+		NotificationType: notificationType,
+		UserBoardRoleID: userBoardRoleID,
+	}
 }
