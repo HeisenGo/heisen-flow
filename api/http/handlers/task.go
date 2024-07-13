@@ -141,3 +141,37 @@ func GetFullTaskByID(taskService *service.TaskService) fiber.Handler {
 		return presenter.OK(c, "task successfully fetched.", data)
 	}
 }
+
+func UpdateTaskColumnByID(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		taskService := serviceFactory(c.UserContext())
+		var req presenter.UpdateTaskColReq
+
+		if err := c.BodyParser(&req); err != nil {
+			return SendError(c, err, fiber.StatusBadRequest)
+		}
+		err := BodyValidator(req)
+		if err != nil {
+			return presenter.BadRequest(c, err)
+		}
+
+		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
+		if !ok {
+			return SendError(c, errWrongClaimType, fiber.StatusBadRequest)
+		}
+		taskID, err := uuid.Parse(c.Params("taskID"))
+		if err != nil {
+			return presenter.BadRequest(c, errors.New("given task_id format in path is not correct"))
+		}
+		updatedTask, err := taskService.UpdateTaskColumnByID(c.UserContext(), userClaims.UserID, taskID, req.ColumnID)
+		if err != nil {
+			if errors.Is(err, task.ErrTaskNotFound) || errors.Is(err, task.ErrColumnNotFound) || errors.Is(err, task.ErrCantDoneDependentTask) {
+				return presenter.BadRequest(c, err)
+			}
+
+			return presenter.InternalServerError(c, err)
+		}
+		data := presenter.TaskToUpdatedTaskResp(*updatedTask)
+		return presenter.OK(c, "task successfully fetched.", data)
+	}
+}
