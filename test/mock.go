@@ -25,3 +25,13 @@ type MockUserLogin struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+type MockBoard struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+type UserCreationResult struct {
+	StatusCode int
+	Message    string
+}
