@@ -63,3 +63,12 @@ func (r *userBoardRepo) GetUserBoardRoleObj(ctx context.Context, userID, boardID
 	ubrDomain := mappers.UserBoardRoleEntityToDomain(userBoardRole)
 	return &ubrDomain, nil
 }
+
+func (r *userBoardRepo) GetUserIDByUserBoardRoleID(ctx context.Context, userBoardRoleID uuid.UUID) (*uuid.UUID, error) {
+	var userBoardRole entities.UserBoardRole
+	result := r.db.WithContext(ctx).First(&userBoardRole, "id = ?", userBoardRoleID)
+	if result.Error != nil {
+		return nil, userboardrole.ErrUserRoleNotFound
+	}
+	return &userBoardRole.UserID, nil
+}
