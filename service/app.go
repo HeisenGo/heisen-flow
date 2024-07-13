@@ -6,23 +6,23 @@ import (
 	"server/config"
 	"server/internal/board"
 	"server/internal/column"
+	"server/internal/notification"
 	"server/internal/task"
 	"server/internal/user"
 	userboardrole "server/internal/user_board_role"
 	"server/pkg/adapters/storage"
 	"server/pkg/valuecontext"
-	"server/internal/notification"
 
 	"gorm.io/gorm"
 )
 
 type AppContainer struct {
-	cfg           config.Config
-	dbConn        *gorm.DB
-	authService   *AuthService
-	boardService  *BoardService
-	taskService   *TaskService
-	columnService *ColumnService
+	cfg                 config.Config
+	dbConn              *gorm.DB
+	authService         *AuthService
+	boardService        *BoardService
+	taskService         *TaskService
+	columnService       *ColumnService
 	notificationService *NotificationService
 }
 
@@ -133,7 +133,7 @@ func (a *AppContainer) setBoardService() {
 	if a.boardService != nil {
 		return
 	}
-	a.boardService = NewBoardService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), column.NewOps(storage.NewColumnRepo(a.dbConn)),notification.NewOps(storage.NewNotificationRepo(a.dbConn)))
+	a.boardService = NewBoardService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), column.NewOps(storage.NewColumnRepo(a.dbConn)), notification.NewOps(storage.NewNotificationRepo(a.dbConn)))
 }
 
 func (a *AppContainer) setColumnService() {
@@ -179,6 +179,6 @@ func (a *AppContainer) NotificationService() *NotificationService {
 	return a.notificationService
 }
 
-func (a *AppContainer) setNotificationService(){
-	a.notificationService = NewNotificationService(notification.NewOps(storage.NewNotificationRepo(a.dbConn)), user.NewOps(storage.NewUserRepo(a.dbConn)))
+func (a *AppContainer) setNotificationService() {
+	a.notificationService = NewNotificationService(notification.NewOps(storage.NewNotificationRepo(a.dbConn)), user.NewOps(storage.NewUserRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)))
 }

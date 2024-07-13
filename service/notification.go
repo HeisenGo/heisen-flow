@@ -4,18 +4,21 @@ import (
 	"context"
 	"server/internal/notification"
 	u "server/internal/user"
+	userboardrole "server/internal/user_board_role"
 
 	"github.com/google/uuid"
 )
 
 type NotificationService struct {
-	userOps         *u.Ops
-	notificationOps *notification.Ops
+	userOps          *u.Ops
+	notificationOps  *notification.Ops
+	userBoardRoleOps *userboardrole.Ops
 }
 
-func NewNotificationService(notificationOps *notification.Ops, userOps *u.Ops) *NotificationService {
+func NewNotificationService(notificationOps *notification.Ops, userOps *u.Ops, userBoardRoleOps *userboardrole.Ops) *NotificationService {
 	return &NotificationService{notificationOps: notificationOps,
-	userOps: userOps,}
+		userOps:          userOps,
+		userBoardRoleOps: userBoardRoleOps}
 }
 
 func (s *NotificationService) CreateNotification(ctx context.Context, n *notification.Notification) error {
@@ -52,7 +55,11 @@ func (s *NotificationService) MarkNotificationAsSeen(ctx context.Context, notifi
 	if err != nil {
 		return nil, err
 	}
-	if notif.UserBoardRole.Role == "" {
+	uID, err := s.userBoardRoleOps.GetUserIDByUserBoardRoleID(ctx, notif.UserBoardRoleID)
+	if err != nil {
+		return nil, err
+	}
+	if *uID != userID {
 		return nil, ErrPermissionDenied
 	}
 	notiff, err := s.notificationOps.MarkNotificationAsSeen(ctx, notificationID)
