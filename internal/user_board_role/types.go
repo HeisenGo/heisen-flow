@@ -19,6 +19,7 @@ type Repo interface {
 	GetUserBoardRoleObj(ctx context.Context, userID, boardID uuid.UUID) (*UserBoardRole, error)
 	SetUserBoardRole(ctx context.Context, ub *UserBoardRole) error
 	RemoveUserBoardRole(ctx context.Context, userID, boardID string) error
+	GetUserIDByUserBoardRoleID(ctx context.Context, userBoardRoleID uuid.UUID) (*uuid.UUID, error)
 }
 
 type UserBoardRole struct {

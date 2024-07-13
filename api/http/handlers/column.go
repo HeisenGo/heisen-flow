@@ -85,6 +85,7 @@ func DeleteColumn(columnService *service.ColumnService) fiber.Handler {
 
 		err = columnService.DeleteColumn(c.UserContext(), columnID, userClaims.UserID)
 		if err != nil {
+
 			if errors.Is(err, service.ErrPermissionDeniedToDeleteColumn) {
 				presenter.Forbidden(c, err)
 			}

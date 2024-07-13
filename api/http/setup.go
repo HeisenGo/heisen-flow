@@ -33,6 +33,7 @@ func Run(cfg config.Config, app *service.AppContainer) {
 	registerBoardRoutes(api, app, secret, createGroupLogger("boards"))
 	registerTaskRoutes(api, app, secret, createGroupLogger("tasks"))
 	registerColumnRoutes(api, app, secret, createGroupLogger("columns"))
+	registerNotificationRoutes(api, app, secret, createGroupLogger("notifs"))
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.HTTPPort)))
 }
 
@@ -113,7 +114,6 @@ func registerColumnRoutes(router fiber.Router, app *service.AppContainer, secret
 	router.Use(loggerMiddleWare)
 	router.Post("",
 		middlewares.Auth(secret),
-		userRoleChecker(),
 		handlers.CreateColumns(app.ColumnService()),
 	)
 	router.Delete("/:columnID",
@@ -160,4 +160,10 @@ func loggerSetup(app *fiber.App) func(groupName string) fiber.Handler {
 		})
 	}
 	return createGroupLogger
+}
+func registerNotificationRoutes(router fiber.Router, app *service.AppContainer, secret []byte, loggerMiddleWare fiber.Handler) {
+	router = router.Group("/notifications")
+	router.Use(loggerMiddleWare)
+	router.Get("", middlewares.Auth(secret), handlers.GetNotifications(app.NotificationService()))
+	router.Patch("/read/:notifID", middlewares.Auth(secret), handlers.UpdateNotifications(app.NotificationService()))
 }
