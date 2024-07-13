@@ -49,7 +49,7 @@ func CreateColumns(columnService *service.ColumnService) fiber.Handler {
 				presenter.Forbidden(c, err)
 			}
 			if errors.Is(err, board.ErrBoardNotFound) {
-				presenter.BadRequest(c, err)
+				return presenter.BadRequest(c, err)
 			}
 			return presenter.InternalServerError(c, err)
 		}
@@ -121,7 +121,7 @@ func ReorderColumns(serviceFactory ServiceFactory[*service.ColumnService]) fiber
 				presenter.Forbidden(c, err)
 			}
 			if errors.Is(err, column.ErrColumnNotFound) || errors.Is(err, column.ErrFailedToFetchColumns) || errors.Is(err, column.ErrFailedToUpdateColumn) || errors.Is(err, column.ErrInvalidColumnID) || errors.Is(err, column.ErrLengthMismatch) {
-				presenter.BadRequest(c, err)
+				return presenter.BadRequest(c, err)
 			}
 			return presenter.InternalServerError(c, err)
 		}
