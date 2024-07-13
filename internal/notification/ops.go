@@ -22,7 +22,7 @@ func (o *Ops) CreateNotification(ctx context.Context, notif *Notification) error
 func (o *Ops) GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]Notification, error) {
 	notification, err := o.repo.GetUserUnseenNotifications(ctx, userID)
 	if err != nil {
-		return nil, err
+		return nil, ErrNotifsNotFound
 	}
 	return notification, nil
 }
@@ -30,12 +30,11 @@ func (o *Ops) GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) 
 func (o *Ops) MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) (*Notification, error) {
 	notif, err := o.repo.MarkNotificationAsSeen(ctx, notificationID)
 	if err != nil {
-		return nil, err
+		return nil, ErrNotifNotFound
 	}
 	return notif, nil
 }
 
-
-func (o *Ops)GetNotificationByID(ctx context.Context, notificationID uuid.UUID)(*Notification, error){
+func (o *Ops) GetNotificationByID(ctx context.Context, notificationID uuid.UUID) (*Notification, error) {
 	return o.repo.GetNotificationByID(ctx, notificationID)
 }
