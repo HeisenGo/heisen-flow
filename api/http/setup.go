@@ -2,19 +2,20 @@ package http
 
 import (
 	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/swaggo/fiber-swagger"
 	"log"
 	"os"
 	"path/filepath"
 	"server/api/http/handlers"
 	"server/api/http/middlewares"
 	"server/config"
+	_ "server/docs"
 	"server/pkg/adapters"
 	"server/service"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
+
 
 func Run(cfg config.Server, app *service.AppContainer) {
 	fiberApp := fiber.New()
