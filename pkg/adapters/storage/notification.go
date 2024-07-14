@@ -43,7 +43,7 @@ func (r *notificationRepo) NotifBroadCasting(ctx context.Context, notif *notific
 	// find assignee of task and if it is not updater send notif to them too
 	var userBoardRole entities.UserBoardRole
 	err = r.db.Where("id = ? AND user_role IN ?", task.UserBoardRoleID, []string{"editor"}).
-		Find(&userBoardRoles).Error
+		Find(&userBoardRole).Error
 	if err != nil {
 		return notification.ErrFailedToCreateNotif
 	}

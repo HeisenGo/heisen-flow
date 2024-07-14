@@ -51,7 +51,7 @@ func (s *CommentService) CreateComment(ctx context.Context, c *comment.Comment, 
 	if userBoardRoleObj.ID != *task.UserBoardRoleID && userBoardRoleObj.Role == string(rbac.RoleEditor) {
 		return ErrPermissionDenied
 	}
-	if !rbac.HasPermission(rbac.Role(userBoardRoleObj.Role), rbac.PermissionCommentOwnTask) || !rbac.HasPermission(rbac.Role(userBoardRoleObj.Role), rbac.PermissionCommentAnyTask) {
+	if !rbac.HasPermission(rbac.Role(userBoardRoleObj.Role), rbac.PermissionCommentOwnTask) {
 		return ErrPermissionDenied
 	}
 	c.UserBoardRoleID = userBoardRoleObj.ID
