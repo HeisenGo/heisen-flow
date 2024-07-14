@@ -168,6 +168,7 @@ func (a *AppContainer) TaskServiceFromCtx(ctx context.Context) *TaskService {
 		userboardrole.NewOps(storage.NewUserBoardRepo(gc)),
 		task.NewOps(storage.NewTaskRepo(gc)),
 		column.NewOps(storage.NewColumnRepo(gc)),
+		notification.NewOps(storage.NewNotificationRepo(gc)),
 	)
 }
 
@@ -175,7 +176,8 @@ func (a *AppContainer) setTaskService() {
 	if a.taskService != nil {
 		return
 	}
-	a.taskService = NewTaskService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), task.NewOps(storage.NewTaskRepo(a.dbConn)), column.NewOps(storage.NewColumnRepo(a.dbConn)))
+	a.taskService = NewTaskService(user.NewOps(storage.NewUserRepo(a.dbConn)), board.NewOps(storage.NewBoardRepo(a.dbConn)), userboardrole.NewOps(storage.NewUserBoardRepo(a.dbConn)), task.NewOps(storage.NewTaskRepo(a.dbConn)),
+		column.NewOps(storage.NewColumnRepo(a.dbConn)), notification.NewOps(storage.NewNotificationRepo(a.dbConn)))
 }
 
 func (a *AppContainer) NotificationService() *NotificationService {

@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"server/internal/notification"
+	"server/internal/task"
 	"server/pkg/adapters/storage/entities"
 	"server/pkg/adapters/storage/mappers"
 
@@ -20,7 +21,7 @@ func NewNotificationRepo(db *gorm.DB) notification.Repo {
 	}
 }
 
-func (r *notificationRepo) NotifBroadCasting(ctx context.Context, notif *notification.Notification, boardID, userID uuid.UUID) error {
+func (r *notificationRepo) NotifBroadCasting(ctx context.Context, notif *notification.Notification, boardID, userID uuid.UUID, task *task.Task) error {
 	var userBoardRoles []entities.UserBoardRole
 	err := r.db.Where("board_id = ? AND user_role IN ?", boardID, []string{"maintainer", "owner"}).
 		Find(&userBoardRoles).Error
@@ -28,10 +29,28 @@ func (r *notificationRepo) NotifBroadCasting(ctx context.Context, notif *notific
 		return notification.ErrFailedToCreateNotif
 	}
 
-	for i,_ := range userBoardRoles {
-		newNotification := mappers.NotificationDomainToEntity(notif)
+	for i, obj := range userBoardRoles {
+		if obj.UserID == userID {
+			continue
+		}
 		notif.UserBoardRoleID = userBoardRoles[i].ID
-		if err := r.db.WithContext(ctx).Save(&newNotification).Error; err != nil {
+		newNotificationEntity := mappers.NotificationDomainToEntity(notif)
+		if err := r.db.WithContext(ctx).Save(&newNotificationEntity).Error; err != nil {
+			return notification.ErrFailedToCreateNotif
+		}
+	}
+
+	// find assignee of task and if it is not updater send notif to them too
+	var userBoardRole entities.UserBoardRole
+	err = r.db.Where("id = ? AND user_role IN ?", task.UserBoardRoleID, []string{"editor"}).
+		Find(&userBoardRoles).Error
+	if err != nil {
+		return notification.ErrFailedToCreateNotif
+	}
+	if userBoardRole.UserID != userID {
+		notif.UserBoardRoleID = userBoardRole.ID
+		newNotificationEntity := mappers.NotificationDomainToEntity(notif)
+		if err := r.db.WithContext(ctx).Save(&newNotificationEntity).Error; err != nil {
 			return notification.ErrFailedToCreateNotif
 		}
 	}

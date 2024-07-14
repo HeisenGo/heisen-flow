@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"server/internal/task"
 
 	"github.com/google/uuid"
 )
@@ -39,7 +40,7 @@ func (o *Ops) GetNotificationByID(ctx context.Context, notificationID uuid.UUID)
 	return o.repo.GetNotificationByID(ctx, notificationID)
 }
 
-func (o *Ops) NotifBroadCasting(ctx context.Context, notif *Notification, boardID, userID uuid.UUID) error {
-	return o.repo.NotifBroadCasting(ctx, notif, boardID, userID)
+func (o *Ops) NotifBroadCasting(ctx context.Context, notif *Notification, boardID, userID uuid.UUID, task *task.Task) error {
+	return o.repo.NotifBroadCasting(ctx, notif, boardID, userID, task)
 }
 

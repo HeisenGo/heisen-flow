@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"fmt"
 	b "server/internal/board"
 	"server/internal/column"
+	"server/internal/notification"
 	t "server/internal/task"
 	u "server/internal/user"
 	userboardrole "server/internal/user_board_role"
@@ -19,15 +21,17 @@ type TaskService struct {
 	userBoardRoleOps *userboardrole.Ops
 	taskOps          *t.Ops
 	columnOps        *column.Ops
+	notificaionOps   *notification.Ops
 }
 
 // NewTaskService creates a new TaskService
-func NewTaskService(userOps *u.Ops, boardOps *b.Ops, userBoardOps *userboardrole.Ops, taskOps *t.Ops, columnOps *column.Ops) *TaskService {
+func NewTaskService(userOps *u.Ops, boardOps *b.Ops, userBoardOps *userboardrole.Ops, taskOps *t.Ops, columnOps *column.Ops, notifOps *notification.Ops) *TaskService {
 	return &TaskService{userOps: userOps,
 		boardOps:         boardOps,
 		userBoardRoleOps: userBoardOps,
 		taskOps:          taskOps,
 		columnOps:        columnOps,
+		notificaionOps:   notifOps,
 	}
 }
 
@@ -81,6 +85,9 @@ func (s *TaskService) CreateTask(ctx context.Context, task *t.Task) error {
 			return ErrCantAssigned
 		}
 		ubrObj, err := s.userBoardRoleOps.GetUserBoardRoleObj(ctx, *task.AssigneeUserID, board.ID)
+		if err != nil {
+			return err
+		}
 		task.UserBoardRoleID = &ubrObj.ID
 	}
 
@@ -159,6 +166,30 @@ func (s *TaskService) UpdateTaskColumnByID(ctx context.Context, userID uuid.UUID
 	}
 
 	updatedTask, err := s.taskOps.UpdateTaskColumnByID(ctx, taskID, colID)
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := s.boardOps.GetBoardByID(ctx, task.BoardID)
+	if err != nil {
+		return nil, err
+	}
+	updater, err := s.userOps.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	newColumn, err := s.columnOps.GetColumnByID(ctx, updatedTask.ColumnID)
+	if err != nil {
+		return nil, err
+	}
+	userBoardRoleObj, err := s.userBoardRoleOps.GetUserBoardRoleObj(ctx, userID, task.BoardID)
+	if err != nil {
+		return nil, err
+	}
+	description := fmt.Sprintf("Task %s from Board %s Moved to Column %s By %s", task.Title, b.Name, newColumn.Name, updater.FirstName)
+	newNotification := notification.NewNotification(description, notification.TaskMoved, userBoardRoleObj.ID)
+
+	err = s.notificaionOps.NotifBroadCasting(ctx, newNotification, task.BoardID, userID, task)
 	if err != nil {
 		return nil, err
 	}
