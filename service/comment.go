@@ -51,7 +51,7 @@ func (s *CommentService) CreateComment(ctx context.Context, c *comment.Comment, 
 	if userBoardRoleObj.ID != *task.UserBoardRoleID && userBoardRoleObj.Role == string(rbac.RoleEditor) {
 		return ErrPermissionDenied
 	}
-	if !rbac.HasPermission(rbac.Role(userBoardRoleObj.Role), rbac.PermissionCommentOwnTask) || !rbac.HasPermission(rbac.Role(userBoardRoleObj.Role), rbac.PermissionCommentAnyTask) {
+	if !rbac.HasPermission(rbac.Role(userBoardRoleObj.Role), rbac.PermissionCommentOwnTask) {
 		return ErrPermissionDenied
 	}
 	c.UserBoardRoleID = userBoardRoleObj.ID
@@ -72,7 +72,7 @@ func (s *CommentService) CreateComment(ctx context.Context, c *comment.Comment, 
 	description := fmt.Sprintf("%s commented on task '%s' of board '%s'", commenter.FirstName, task.Title, board.Name)
 	notif := notification.NewNotification(description, notification.CommentedNotif, userBoardRoleObj.ID)
 	// TODO : editor comment notif
-	err = s.notifOps.NotifBroadCasting(ctx, notif, board.ID, userID)
+	err = s.notifOps.NotifBroadCasting(ctx, notif, board.ID, userID, task)
 	if err != nil {
 		return err
 	}

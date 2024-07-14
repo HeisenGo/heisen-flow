@@ -3,6 +3,7 @@ package notification
 import (
 	"context"
 	"errors"
+	"server/internal/task"
 	userboardrole "server/internal/user_board_role"
 	"time"
 
@@ -12,9 +13,10 @@ import (
 type NotificationType string
 
 const (
-	UserInvited    = NotificationType("Invite User")
-	TaskMoved      = NotificationType("Move Task")
-	CommentedNotif = NotificationType("Comment")
+	UserInvited     = NotificationType("Invite User")
+	TaskMoved       = NotificationType("Move Task")
+	CommentedNotif  = NotificationType("Comment")
+	TaskUpdateNotif = NotificationType("Update Task")
 )
 
 var (
@@ -31,7 +33,7 @@ type Repo interface {
 	GetUserUnseenNotifications(ctx context.Context, userID uuid.UUID) ([]Notification, error)
 	MarkNotificationAsSeen(ctx context.Context, notificationID uuid.UUID) (*Notification, error)
 	GetNotificationByID(ctx context.Context, notificationID uuid.UUID) (*Notification, error)
-	NotifBroadCasting(ctx context.Context, notif *Notification, boardID, userID uuid.UUID) error
+	NotifBroadCasting(ctx context.Context, notif *Notification, boardID, userID uuid.UUID, task *task.Task)error
 }
 
 type Notification struct {
