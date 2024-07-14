@@ -18,7 +18,6 @@ import (
 // @Tags Columns
 // @Accept  json
 // @Produce  json
-// @Param board_id body string true "Board ID"
 // @Param columns body presenter.CreateColumnsRequest true "Columns creation details"
 // @Success 201 {object} presenter.CreateColumnsResponse "response: details of created columns"
 // @Failure 400 {object} map[string]interface{} "error: bad request, invalid board ID format or missing columns details"

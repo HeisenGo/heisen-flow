@@ -20,13 +20,14 @@ import (
 // @Tags Boards
 // @Accept  json
 // @Produce  json
+// @Param uesrID path string true "User ID"
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
 // @Success 200 {object} presenter.BoardUserResp "boards: paginated list of user's boards"
 // @Failure 400 {object} map[string]interface{} "error: bad request, wrong claim type"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
 // @Security BearerAuth
-// @Router /user/boards [get]
+// @Router /boards/my-boards/ [get]
 func GetUserBoards(boardService *service.BoardService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
@@ -60,13 +61,14 @@ func GetUserBoards(boardService *service.BoardService) fiber.Handler {
 // @Tags Boards
 // @Accept  json
 // @Produce  json
+// @Param userID path string true "User ID"
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
-// @Success 200 {object} map[string]interface{} "boards: paginated list of public boards"
+// @Success 200 {object} presenter.BoardUserResp "boards: paginated list of public boards"
 // @Failure 400 {object} map[string]interface{} "error: bad request, wrong claim type"
 // @Failure 500 {object} map[string]interface{} "error: internal server error"
 // @Security BearerAuth
-// @Router /public/boards [get]
+// @Router /boards/publics/ [get]
 func GetPublicBoards(boardService *service.BoardService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userClaims, ok := c.Locals(UserClaimKey).(*jwt.UserClaims)
