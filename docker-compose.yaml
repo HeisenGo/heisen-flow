@@ -3,29 +3,47 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16.2-bookworm
+    restart: always
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: heisen-flow
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=heisen_flow
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - backend-network
 
   server:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: always
     ports:
       - "8080:8080"
     depends_on:
       - postgres
-    environment:
-      DB_USER: root
-      DB_PASS: 123456
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_NAME: heisen-flow
+      - redis
+    networks:
+      - backend-network
+
+  redis:
+    image: redis:6.2-alpine
+    command: redis-server
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
 
 volumes:
-  postgres-data:
+  pg-data:
+  redis-data:
+    driver: local
