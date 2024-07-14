@@ -16,7 +16,7 @@ func CommentEntityToDomain(commentEntity entities.Comment) comment.Comment {
 	}
 }
 
-func CommentEntitiesToDomain(commentEntities []entities.Comment) []comment.Comment {
+func BatchCommentEntitiesToDomain(commentEntities []entities.Comment) []comment.Comment {
 	return fp.Map(commentEntities, CommentEntityToDomain)
 }
 

@@ -29,6 +29,7 @@ type Task struct {
 	// Relationships
 	UserBoardRoleID *uuid.UUID    `gorm:"type:uuid"` //Assignee
 	UserBoardRole   UserBoardRole `gorm:"foreignKey:UserBoardRoleID"`
+	Comments        []Comment     `gorm:"foreignKey:TaskID"`
 
 	ColumnID uuid.UUID `gorm:"type:uuid"`
 	Column   *Column   `gorm:"foreignKey:ColumnID;constraint:OnDelete:CASCADE"`

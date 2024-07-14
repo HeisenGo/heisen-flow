@@ -12,6 +12,7 @@ func TaskEntityToDomain(taskEntity entities.Task) task.Task {
 	subTasks := BatchTaskEntitiesToDomain(taskEntity.Subtasks)
 	ubr := UserBoardRoleEntityToDomain(taskEntity.UserBoardRole)
 	dependencies := BatchTaskEntitiesToDomain(taskEntity.DependsOn)
+	comments := BatchCommentEntitiesToDomain(taskEntity.Comments)
 	return task.Task{
 		ID:              taskEntity.ID,
 		Title:           taskEntity.Title,
@@ -27,6 +28,7 @@ func TaskEntityToDomain(taskEntity entities.Task) task.Task {
 		DependsOn:       dependencies,
 		UserBoardRole:   &ubr,
 		Order:           taskEntity.Order,
+		Comments:        comments,
 	}
 }
 

@@ -10,6 +10,7 @@ package task
 import (
 	"context"
 	"errors"
+	"server/internal/comment"
 	userboardrole "server/internal/user_board_role"
 	"strings"
 	"time"
@@ -66,6 +67,7 @@ type Task struct {
 	Parent     *Task
 	SubTaskIDs []uuid.UUID
 	Subtasks   []Task
+	Comments   []comment.Comment
 
 	DependsOn          []Task
 	DependsOnTaskIDs   []uuid.UUID
