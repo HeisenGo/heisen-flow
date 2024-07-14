@@ -5,7 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
-	"github.com/swaggo/fiber-swagger"
+	"github.com/gofiber/template/html/v2"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 	"log"
 	"os"
 	"path/filepath"
@@ -18,15 +19,18 @@ import (
 )
 
 func Run(cfg config.Config, app *service.AppContainer) {
-	fiberApp := fiber.New()
+	fiberApp := fiber.New(fiber.Config{
+		Views: html.New("./templates", ".html"),
+	})
+	// Serve static files from the "assets" directory
+	fiberApp.Static("/assets", "./assets")
+
 	api := fiberApp.Group("/api/v1", middlewares.SetUserContext())
 
 	createGroupLogger := loggerSetup(fiberApp)
 
+	registerUIRoutes(fiberApp, app, createGroupLogger("templates"))
 	// register global routes
-	fiberApp.Get("/swagger/*", fiberSwagger.WrapHandler)
-	fiberApp.Get("/metrics", monitor.New(monitor.Config{Title: "HeisenFlow Metrics Page"}))
-
 	registerGlobalRoutes(api, app,
 		createGroupLogger("global"),
 		middlewares.SetupLimiterMiddleware(1, 1, cfg.Redis),
@@ -39,6 +43,18 @@ func Run(cfg config.Config, app *service.AppContainer) {
 	registerCommentRoutes(api, app, secret, createGroupLogger("comments"))
 
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.HTTPPort)))
+}
+
+func registerUIRoutes(router fiber.Router, app *service.AppContainer, loggerMiddleWare fiber.Handler) {
+	router.Use(loggerMiddleWare)
+	router.Get("/", func(c *fiber.Ctx) error {
+		// Render index
+		return c.Render("index", fiber.Map{
+			"Title": "HeisenFlow",
+		})
+	})
+	router.Get("/swagger/*", fiberSwagger.WrapHandler)
+	router.Get("/metrics", monitor.New(monitor.Config{Title: "HeisenFlow Metrics Page"}))
 }
 
 func registerGlobalRoutes(router fiber.Router, app *service.AppContainer, loggerMiddleWare fiber.Handler, limiterMiddleWare fiber.Handler) {
