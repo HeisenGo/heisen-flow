@@ -11,13 +11,20 @@ import (
 
 func Auth(secret []byte) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		h := c.GetReqHeaders()["Authorization"][0]
+		authorization := c.Get("Authorization")
 
-		if len(h) == 0 {
-			return handlers.SendError(c, errors.New("authorization token not specified"), fiber.StatusUnauthorized)
+		if authorization == "" {
+			return handlers.SendError(c, errors.New("authorization header missing"), fiber.StatusUnauthorized)
 		}
 
-		pureToken := strings.Split(h, " ")[1]
+		// Split the Authorization header value
+		parts := strings.Split(authorization, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			return handlers.SendError(c, errors.New("invalid authorization token format"), fiber.StatusUnauthorized)
+		}
+
+		//pureToken := parts[1]
+		pureToken := parts[1]
 		claims, err := jwt.ParseToken(pureToken, secret)
 		if err != nil {
 			return handlers.SendError(c, err, fiber.StatusUnauthorized)
