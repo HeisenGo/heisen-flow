@@ -9,7 +9,19 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 )
-
+// CreateUserComment creates a new comment on a task.
+// @Summary Create comment
+// @Description Creates a new comment on a specific task for the authenticated user.
+// @Tags Comments
+// @Accept json
+// @Produce json
+// @Param comment body presenter.CommentCreateReq true "Comment Create Request"
+// @Success 201 {object} presenter.CommentCreateRep "Comment created successfully"
+// @Failure 400 {object} map[string]interface{} "Bad request, invalid user claims, or task not found"
+// @Failure 403 {object} map[string]interface{} "Forbidden, user does not have permission to create a comment"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security BearerAuth
+// @Router /comments [post]
 func CreateUserComment(serviceFactory ServiceFactory[*service.CommentService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		commentService := serviceFactory(c.UserContext())

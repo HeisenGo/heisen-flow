@@ -131,6 +131,132 @@ const docTemplate = `{
                 }
             }
         },
+        "/boards/my-boards/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve the boards associated with the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Boards"
+                ],
+                "summary": "Get user's boards",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "uesrID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "boards: paginated list of user's boards",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.BoardUserResp"
+                        }
+                    },
+                    "400": {
+                        "description": "error: bad request, wrong claim type",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error: internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/boards/publics/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve the public boards.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Boards"
+                ],
+                "summary": "Get public boards",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "boards: paginated list of public boards",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.BoardUserResp"
+                        }
+                    },
+                    "400": {
+                        "description": "error: bad request, wrong claim type",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error: internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/boards/{boardID}": {
             "get": {
                 "security": [
@@ -236,68 +362,6 @@ const docTemplate = `{
             }
         },
         "/columns": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Create multiple columns for a specified board.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Columns"
-                ],
-                "summary": "Create columns",
-                "parameters": [
-                    {
-                        "description": "Board ID",
-                        "name": "board_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Columns creation details",
-                        "name": "columns",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/presenter.CreateColumnsRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "response: details of created columns",
-                        "schema": {
-                            "$ref": "#/definitions/presenter.CreateColumnsResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "error: bad request, invalid board ID format or missing columns details",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "error: internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/columns/reorder": {
             "put": {
                 "security": [
                     {
@@ -358,6 +422,57 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create multiple columns for a specified board.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Columns"
+                ],
+                "summary": "Create columns",
+                "parameters": [
+                    {
+                        "description": "Columns creation details",
+                        "name": "columns",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CreateColumnsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "response: details of created columns",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CreateColumnsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "error: bad request, invalid board ID format or missing columns details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error: internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/columns/{columnID}": {
@@ -407,6 +522,66 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "error: internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/comments": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new comment on a specific task for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Create comment",
+                "parameters": [
+                    {
+                        "description": "Comment Create Request",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CommentCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Comment created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/presenter.CommentCreateRep"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid user claims, or task not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden, user does not have permission to create a comment",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -542,63 +717,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/public/boards": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieve the public boards.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Boards"
-                ],
-                "summary": "Get public boards",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "boards: paginated list of public boards",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "error: bad request, wrong claim type",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "error: internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -834,6 +952,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/tasks/reorder": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Reorder the tasks of a board for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Reorder Tasks",
+                "parameters": [
+                    {
+                        "description": "Reorder Tasks Request",
+                        "name": "ReorderColumnsRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/presenter.ReorderTasksReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tasks reordered successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/presenter.TaskReorderRespItem"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid reorder details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden, permission denied",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/tasks/{taskID}": {
             "get": {
                 "security": [
@@ -944,62 +1125,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/user/boards": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieve the boards associated with the authenticated user.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Boards"
-                ],
-                "summary": "Get user's boards",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "boards: paginated list of user's boards",
-                        "schema": {
-                            "$ref": "#/definitions/presenter.BoardUserResp"
-                        }
-                    },
-                    "400": {
-                        "description": "error: bad request, wrong claim type",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "error: internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -1007,11 +1132,13 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "Invite User",
-                "Move Task"
+                "Move Task",
+                "Comment"
             ],
             "x-enum-varnames": [
                 "UserInvited",
-                "TaskMoved"
+                "TaskMoved",
+                "CommentedNotif"
             ]
         },
         "presenter.BoardColumnResp": {
@@ -1085,6 +1212,40 @@ const docTemplate = `{
                 },
                 "order": {
                     "type": "integer"
+                }
+            }
+        },
+        "presenter.CommentCreateRep": {
+            "type": "object",
+            "properties": {
+                "comment_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "task_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.CommentCreateReq": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "task_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },
@@ -1386,6 +1547,28 @@ const docTemplate = `{
                 }
             }
         },
+        "presenter.ReorderTaskItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.ReorderTasksReq": {
+            "type": "object",
+            "properties": {
+                "column_id": {
+                    "type": "string"
+                },
+                "tasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/presenter.ReorderTaskItem"
+                    }
+                }
+            }
+        },
         "presenter.TaskDependTaskResp": {
             "type": "object",
             "properties": {
@@ -1402,6 +1585,20 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "presenter.TaskReorderRespItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"

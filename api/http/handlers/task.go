@@ -204,19 +204,19 @@ func UpdateTaskColumnByID(serviceFactory ServiceFactory[*service.TaskService]) f
 	}
 }
 
-// ReorderTasks ReorderColumns reorders the columns of a board.
-// @Summary Reorder columns
-// @Description Reorder the columns of a board for the authenticated user.
-// @Tags Columns
+// ReorderTasks reorders the tasks of a board.
+// @Summary Reorder Tasks
+// @Description Reorder the tasks of a board for the authenticated user.
+// @Tags Tasks
 // @Accept  json
 // @Produce  json
-// @Param ReorderColumnsRequest body presenter.ReorderColumnsRequest true "Reorder Columns Request"
-// @Success 200 {object} []presenter.ColumnResponseItem "Columns reordered successfully"
+// @Param ReorderColumnsRequest body presenter.ReorderTasksReq true "Reorder Tasks Request"
+// @Success 200 {object} []presenter.TaskReorderRespItem "Tasks reordered successfully"
 // @Failure 400 {object} map[string]interface{} "Bad request, invalid reorder details"
 // @Failure 403 {object} map[string]interface{} "Forbidden, permission denied"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Security BearerAuth
-// @Router /tasks/reorder [put]
+// @Router /tasks/reorder [patch]
 func ReorderTasks(serviceFactory ServiceFactory[*service.TaskService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		taskService := serviceFactory(c.UserContext())
