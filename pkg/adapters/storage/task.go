@@ -168,7 +168,7 @@ func (r *taskRepo) GetFullByID(ctx context.Context, id uuid.UUID) (*task.Task, e
 		Preload("Column").
 		Preload("Board").
 		Preload("DependsOn").
-		//Preload("TODO:Comments").
+		Preload("Comments").
 		First(&t, "id = ?", id).Error; err != nil {
 		return nil, err
 	}

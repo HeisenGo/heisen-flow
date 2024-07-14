@@ -1,6 +1,7 @@
 package presenter
 
 import (
+	"server/internal/comment"
 	"server/internal/task"
 	"server/internal/user"
 	"server/pkg/fp"
@@ -128,6 +129,11 @@ type TaskDependTaskResp struct {
 	ID    uuid.UUID `json:"id"`
 	Title string    `json:"title"`
 }
+type TaskCommentResp struct {
+	CreatedAt   time.Time `json:"created_at"`
+	Description string    `json:"description"`
+	Title       string    `json:"title"`
+}
 
 type FullTaskResp struct {
 	ID          uuid.UUID  `json:"id"`
@@ -145,6 +151,7 @@ type FullTaskResp struct {
 	//TODO:Comments []Comment  `gorm:"foreignKey:TaskID"`
 
 	DependsOn []TaskDependTaskResp `json:"dependencies"`
+	Comments  []TaskCommentResp    `json:"comments"`
 }
 
 func UserToTaskUserResp(u user.User) TaskUserResp {
@@ -169,6 +176,13 @@ func TaskToTaskDependTaskResp(t task.Task) TaskDependTaskResp {
 		Title: t.Title,
 	}
 }
+func CommentToTaskCommentResp(c comment.Comment) TaskCommentResp {
+	return TaskCommentResp{
+		CreatedAt:   c.CreatedAt,
+		Description: c.Description,
+		Title:       c.Title,
+	}
+}
 
 func TaskToTaskParentResp(t task.Task) *TaskParentResp {
 	return &TaskParentResp{
@@ -183,6 +197,9 @@ func BatchTaskToTaskSubTaskResp(tasks []task.Task) []TaskSubTaskResp {
 
 func BatchTaskToTaskDependTaskResp(tasks []task.Task) []TaskDependTaskResp {
 	return fp.Map(tasks, TaskToTaskDependTaskResp)
+}
+func BatchCommentToTaskCommentResp(comments []comment.Comment) []TaskCommentResp {
+	return fp.Map(comments, CommentToTaskCommentResp)
 }
 
 type UpdatedTaskResp struct {
@@ -212,6 +229,7 @@ func TaskToFullTaskResp(t task.Task) FullTaskResp {
 		p          *TaskParentResp
 		subs       []TaskSubTaskResp
 		dependsOns []TaskDependTaskResp
+		comments   []TaskCommentResp
 	)
 
 	u := UserToTaskUserResp(*t.UserBoardRole.User)
@@ -223,6 +241,10 @@ func TaskToFullTaskResp(t task.Task) FullTaskResp {
 	}
 	if t.DependsOn != nil {
 		dependsOns = BatchTaskToTaskDependTaskResp(t.DependsOn)
+
+	}
+	if t.Comments != nil {
+		comments = BatchCommentToTaskCommentResp(t.Comments)
 
 	}
 	return FullTaskResp{
@@ -237,6 +259,7 @@ func TaskToFullTaskResp(t task.Task) FullTaskResp {
 		Parent:      p,
 		Subtasks:    subs,
 		DependsOn:   dependsOns,
+		Comments:    comments,
 	}
 }
 
