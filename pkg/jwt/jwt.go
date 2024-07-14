@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"strings"
 
 	jwt2 "github.com/golang-jwt/jwt/v5"
 )
@@ -14,6 +15,10 @@ func CreateToken(secret []byte, claims *UserClaims) (string, error) {
 }
 
 func ParseToken(tokenString string, secret []byte) (*UserClaims, error) {
+	// Check for valid JWT format
+	if strings.Count(tokenString, ".") != 2 {
+		return nil, errors.New("token contains an invalid number of segments")
+	}
 	token, err := jwt2.ParseWithClaims(tokenString, &UserClaims{}, func(t *jwt2.Token) (interface{}, error) {
 		return secret, nil
 	})
