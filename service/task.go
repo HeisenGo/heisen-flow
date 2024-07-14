@@ -187,6 +187,7 @@ func (s *TaskService) UpdateTaskColumnByID(ctx context.Context, userID uuid.UUID
 		return nil, err
 	}
 	description := fmt.Sprintf("Task %s from Board %s Moved to Column %s By %s", task.Title, b.Name, newColumn.Name, updater.FirstName)
+
 	newNotification := notification.NewNotification(description, notification.TaskMoved, userBoardRoleObj.ID)
 
 	err = s.notificaionOps.NotifBroadCasting(ctx, newNotification, task.BoardID, userID, task)

@@ -15,6 +15,7 @@ func TaskEntityToDomain(taskEntity entities.Task) task.Task {
 	return task.Task{
 		ID:              taskEntity.ID,
 		Title:           taskEntity.Title,
+		ColumnID: taskEntity.ColumnID,
 		Description:     taskEntity.Description,
 		StartAt:         taskEntity.StartAt,
 		EndAt:           taskEntity.EndAt,
