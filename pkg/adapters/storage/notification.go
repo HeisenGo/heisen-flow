@@ -23,26 +23,32 @@ func NewNotificationRepo(db *gorm.DB) notification.Repo {
 
 func (r *notificationRepo) NotifBroadCasting(ctx context.Context, notif *notification.Notification, boardID, userID uuid.UUID, task *task.Task) error {
 	var userBoardRoles []entities.UserBoardRole
-	err := r.db.Where("board_id = ? AND user_role IN ?", boardID, []string{"maintainer", "owner"}).
+	err := r.db.WithContext(ctx).Where("board_id = ? AND user_role IN ?", boardID, []string{"maintainer", "owner"}).
 		Find(&userBoardRoles).Error
 	if err != nil {
 		return notification.ErrFailedToCreateNotif
 	}
 
+	var notifs []entities.Notification
 	for i, obj := range userBoardRoles {
 		if obj.UserID == userID {
 			continue
 		}
 		notif.UserBoardRoleID = userBoardRoles[i].ID
 		newNotificationEntity := mappers.NotificationDomainToEntity(notif)
-		if err := r.db.WithContext(ctx).Save(&newNotificationEntity).Error; err != nil {
+		notifs = append(notifs, *newNotificationEntity)
+	}
+
+	if len(notifs) > 0 {
+		err = r.db.WithContext(ctx).Create(&notifs).Error
+		if err != nil {
 			return notification.ErrFailedToCreateNotif
 		}
 	}
 
 	// find assignee of task and if it is not updater send notif to them too
 	var userBoardRole entities.UserBoardRole
-	err = r.db.Where("id = ? AND user_role IN ?", task.UserBoardRoleID, []string{"editor"}).
+	err = r.db.WithContext(ctx).Where("id = ? AND user_role IN ?", task.UserBoardRoleID, []string{"editor"}).
 		Find(&userBoardRole).Error
 	if err != nil {
 		return notification.ErrFailedToCreateNotif
