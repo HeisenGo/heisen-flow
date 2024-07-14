@@ -5,12 +5,12 @@ server:
   refresh_token_exp_minutes: 2880
   token_secret: "P@$$%Secret6677"
 db:
-  user: "root"
-  pass: "123456"
+  user: "postgres"
+  pass: "postgres"
   host : "postgres"
   port: 5432
-  db_name: "heisenflow"
+  db_name: "heisen_flow"
 redis:
-  host: "0.0.0.0"
+  host: "redis"
   port: "6379"
   pass: "123456"
