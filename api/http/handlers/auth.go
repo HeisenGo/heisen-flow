@@ -11,6 +11,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 )
+
 // RegisterUser registers a new user.
 // @Summary Register a new user
 // @Description Create a new user account with the provided details.
@@ -39,8 +40,11 @@ func RegisterUser(authService *service.AuthService) fiber.Handler {
 
 		newUser, err := authService.CreateUser(c.Context(), u)
 		if err != nil {
-			if errors.Is(err, user.ErrInvalidEmail) || errors.Is(err, user.ErrInvalidPassword) || errors.Is(err, user.ErrEmailAlreadyExists) {
+			if errors.Is(err, user.ErrInvalidEmail) || errors.Is(err, user.ErrInvalidPassword) {
 				return presenter.BadRequest(c, err)
+			}
+			if errors.Is(err, user.ErrEmailAlreadyExists) {
+				return presenter.Conflict(c, err)
 			}
 
 			return presenter.InternalServerError(c, err)
