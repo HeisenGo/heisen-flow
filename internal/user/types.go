@@ -94,12 +94,11 @@ func ValidatePasswordWithFeedback(password string) error {
 
 	if len(errMessages) > 0 {
 		feedback := strings.Join(errMessages, "\n")
-		return errors.New(fmt.Sprintf("%s : %s", ErrInvalidPassword.Error(), feedback))
+		return errors.Join(ErrInvalidPassword, fmt.Errorf(feedback))
 	}
 
 	return nil
 }
-
 
 func LowerCaseEmail(email string) string {
 	return strings.ToLower(email)
