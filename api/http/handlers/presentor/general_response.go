@@ -59,6 +59,10 @@ func Forbidden(c *fiber.Ctx, err error) error {
 	return Send(c, fiber.StatusForbidden, NewResponse().SetError(err))
 }
 
+func Conflict(c *fiber.Ctx, err error) error {
+	return Send(c, fiber.StatusConflict, NewResponse().SetError(err))
+}
+
 func NotFound(c *fiber.Ctx, err error) error {
 	return Send(c, fiber.StatusNotFound, NewResponse().SetError(err))
 }
