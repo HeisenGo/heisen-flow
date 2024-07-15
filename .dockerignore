@@ -1,0 +1,39 @@
+# Ignore Git related files and directories
+.git
+.gitignore
+
+# Ignore local development files
+.vscode
+.idea
+
+# Ignore editor backup files
+*~
+
+# Ignore Docker-related files
+.dockerignore
+Dockerfile
+docker-compose.yaml
+
+# Ignore build artifacts and binaries
+*.out
+*.test
+*.exe
+*.so
+*.dll
+*.dylib
+
+# Ignore documentation files
+#docs/
+
+# Ignore test files and directories
+/tests
+/testdata
+
+# Ignore configuration files
+#*.yaml
+#*.yml
+#*.json
+
+# Ignore package manager files
+vendor/
+node_modules/
