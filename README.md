@@ -40,7 +40,6 @@ Welcome to the Task Management System! This project is built with Golang and Fib
 - **API Documentation**: Fully document APIs and modules, ensuring all backend routes have Swagger UI for request/response testing.
 - **Secure Methods**: Use secure methods for user data and transaction storage to prevent attacks.
 - **Notification System**: Implement a notification system for task status updates.
-- **Creative Enhancements**: Additional features and creative enhancements are encouraged if the primary project scope is met.
 
 ## 🛠️ How to Run the Project
 
